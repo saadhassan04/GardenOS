@@ -1,0 +1,16 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# User data artifacts — never committed (CONTRIBUTING.md §4)
+backups/*
+export/*
+import/*
+!backups/.gitkeep
+!export/.gitkeep
+!import/.gitkeep
+
+# Editor
+.vscode/
+.idea/
+*.log
