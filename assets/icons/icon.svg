@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- GardenOS app mark: sprouting seedling on deep greenhouse green. -->
+  <rect width="512" height="512" rx="112" fill="#0F1511"/>
+  <rect x="16" y="16" width="480" height="480" rx="100" fill="#171F19"/>
+  <g stroke="#4CAF6D" stroke-width="26" stroke-linecap="round" fill="none">
+    <path d="M256 416 V232"/>
+    <path d="M256 300 C 256 220, 196 180, 116 184 C 116 264, 176 302, 256 300 Z" fill="#2C5E3F"/>
+    <path d="M256 260 C 256 180, 316 140, 396 144 C 396 224, 336 262, 256 260 Z" fill="#4CAF6D" stroke="#66C285"/>
+  </g>
+  <path d="M176 416 h160" stroke="#9DB0A2" stroke-width="26" stroke-linecap="round"/>
+</svg>

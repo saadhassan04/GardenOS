@@ -1,0 +1,84 @@
+/**
+ * GardenOS app-shell layout (UI_GUIDELINES.md §5–§6).
+ * Mobile-first: bottom navigation bar. From --breakpoint md (768px):
+ * left sidebar navigation with centered, width-capped content.
+ */
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-main {
+  padding: var(--space-4);
+  /* Keep content clear of the fixed bottom nav + device safe area. */
+  padding-bottom: calc(var(--nav-height-mobile) + var(--space-5) + env(safe-area-inset-bottom, 0px));
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+.app-main:focus {
+  outline: none;
+}
+
+/* ---- Primary navigation: mobile bottom bar ---- */
+.app-nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  height: calc(var(--nav-height-mobile) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.page-section {
+  margin-bottom: var(--space-5);
+}
+
+.page-section > .text-caption {
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ---- Desktop: sidebar from md (UI_GUIDELINES.md §4 breakpoints) ---- */
+@media (min-width: 768px) {
+  .app-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+  }
+
+  .app-nav {
+    position: sticky;
+    top: 0;
+    inset: auto;
+    z-index: auto;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: var(--space-1);
+    padding: var(--space-5) var(--space-3);
+    border-top: none;
+    border-right: 1px solid var(--color-border);
+  }
+
+  .app-main {
+    padding: var(--space-5);
+    padding-bottom: var(--space-5);
+  }
+}

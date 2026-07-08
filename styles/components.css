@@ -1,0 +1,261 @@
+/**
+ * GardenOS component styles (UI_GUIDELINES.md §7).
+ * BEM-lite block classes; all values from tokens.css.
+ */
+
+/* ---- Navigation items ---- */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  flex: 1;
+  min-height: var(--touch-target);
+  padding: var(--space-2);
+  border-radius: var(--radius-s);
+  color: var(--color-text-muted);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.nav-item[aria-current="page"] {
+  color: var(--color-primary);
+}
+
+.nav-item__icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (min-width: 768px) {
+  .nav-item {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    font-size: var(--text-body-size);
+    line-height: var(--text-body-line);
+  }
+
+  .nav-item[aria-current="page"] {
+    background: var(--color-surface-2);
+  }
+}
+
+.nav-brand {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-heading-size);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .nav-brand img {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* ---- Cards ---- */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-m);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-1);
+}
+
+.card__title {
+  margin-bottom: var(--space-2);
+}
+
+/* ---- Status / definition rows ---- */
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--touch-target);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.status-row:last-child {
+  border-bottom: none;
+}
+
+.status-row__value {
+  color: var(--color-text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-row__value--ok {
+  color: var(--color-success);
+}
+
+.status-row__value--warn {
+  color: var(--color-warning);
+}
+
+/* ---- Buttons (UI_GUIDELINES.md §7) ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-s);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-micro) var(--motion-ease),
+              color var(--motion-micro) var(--motion-ease);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-strong);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  color: var(--color-on-primary);
+}
+
+/* ---- Forms (UI_GUIDELINES.md §7) ---- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line);
+  font-weight: 500;
+}
+
+.field__hint {
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line);
+  color: var(--color-text-muted);
+}
+
+.field__control {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-s);
+}
+
+/* ---- Progress / meter (storage usage) ---- */
+.meter {
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  overflow: hidden;
+}
+
+.meter__fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  transition: width var(--motion-standard) var(--motion-ease);
+}
+
+.meter__fill--warn {
+  background: var(--color-warning);
+}
+
+.meter__fill--danger {
+  background: var(--color-danger);
+}
+
+/* ---- Toasts (UI_GUIDELINES.md §7 Feedback) ---- */
+.toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-height-mobile) + var(--space-4) + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(92vw, 420px);
+}
+
+@media (min-width: 768px) {
+  .toast-region {
+    bottom: var(--space-5);
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-2);
+  animation: toast-in var(--motion-standard) var(--motion-ease);
+}
+
+.toast__action {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!--
+    GardenOS UI icon sprite (UI_GUIDELINES.md §7 Icons).
+    Outline style, 1.5px stroke, 24px grid. Referenced via utils/dom.js
+    svgIcon(); stroke color inherits currentColor from the consumer.
+  -->
+  <defs>
+    <symbol id="leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 19 C 5 11, 10 5, 19 5 C 19 14, 14 19, 6 19 Z"/>
+      <path d="M5 19 C 8 15, 11 12, 15 9"/>
+    </symbol>
+    <symbol id="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 2.5 l1.2 2.6 2.8-.6 .7 2.8 2.8 .7-.6 2.8 2.6 1.2-2.6 1.2 .6 2.8-2.8 .7-.7 2.8-2.8-.6-1.2 2.6-1.2-2.6-2.8 .6-.7-2.8-2.8-.7 .6-2.8-2.6-1.2 2.6-1.2-.6-2.8 2.8-.7 .7-2.8 2.8 .6 Z"/>
+    </symbol>
+    <symbol id="drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3 C 15.5 7.5, 18 10.5, 18 14 a6 6 0 0 1-12 0 C 6 10.5, 8.5 7.5, 12 3 Z"/>
+    </symbol>
+    <symbol id="camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="7" width="18" height="13" rx="2"/>
+      <path d="M8.5 7 L10 4.5 h4 L15.5 7"/>
+      <circle cx="12" cy="13" r="3.5"/>
+    </symbol>
+    <symbol id="note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 3 h9 l4 4 v14 H6 Z"/>
+      <path d="M15 3 v4 h4"/>
+      <path d="M9 12 h6 M9 16 h6"/>
+    </symbol>
+    <symbol id="basket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 10 h16 l-1.5 9 a2 2 0 0 1-2 1.7 h-9 a2 2 0 0 1-2-1.7 Z"/>
+      <path d="M8 10 L12 4 L16 10"/>
+    </symbol>
+  </defs>
+</svg>

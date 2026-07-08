@@ -23,6 +23,26 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 - Defined service interface contracts for weather, AI, storage, import/export,
   sync, and sensors — design only, not yet implemented.
 
+- **v1.0 Foundation, increment 1** (documentation approved 2026-07-09):
+  - Installable PWA shell: `index.html` app shell with strict CSP, web app
+    manifest, app icon set (SVG source + 192/512/maskable PNG), root `sw.js`
+    shim + `pwa/service-worker.js` with full app-shell precache, cache-first
+    offline strategy, versioned caches, and consent-based update prompt.
+  - Design system implementation: `styles/tokens.css` (dark default + light
+    theme), `base.css`, `layout.css` (bottom nav ↔ sidebar responsive shell),
+    `components.css` (nav, cards, buttons, fields, meter, toasts).
+  - Platform core: hash router with params and focus management, internal
+    event bus, DOM construction helpers (no-innerHTML policy), typed error
+    hierarchy, local-only ring-buffer logger with global error capture,
+    feature flags, constants.
+  - Settings: validated LocalStorage wrapper; Settings page (theme with
+    zero-flash pre-paint, units, week start), storage usage meter, persistent
+    storage request; Dashboard page with live platform status.
+  - Verification: all JS parse-checked (JavaScriptCore), service-worker
+    precache list and ES import graph audited against disk, HTTP 200 sweep
+    over the served shell. Live in-browser pass tracked as T-028.
+
 ### Notes
-- **No application code exists yet.** Implementation begins with v1.0 (Foundation)
-  after documentation approval, per ROADMAP.md Phase 0 gate.
+- v1.0 increment 2 (next): IndexedDB core, migration framework, repository
+  base (T-017/T-018), Diagnostics view (T-021), then backup/restore
+  (T-022–T-025) and the test harness (T-026) to close the v1.0 exit gate.

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'" />
+  <meta name="description" content="GardenOS — a lifelong, offline-first gardening operating system." />
+  <meta name="theme-color" content="#0F1511" />
+
+  <title>GardenOS</title>
+
+  <link rel="manifest" href="pwa/manifest.json" />
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+
+  <!-- Classic (non-module) script: must run synchronously before first paint
+       so the saved theme applies with zero flash (UI_GUIDELINES.md §9). -->
+  <script src="scripts/theme-init.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <nav id="app-nav" class="app-nav" aria-label="Primary"></nav>
+    <main id="app-main" class="app-main" tabindex="-1"></main>
+  </div>
+
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+
+  <noscript>
+    <p class="noscript-message">GardenOS needs JavaScript to manage your garden. Please enable it.</p>
+  </noscript>
+
+  <script type="module" src="scripts/app.js"></script>
+</body>
+</html>

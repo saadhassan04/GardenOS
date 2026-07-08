@@ -8,22 +8,23 @@
 ## 🔴 High Priority (blocks v1.0 Foundation)
 
 ### Phase 0 — Approval gate
-- [ ] **T-001** Owner review & approval of the full documentation set (README, REQUIREMENTS, ARCHITECTURE, ROADMAP, DATABASE, FEATURES, API_DESIGN, UI_GUIDELINES, CONTRIBUTING, TODO) — **implementation must not begin before this**
-- [ ] **T-002** Initialize git repository; commit documentation baseline; add `.gitignore` (backups/, export/, import/ contents; OS cruft)
+- [x] **T-001** Owner review & approval of the full documentation set — approved 2026-07-09
+- [x] **T-002** Initialize git repository; commit documentation baseline; add `.gitignore` (2026-07-09)
 
 ### v1.0 — Platform core
-- [ ] **T-010** App shell: `index.html` (semantic landmarks, CSP meta, theme pre-paint script) + `scripts/app.js` bootstrap sequence per ARCHITECTURE.md §5.4
-- [ ] **T-011** Design tokens → `styles/tokens.css` (both themes, all tokens from UI_GUIDELINES.md §2–4) + `base.css`, `layout.css`
-- [ ] **T-012** Hash router (`hooks/router.js`): route registry, params, deep links, back-button correctness (NFR-8)
-- [ ] **T-013** Event bus (`hooks/bus.js`): topics per API_DESIGN.md §11, typed payloads, unsubscribe hygiene
-- [ ] **T-014** Navigation chrome: bottom nav (mobile) / sidebar (desktop), responsive per UI_GUIDELINES.md §5–6
-- [ ] **T-015** PWA: `manifest.json`, full icon set (192/512/maskable), install prompt flow (FR-9, NFR-1)
-- [ ] **T-016** Service worker: app-shell precache, cache-first strategy, versioned caches, update-available prompt (NFR-1.2, ARCH §13)
+- [x] **T-010** App shell: `index.html` (semantic landmarks, CSP meta, theme pre-paint script) + `scripts/app.js` bootstrap sequence per ARCHITECTURE.md §5.4 (2026-07-09)
+- [x] **T-011** Design tokens → `styles/tokens.css` (both themes, all tokens from UI_GUIDELINES.md §2–4) + `base.css`, `layout.css`, `components.css` (2026-07-09)
+- [x] **T-012** Hash router (`hooks/router.js`): route registry, params, deep links, back-button correctness (NFR-8) (2026-07-09)
+- [x] **T-013** Event bus (`hooks/bus.js`): topics per API_DESIGN.md §11, typed payloads, unsubscribe hygiene (2026-07-09)
+- [x] **T-014** Navigation chrome: bottom nav (mobile) / sidebar (desktop), responsive per UI_GUIDELINES.md §5–6 (2026-07-09)
+- [x] **T-015** PWA: `manifest.json`, full icon set (192/512/maskable), install via browser prompt (FR-9, NFR-1) (2026-07-09)
+- [x] **T-016** Service worker: app-shell precache, cache-first strategy, versioned caches, update-available prompt (NFR-1.2, ARCH §13) — root `sw.js` shim + `pwa/service-worker.js` (2026-07-09)
 - [ ] **T-017** IndexedDB core: connection manager, migration framework, schema v1 with ALL stores incl. reserved (DATABASE.md §2–3)
 - [ ] **T-018** `IRepository` base + envelope stamping (UUID, timestamps, soft delete) per API_DESIGN.md §1
-- [ ] **T-019** LocalStorage settings wrapper (`storage/`) with schema + defaults; Settings page (theme, units, week start)
-- [ ] **T-020** Persistent-storage request + quota monitor + Settings storage display (NFR-3.2)
-- [ ] **T-021** Error framework: `GardenOSError` hierarchy, logger ring buffer, Diagnostics view (ARCH §13)
+- [x] **T-019** LocalStorage settings wrapper (`storage/`) with schema + defaults; Settings page (theme, units, week start) (2026-07-09)
+- [x] **T-020** Persistent-storage request + quota monitor + Settings storage display (NFR-3.2) (2026-07-09)
+- [ ] **T-021** Error framework: `GardenOSError` hierarchy ✓, logger ring buffer ✓, global error capture ✓ (2026-07-09) — Diagnostics view still pending
+- [ ] **T-028** In-browser verification pass of increment 1 (install, offline reload, theme switch, both viewports) — jsc parse checks, precache/import audits, and HTTP 200 sweep done 2026-07-09; live browser check pending (no Node/preview tooling on this machine)
 - [ ] **T-022** ExportService.exportFull + archive format + checksum (API_DESIGN §7; FR-9.1)
 - [ ] **T-023** ImportService.inspect + importArchive with merge/replace (FR-9.3, API_DESIGN §7)
 - [ ] **T-024** BackupService: create/restore pipeline with pre-restore snapshot + verify (FR-9.2, API_DESIGN §8)
