@@ -19,17 +19,17 @@
 - [x] **T-014** Navigation chrome: bottom nav (mobile) / sidebar (desktop), responsive per UI_GUIDELINES.md §5–6 (2026-07-09)
 - [x] **T-015** PWA: `manifest.json`, full icon set (192/512/maskable), install via browser prompt (FR-9, NFR-1) (2026-07-09)
 - [x] **T-016** Service worker: app-shell precache, cache-first strategy, versioned caches, update-available prompt (NFR-1.2, ARCH §13) — root `sw.js` shim + `pwa/service-worker.js` (2026-07-09)
-- [ ] **T-017** IndexedDB core: connection manager, migration framework, schema v1 with ALL stores incl. reserved (DATABASE.md §2–3)
-- [ ] **T-018** `IRepository` base + envelope stamping (UUID, timestamps, soft delete) per API_DESIGN.md §1
+- [x] **T-017** IndexedDB core: connection manager, migration framework, schema v1 with ALL stores incl. reserved (DATABASE.md §2–3) (2026-07-09)
+- [x] **T-018** `Repository` base + envelope stamping (UUID, timestamps, soft delete) per API_DESIGN.md §1 — incl. cursor pagination, streamed exportAll, transactional importBatch (2026-07-09)
 - [x] **T-019** LocalStorage settings wrapper (`storage/`) with schema + defaults; Settings page (theme, units, week start) (2026-07-09)
 - [x] **T-020** Persistent-storage request + quota monitor + Settings storage display (NFR-3.2) (2026-07-09)
-- [ ] **T-021** Error framework: `GardenOSError` hierarchy ✓, logger ring buffer ✓, global error capture ✓ (2026-07-09) — Diagnostics view still pending
-- [ ] **T-028** In-browser verification pass of increment 1 (install, offline reload, theme switch, both viewports) — jsc parse checks, precache/import audits, and HTTP 200 sweep done 2026-07-09; live browser check pending (no Node/preview tooling on this machine)
+- [x] **T-021** Error framework: `GardenOSError` hierarchy, logger ring buffer, global error capture, Diagnostics view (#/diagnostics: install meta, migration log, flags, store counts, session log) (2026-07-09)
+- [ ] **T-028** In-browser verification pass of increments 1–2: install, offline reload, theme switch, both viewports, **and run tests/index.html (10 DB integration tests) — must be green before T-022 backup work builds on Repository.** Static checks done 2026-07-09 (jsc parse + full import-graph execution, precache/import audits, HTTP 200 sweep); live browser run still owed (no Node/preview tooling on this machine)
 - [ ] **T-022** ExportService.exportFull + archive format + checksum (API_DESIGN §7; FR-9.1)
 - [ ] **T-023** ImportService.inspect + importArchive with merge/replace (FR-9.3, API_DESIGN §7)
 - [ ] **T-024** BackupService: create/restore pipeline with pre-restore snapshot + verify (FR-9.2, API_DESIGN §8)
 - [ ] **T-025** Backup reminder logic (FR-9.4)
-- [ ] **T-026** Test harness (browser runner); unit + integration suites; **backup round-trip test** (release-blocking)
+- [ ] **T-026** Test harness (browser runner) ✓ + database integration suite ✓ (tests/index.html, 10 tests: migration, envelope, atomicity, tombstones, cursor pagination, export/import) (2026-07-09) — **backup round-trip test** (release-blocking) pending T-022–T-024
 - [ ] **T-027** v1.0 exit gate run: offline install test, Lighthouse ≥ 90, round-trip verified → tag v1.0.0
 
 ## 🟠 High Priority (v1.1 Plant Manager — starts after v1.0 ships)

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GardenOS tests</title>
+  <style>
+    /* Test harness chrome only — the app's design system is not under test here. */
+    body { font-family: ui-monospace, Menlo, Consolas, monospace; margin: 2rem; background: #0F1511; color: #E8EFE9; }
+    h1 { font-size: 1.2rem; }
+    #summary.pass { color: #5DBB7F; }
+    #summary.fail, li.fail { color: #E06052; }
+    li.pass { color: #5DBB7F; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 0.15rem 0; }
+    pre { color: #9DB0A2; margin: 0.25rem 0 0.5rem 1.25rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>GardenOS test suite</h1>
+  <p id="summary">Running…</p>
+  <ul id="results"></ul>
+  <script type="module" src="runner.js"></script>
+</body>
+</html>

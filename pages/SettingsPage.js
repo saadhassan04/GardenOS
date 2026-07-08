@@ -56,6 +56,12 @@ export function renderSettingsPage() {
         el('span', { className: 'status-row__value' }, APP_VERSION),
       ),
       el(
+        'div',
+        { className: 'status-row' },
+        el('span', {}, 'Diagnostics'),
+        el('a', { href: '#/diagnostics' }, 'View'),
+      ),
+      el(
         'p',
         { className: 'text-small text-muted' },
         'All garden data stays on this device. Backup & restore arrive in the next '

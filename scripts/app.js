@@ -10,10 +10,12 @@ import { logger, installGlobalErrorCapture } from '../utils/logger.js';
 import { bus } from '../hooks/bus.js';
 import { registerRoute, setNotFound, startRouter } from '../hooks/router.js';
 import { getSetting } from '../storage/settings.js';
+import { openDatabase } from '../database/db.js';
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
 import { renderDashboardPage } from '../pages/DashboardPage.js';
 import { renderSettingsPage } from '../pages/SettingsPage.js';
+import { renderDiagnosticsPage } from '../pages/DiagnosticsPage.js';
 import { renderNotFoundPage } from '../pages/NotFoundPage.js';
 import { APP_VERSION } from '../config/constants.js';
 
@@ -75,14 +77,32 @@ async function registerServiceWorker() {
 function registerRoutes() {
   registerRoute('/', 'Dashboard', renderDashboardPage);
   registerRoute('/settings', 'Settings', renderSettingsPage);
+  registerRoute('/diagnostics', 'Diagnostics', renderDiagnosticsPage);
   setNotFound(renderNotFoundPage);
 }
 
-function bootstrap() {
+async function bootstrap() {
   installGlobalErrorCapture();
   logger.info(`GardenOS v${APP_VERSION} starting`);
 
   registerServiceWorker();
+
+  // Step 3 of the startup sequence (ARCHITECTURE.md §5.4): open the database
+  // and run pending migrations before any screen renders. If this fails the
+  // shell still loads — Settings and Diagnostics must stay reachable so the
+  // user can inspect the failure and (soon) restore a backup.
+  try {
+    await openDatabase();
+  } catch (error) {
+    logger.error('Database unavailable', { error: error.message });
+    showToast('Garden database could not be opened — see Diagnostics', {
+      sticky: true,
+      actionLabel: 'Open',
+      onAction: () => {
+        window.location.hash = '#/diagnostics';
+      },
+    });
+  }
 
   applyTheme(getSetting('theme'));
   bus.on('settings:changed', ({ key, value }) => {

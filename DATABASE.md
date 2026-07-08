@@ -139,7 +139,7 @@ Sixteen stores in schema v1. Stores marked 🔮 are created empty now (cheap) so
 **Indexes:** `status` · `dueAt` · `seriesId` · compound `[status+dueAt]` (due/overdue query) · multiEntry `plantIds`.
 
 ### 3.4 `notes` — keyPath `id`
-`{ ...envelope, title, body, plantIds: [uuid] (multiEntry), imageIds: [uuid], tags: [string] (multiEntry), pinned: false }`
+`{ ...envelope, title, body, plantIds: [uuid] (multiEntry), imageIds: [uuid], tags: [string] (multiEntry), pinned: 0 | 1 }`
 **Indexes:** `plantIds` (multiEntry) · `tags` (multiEntry) · `updatedAt` · `pinned`.
 
 ### 3.5 `images` — keyPath `id` · 3.6 `thumbnails` — keyPath `imageId`
@@ -196,7 +196,7 @@ Rows: `schemaVersion` · `installId` · `installedAt` · `lastBackupAt` · `back
 - **`analyses`** (v2.0) — keyPath `id`: `{ ...envelope, imageId, plantId, kind: "identification|disease|health", provider: "tfjs-model@x", result: {...}, confidence: 0.87, userVerdict: null | "confirmed|corrected", correction: {...} }`. Indexes: `imageId` · `plantId` · `kind`.
 - **`weatherCache`** (v2.5) — keyPath `key` (`"forecast:karachi:2027-08-01"`): `{ key, fetchedAt, ttlSeconds, normalized: {...} }`.
 - **`sensorReadings`** (v5.0) — keyPath `id`, autoIncrement: `{ sensorId, plantId | locationId, metric: "soilMoisture|temp|humidity|lux", value, unit, at }`. Indexes: compound `[sensorId+at]` · `[plantId+at]`.
-- **`oplog`** (v4.0) — keyPath `seq`, autoIncrement: `{ seq, store, recordId, op: "put|delete", at, synced: false }`. Index: `synced`.
+- **`oplog`** (v4.0) — keyPath `seq`, autoIncrement: `{ seq, store, recordId, op: "put|delete", at, synced: 0 | 1 }`. Index: `synced`.
 
 ---
 
@@ -224,6 +224,7 @@ notes *──multiEntry──* plants
 - UUIDs (not autoIncrement) everywhere user data lives → records are globally unique across devices, which makes v4.0 sync merges and backup imports collision-free.
 - Compound indexes exist for exactly the measured hot queries: `[plantId+occurredAt]` (timeline), `[status+dueAt]` (task inbox), `[plantId+capturedAt]` (growth gallery), `[status+category]` (plant list), `[crop+harvestedAt]` (yield analytics).
 - Soft-deleted records are filtered by repositories (`deletedAt !== null`), never by indexes — keeps indexes simple; purge job compacts old tombstones after backup.
+- **Indexed boolean-like fields are stored as `0 | 1`** (`notes.pinned`, `oplog.synced`): IndexedDB cannot index boolean values. Non-indexed booleans stay booleans.
 
 ## 6. Query Patterns (what the indexes are for)
 

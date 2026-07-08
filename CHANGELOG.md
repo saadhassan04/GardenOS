@@ -42,7 +42,29 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
     precache list and ES import graph audited against disk, HTTP 200 sweep
     over the served shell. Live in-browser pass tracked as T-028.
 
+- **v1.0 Foundation, increment 2**:
+  - IndexedDB core (`database/`): connection manager with shared connection,
+    version-change handling, and install/migration metadata in `appMeta`;
+    forward-only migration framework; migration 001 creating all 17 stores
+    (incl. reserved `analyses`, `weatherCache`, `sensorReadings`, `oplog`)
+    with every index from DATABASE.md.
+  - `Repository` base class: envelope stamping (UUIDv4, timestamps,
+    soft-delete tombstones), atomic `addMany`, merge-safe `update`,
+    tombstone-aware reads, cursor-paginated `query` (offset-resume — correct
+    for all directions and duplicate index keys), streamed `exportAll`
+    including tombstones + primary keys, transactional `importBatch`
+    (merge/replace) — the backup/restore and future-sync substrate.
+  - Diagnostics view (Settings → About → View): install id, schema versions,
+    migration log, feature flags, per-store counts, session log ring buffer.
+  - Database opens (with migrations) during bootstrap before first render;
+    failure degrades gracefully with a sticky toast into Diagnostics.
+  - Browser test harness (`tests/index.html`) + 10 integration tests running
+    the migration and Repository against real IndexedDB in a disposable
+    `gardenos-test` database.
+  - DATABASE.md: documented that indexed boolean-like fields are stored as
+    0/1 (`notes.pinned`, `oplog.synced`) — IndexedDB cannot index booleans.
+
 ### Notes
-- v1.0 increment 2 (next): IndexedDB core, migration framework, repository
-  base (T-017/T-018), Diagnostics view (T-021), then backup/restore
-  (T-022–T-025) and the test harness (T-026) to close the v1.0 exit gate.
+- v1.0 increment 3 (next): backup/restore/export/import services and UI
+  (T-022–T-025) + the release-blocking backup round-trip test, closing the
+  v1.0 exit gate (T-027). Live in-browser verification owed as T-028.
