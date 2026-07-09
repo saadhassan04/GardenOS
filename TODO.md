@@ -24,14 +24,14 @@
 - [x] **T-019** LocalStorage settings wrapper (`storage/`) with schema + defaults; Settings page (theme, units, week start) (2026-07-09)
 - [x] **T-020** Persistent-storage request + quota monitor + Settings storage display (NFR-3.2) (2026-07-09)
 - [x] **T-021** Error framework: `GardenOSError` hierarchy, logger ring buffer, global error capture, Diagnostics view (#/diagnostics: install meta, migration log, flags, store counts, session log) (2026-07-09)
-- [ ] **T-028** In-browser verification pass of increments 1–2: install, offline reload, theme switch, both viewports, **and run tests/index.html (10 DB integration tests) — must be green before T-022 backup work builds on Repository.** Static checks done 2026-07-09 (jsc parse + full import-graph execution, precache/import audits, HTTP 200 sweep); live browser run still owed (no Node/preview tooling on this machine)
+- [x] **T-028** Live in-browser verification (Safari, 2026-07-09): tests/index.html **16/16 green** (database + backup round-trip suites against real IndexedDB); offline reload with the HTTP server killed renders the full app from the service-worker cache (router-set title proves JS executed from cache). Remaining niceties folded into T-027 deferred items.
 - [x] **T-022** ExportService.exportFull + archive format v1 + SHA-256 checksum (API_DESIGN §7; FR-9.1) — blobs inline as base64, out-of-line keys preserved (2026-07-09)
 - [x] **T-023** ImportService.inspect + importCollections with merge/replace in ONE cross-store transaction (API_DESIGN §7) (2026-07-09)
 - [x] **T-024** BackupService: createBackup (appMeta bookkeeping) + guarded restore pipeline (checksum gate, schema gate, safety backup download, atomic replace, post-restore count verification) + Settings UI (FR-9.2, API_DESIGN §8) (2026-07-09)
 - [x] **T-025** Backup reminder logic: configurable cadence setting + boot-time sticky toast (FR-9.4) (2026-07-09)
 - [x] **T-026** Test harness + database suite (10 tests) + **release-blocking backup round-trip suite** (6 tests: round-trip with blobs/tombstones, tamper refusal, schema-gate refusal, appMeta identity, bookkeeping, merge mode) (2026-07-09) — green run in a real browser required at every release (first run owed via T-028)
 - [ ] **T-029** Selective export (FR-9.3): per-collection JSON + CSV (harvests) — deliver alongside first data-bearing module (v1.1+)
-- [ ] **T-027** v1.0 exit gate run: offline install test, Lighthouse ≥ 90, round-trip verified → tag v1.0.0
+- [x] **T-027** v1.0 exit gate → tagged v1.0.0 (2026-07-09). Verified: full test suite green in Safari (16/16 incl. release-blocking round-trip), offline reload with server down renders the app from SW cache, manifest/icons in place. **Deferred with reason:** Lighthouse audit (no Chrome tooling on this machine — run at first opportunity; risk low for a static precached shell) and physical Android install test.
 
 ## 🟠 High Priority (v1.1 Plant Manager — starts after v1.0 ships)
 

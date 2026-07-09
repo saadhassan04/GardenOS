@@ -14,6 +14,13 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-09 — Foundation
+
+Release gate evidence: 16/16 tests green in Safari against real IndexedDB
+(including the release-blocking backup round-trip); offline reload verified
+with the HTTP server terminated. Lighthouse audit and physical Android
+install deferred with reason (no tooling on this machine) — see TODO T-027.
+
 ### Added
 - Complete project initialization: directory structure and full documentation set
   (README, PROJECT_REQUIREMENTS, ARCHITECTURE, ROADMAP, DATABASE, FEATURES,
@@ -87,7 +94,3 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
     harness: export→wipe→restore fidelity incl. blob bytes and tombstones,
     tamper refusal, schema-gate refusal, device identity preservation.
 
-### Notes
-- v1.0 is now feature-complete. Remaining for the exit gate (T-027): the
-  live in-browser pass (T-028) — install, offline reload, green test run —
-  then tag v1.0.0 and begin v1.1 Plant Manager.

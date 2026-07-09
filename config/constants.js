@@ -5,11 +5,8 @@
 
 export const APP_NAME = 'GardenOS';
 
-/**
- * Pre-release increments toward the v1.0.0 Foundation milestone (ROADMAP.md).
- * Bumped per increment; becomes 1.0.0 when the v1.0 exit gate passes.
- */
-export const APP_VERSION = '0.3.0';
+/** App version — bumped per increment, released per ROADMAP.md gates. */
+export const APP_VERSION = '1.0.0';
 
 /** IndexedDB database name and current schema version (DATABASE.md). */
 export const DB_NAME = 'gardenos';
