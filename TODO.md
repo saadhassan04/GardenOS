@@ -35,12 +35,12 @@
 
 ## 🟠 High Priority (v1.1 Plant Manager — starts after v1.0 ships)
 
-- [ ] **T-030** Models + validators: Plant, CareEvent, Note, PestRecord, Treatment, Location, CareProfile (DATABASE.md §3)
-- [ ] **T-031** Repositories: Plant, Event (with `[plantId+occurredAt]` timeline query), Note, Pest, Treatment, Location, CareProfile
-- [ ] **T-032** PlantService + CareEventService incl. `logBulk` with batchId + undo (FR-3.2, US-A2)
-- [ ] **T-033** Plant list page: search/filter/sort, PlantCard with freshness dot (FR-1.4, UI §7)
-- [ ] **T-034** Plant create/edit form (name-only minimum, FR-1.2/1.3); propagation lineage picker (FR-1.6)
-- [ ] **T-035** Plant detail + Timeline (paged, filterable, 3-tap quick log, backdating) (FR-2)
+- [ ] **T-030** Models + validators (DATABASE.md §3): Plant ✓, CareEvent ✓ (2026-07-09) — Note, PestRecord, Treatment, Location, CareProfile pending
+- [ ] **T-031** Repositories: Plant ✓ (status query, derived updates, cascade delete), Event ✓ (`[plantId+occurredAt]` timeline w/ type filter, batch delete) (2026-07-09) — Note, Pest, Treatment, Location, CareProfile pending
+- [x] **T-032** PlantService + CareEventService incl. `logBulk` with shared batchId + undo with derived-cache recompute (FR-3.2, US-A2) (2026-07-09)
+- [x] **T-033** Plant list page: search (incl. botanical), category/status filters, name/newest sort, PlantCard (FR-1.4) — freshness shown as neutral text until care profiles land (T-039) (2026-07-09)
+- [ ] **T-034** Plant create/edit form ✓ (name-only minimum, categories, container, sun, soil) (2026-07-09) — propagation lineage picker (FR-1.6) pending
+- [ ] **T-035** Plant detail ✓ + Timeline ✓ (paged, type-filterable) + one-tap quick log with Undo ✓ (2026-07-09) — manual/backdated event entry form (FR-2.3 UI; service supports it) pending
 - [ ] **T-036** Bulk logging flow (multi-select → action) (US-A2)
 - [ ] **T-037** Notes module: CRUD, tags, plant links, client-side search (FR-7)
 - [ ] **T-038** Pest & treatment flows incl. "what worked for X" query (FR-10)

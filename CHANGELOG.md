@@ -14,6 +14,27 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 
 ## [Unreleased]
 
+### Added
+- **v1.1 Plant Manager, increment 1** (app 1.1.0-dev.1):
+  - Domain registries (`config/registries.js`): plant categories, statuses,
+    sun exposures, container types, and 13 care event types with icon and
+    derived-field mappings — new vocabulary = one registry entry (FR-3.3).
+  - Plant and CareEvent models with full validation (only `name` required;
+    future-dated events rejected; registry-checked enums).
+  - PlantRepository (status queries, derived-cache updates, permanent-delete
+    cascade over events) and EventRepository (timeline via
+    `[plantId+occurredAt]` descending with type filter, batch deletion).
+  - PlantService (create/update with whole-record re-validation, status
+    transitions, soft + cascading permanent delete, shaped list) and
+    CareEventService (single/bulk logging — every log carries a batchId for
+    uniform Undo; backdated events never regress "last done" caches; undo
+    recomputes derived caches from surviving history).
+  - Plants page (search, category/status filters, sort, empty states),
+    plant create/edit form, plant detail page with profile summary,
+    one-tap quick log + Undo toast, and the paginated, type-filterable
+    timeline. New icons: home, plus, pot, scissors, bug, spray.
+  - 7 new integration tests (23 total) — all green live in Safari.
+
 ## [1.0.0] - 2026-07-09 — Foundation
 
 Release gate evidence: 16/16 tests green in Safari against real IndexedDB

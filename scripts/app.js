@@ -15,6 +15,9 @@ import { getBackupStatus } from '../services/backupService.js';
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
 import { renderDashboardPage } from '../pages/DashboardPage.js';
+import { renderPlantsPage } from '../pages/PlantsPage.js';
+import { renderPlantFormPage } from '../pages/PlantFormPage.js';
+import { renderPlantDetailPage } from '../pages/PlantDetailPage.js';
 import { renderSettingsPage } from '../pages/SettingsPage.js';
 import { renderDiagnosticsPage } from '../pages/DiagnosticsPage.js';
 import { renderNotFoundPage } from '../pages/NotFoundPage.js';
@@ -77,6 +80,10 @@ async function registerServiceWorker() {
 
 function registerRoutes() {
   registerRoute('/', 'Dashboard', renderDashboardPage);
+  registerRoute('/plants', 'Plants', renderPlantsPage);
+  registerRoute('/plants/new', 'Add plant', renderPlantFormPage);
+  registerRoute('/plants/:id', 'Plant', renderPlantDetailPage);
+  registerRoute('/plants/:id/edit', 'Edit plant', renderPlantFormPage);
   registerRoute('/settings', 'Settings', renderSettingsPage);
   registerRoute('/diagnostics', 'Diagnostics', renderDiagnosticsPage);
   setNotFound(renderNotFoundPage);
@@ -115,7 +122,8 @@ async function bootstrap() {
   registerRoutes();
 
   mountNavigation(document.getElementById('app-nav'), [
-    { label: 'Dashboard', path: '/', icon: 'leaf' },
+    { label: 'Dashboard', path: '/', icon: 'home' },
+    { label: 'Plants', path: '/plants', icon: 'leaf' },
     { label: 'Settings', path: '/settings', icon: 'gear' },
   ]);
 
