@@ -3,7 +3,7 @@
  * Runs in the shared disposable "gardenos-test" database.
  */
 
-import { test, assert, assertEqual, assertThrows } from './testKit.js';
+import { test, assert, assertEqual, assertThrows, pause } from './testKit.js';
 import { STORES } from '../database/stores.js';
 import { Repository } from '../database/Repository.js';
 import {
@@ -41,8 +41,11 @@ test('should validate and normalize notes when creating', async () => {
 
 test('should float pinned notes and order the rest by recency', async () => {
   await clearNotes();
+  // Distinct-millisecond creations: recency ordering is what's under test.
   const oldest = await createNote({ title: 'Oldest' });
+  await pause(3);
   await createNote({ title: 'Middle' });
+  await pause(3);
   await createNote({ title: 'Newest' });
   await togglePin(oldest.id);
 

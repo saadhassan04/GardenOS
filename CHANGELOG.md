@@ -15,6 +15,29 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **v1.1 Plant Manager, increment 3** (app 1.1.0-dev.3):
+  - Pest & treatment flows (FR-10): report with common-Karachi-pest
+    suggestions, treat with "what worked last time" hints drawn from
+    recorded outcomes, outcome tracking, resolve — all stamping plant
+    timelines as first-class events; `whatWorkedFor(pestType)` query.
+  - Garden locations: management page with resident plant counts and a
+    delete guard (occupied locations refuse deletion); location picker on
+    the plant form; location shown on plant detail.
+  - Care profiles: 16 Karachi-tuned seed presets (plumeria, bougainvillea,
+    rose, motia, tulsi, ferns, palms, snake plant, pothos, rubber plant,
+    dieffenbachia, dracaena, curry leaf, citrus, mint, winter vegetables)
+    with seasonal watering intervals and heat-wave/monsoon guidance;
+    idempotent first-run seeding; profile picker on the plant form;
+    effective-care resolution: plant override → seasonal → base.
+  - `config/climate.karachi.js`: care seasons (summer/monsoon/winter by
+    month) and the v2.5 weather-alert thresholds.
+  - Generic FormDialog component powering location/pest/treatment forms.
+  - 5 new integration tests (33 total), all green live in Safari.
+
+### Fixed
+- Deterministic list ordering for records created in the same millisecond
+  (bulk imports): plant "newest" sort and note recency now tiebreak by
+  name/title. Surfaced by a live test flake (passed twice by UUID luck).
 - **v1.1 Plant Manager, increment 2** (app 1.1.0-dev.2):
   - Bulk care logging (US-A2): Select mode on the Plants page with
     accessible toggle cards, floating action bar (Water / Fertilize /

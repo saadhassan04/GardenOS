@@ -9,6 +9,8 @@ import { el } from '../utils/dom.js';
 import { navigate } from '../hooks/router.js';
 import { showToast } from '../components/Toast.js';
 import { createPlant, updatePlant, getPlant, listPlants } from '../services/plantService.js';
+import { listLocations } from '../services/locationsService.js';
+import { listCareProfiles } from '../services/careProfileService.js';
 import { ValidationError } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
 import {
@@ -38,6 +40,8 @@ export async function renderPlantFormPage({ params }) {
   const candidates = (await listPlants({ status: 'active' }))
     .concat(await listPlants({ status: 'archived' }))
     .filter((candidate) => candidate.id !== plant?.id);
+  const locations = await listLocations();
+  const careProfiles = await listCareProfiles();
 
   const fields = {
     name: textField('Name', plant?.name ?? '', { required: true }),
@@ -52,6 +56,16 @@ export async function renderPlantFormPage({ params }) {
       ? selectField('Status', Object.entries(PLANT_STATUSES).map(([k, s]) => [k, s.label]), plant.status)
       : null,
     acquiredAt: dateField('Acquired on', plant?.acquiredAt ?? ''),
+    locationId: selectField(
+      'Location',
+      [['', 'No location'], ...locations.map((l) => [l.id, l.name])],
+      plant?.locationId ?? '',
+    ),
+    careProfileId: selectField(
+      'Care profile',
+      [['', 'No profile'], ...careProfiles.map((p) => [p.id, p.name])],
+      plant?.careProfileId ?? '',
+    ),
     sunExposure: selectField('Sun exposure', optionList(SUN_EXPOSURES, 'Not set'), plant?.location?.sunExposure ?? ''),
     containerType: selectField('Container', optionList(CONTAINER_TYPES, 'None / not set'), plant?.container?.type ?? ''),
     containerSize: numberField('Container size (inches)', plant?.container?.sizeInches ?? ''),
@@ -102,6 +116,8 @@ function collect(fields, existing) {
     botanicalName: fields.botanicalName.control.value,
     category: fields.category.control.value || null,
     parentPlantId: fields.parentPlantId.control.value || null,
+    locationId: fields.locationId.control.value || null,
+    careProfileId: fields.careProfileId.control.value || null,
     status: fields.status ? fields.status.control.value : 'active',
     acquiredAt: fields.acquiredAt.control.value || null,
     location: {

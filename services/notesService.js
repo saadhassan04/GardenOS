@@ -65,9 +65,10 @@ export async function listNotes({ search = '', tag = null, plantId = null } = {}
     );
   }
 
-  // listRecent is already updatedAt-desc; a stable partition keeps that
-  // order within each group while floating pinned notes up (FR-7).
-  return [...notes.filter((n) => n.pinned), ...notes.filter((n) => !n.pinned)];
+  // Pinned first, then recency; title tiebreak keeps same-millisecond
+  // records (bulk imports) deterministic.
+  const byRecency = (a, b) => b.updatedAt.localeCompare(a.updatedAt) || a.title.localeCompare(b.title);
+  return [...notes.filter((n) => n.pinned).sort(byRecency), ...notes.filter((n) => !n.pinned).sort(byRecency)];
 }
 
 /** @param {string} noteId @returns {Promise<object>} the updated note */

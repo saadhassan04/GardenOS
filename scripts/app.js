@@ -19,6 +19,8 @@ import { renderPlantsPage } from '../pages/PlantsPage.js';
 import { renderPlantFormPage } from '../pages/PlantFormPage.js';
 import { renderPlantDetailPage } from '../pages/PlantDetailPage.js';
 import { renderNotesPage } from '../pages/NotesPage.js';
+import { renderLocationsPage } from '../pages/LocationsPage.js';
+import { ensureSeededCareProfiles } from '../services/careProfileService.js';
 import { renderNoteFormPage } from '../pages/NoteFormPage.js';
 import { renderSettingsPage } from '../pages/SettingsPage.js';
 import { renderDiagnosticsPage } from '../pages/DiagnosticsPage.js';
@@ -89,6 +91,7 @@ function registerRoutes() {
   registerRoute('/notes', 'Notes', renderNotesPage);
   registerRoute('/notes/new', 'Add note', renderNoteFormPage);
   registerRoute('/notes/:id/edit', 'Edit note', renderNoteFormPage);
+  registerRoute('/locations', 'Locations', renderLocationsPage);
   registerRoute('/settings', 'Settings', renderSettingsPage);
   registerRoute('/diagnostics', 'Diagnostics', renderDiagnosticsPage);
   setNotFound(renderNotFoundPage);
@@ -106,6 +109,9 @@ async function bootstrap() {
   // user can inspect the failure and (soon) restore a backup.
   try {
     await openDatabase();
+    // Karachi care-profile presets, first run only (T-039); user data is
+    // never overwritten.
+    await ensureSeededCareProfiles();
   } catch (error) {
     logger.error('Database unavailable', { error: error.message });
     showToast('Garden database could not be opened — see Diagnostics', {

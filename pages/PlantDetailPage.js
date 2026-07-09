@@ -18,6 +18,9 @@ import {
 } from '../services/plantService.js';
 import { logEvent, getTimeline, undoBatch } from '../services/careEventService.js';
 import { eventFormDialog } from '../components/EventFormDialog.js';
+import { renderPestSection } from '../components/PlantPestSection.js';
+import { getLocation } from '../services/locationsService.js';
+import { getCareProfile } from '../services/careProfileService.js';
 import {
   PLANT_CATEGORIES,
   PLANT_STATUSES,
@@ -62,7 +65,8 @@ async function build(page, plantId) {
   );
 
   page.append(quickLogSection(plant, refresh));
-  page.append(profileSection(plant));
+  page.append(await profileSection(plant));
+  page.append(await renderPestSection(plant, refresh));
   page.append(await lineageSection(plant));
   page.append(await timelineSection(plant));
   page.append(managementSection(plant, refresh));
@@ -176,10 +180,15 @@ async function lineageSection(plant) {
   );
 }
 
-function profileSection(plant) {
+async function profileSection(plant) {
+  const location = plant.locationId ? await getLocation(plant.locationId) : null;
+  const careProfile = plant.careProfileId ? await getCareProfile(plant.careProfileId) : null;
+
   const rows = [
     ['Category', plant.category ? PLANT_CATEGORIES[plant.category]?.label : '—'],
     ['Status', PLANT_STATUSES[plant.status]?.label ?? plant.status],
+    ['Location', location?.name ?? '—'],
+    ['Care profile', careProfile?.name ?? '—'],
     ['Acquired', plant.acquiredAt ? formatDate(plant.acquiredAt) : '—'],
     ['Sun exposure', plant.location.sunExposure ? SUN_EXPOSURES[plant.location.sunExposure]?.label : '—'],
     [

@@ -10,6 +10,7 @@ import { prepareTestDatabase } from './database.test.js';
 import './backup.test.js';
 import './plants.test.js';
 import './notes.test.js';
+import './garden.test.js';
 
 const resultsEl = document.getElementById('results');
 const summaryEl = document.getElementById('summary');
@@ -35,14 +36,20 @@ function renderResult({ name, ok, error, ms }) {
     await prepareTestDatabase();
     document.title = '⏳ running…';
     let done = 0;
+    const failures = [];
     const { passed, failed } = await runAll((result) => {
       done += 1;
       document.title = `⏳ ${done} run — ${result.ok ? 'ok' : 'FAILED'}: ${result.name.slice(0, 40)}`;
+      if (!result.ok) {
+        failures.push(`${result.name} → ${result.error.message}`);
+      }
       renderResult(result);
     });
     summaryEl.textContent = `${passed} passed, ${failed} failed`;
     summaryEl.className = failed === 0 ? 'pass' : 'fail';
-    document.title = `${failed === 0 ? '✓' : '✗'} GardenOS tests — ${passed}/${passed + failed}`;
+    document.title = failed === 0
+      ? `✓ GardenOS tests — ${passed}/${passed + failed}`
+      : `✗ ${passed}/${passed + failed} — ${failures.join(' | ')}`.slice(0, 180);
   } catch (error) {
     summaryEl.textContent = `Harness failure: ${error.message}`;
     summaryEl.className = 'fail';

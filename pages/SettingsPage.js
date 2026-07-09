@@ -56,6 +56,19 @@ export function renderSettingsPage() {
         ['saturday', 'Saturday'],
       ]),
     ]),
+    section('Garden setup', [
+      el(
+        'div',
+        { className: 'status-row' },
+        el('span', {}, 'Garden locations'),
+        el('a', { href: '#/locations' }, 'Manage'),
+      ),
+      el(
+        'p',
+        { className: 'text-small text-muted' },
+        'Care profiles are assigned on each plant’s edit form; Karachi presets are built in.',
+      ),
+    ]),
     backupSection(),
     storageSection(),
     section('About', [

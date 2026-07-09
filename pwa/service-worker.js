@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.1.0-dev.2';
+const CACHE_VERSION = 'gardenos-shell-v1.1.0-dev.3';
 
 const PRECACHE_URLS = [
   './',
@@ -27,6 +27,7 @@ const PRECACHE_URLS = [
   './config/constants.js',
   './config/featureFlags.js',
   './config/registries.js',
+  './config/climate.karachi.js',
   './utils/dom.js',
   './utils/errors.js',
   './utils/format.js',
@@ -42,6 +43,10 @@ const PRECACHE_URLS = [
   './models/Plant.js',
   './models/CareEvent.js',
   './models/Note.js',
+  './models/PestRecord.js',
+  './models/Treatment.js',
+  './models/Location.js',
+  './models/CareProfile.js',
   './database/db.js',
   './database/idb.js',
   './database/stores.js',
@@ -51,10 +56,15 @@ const PRECACHE_URLS = [
   './database/NoteRepository.js',
   './database/migrations/index.js',
   './database/migrations/001_initial_schema.js',
+  './database/seed/careProfiles.karachi.js',
   './services/storageStatusService.js',
   './services/plantService.js',
   './services/careEventService.js',
   './services/notesService.js',
+  './services/pestService.js',
+  './services/treatmentService.js',
+  './services/locationsService.js',
+  './services/careProfileService.js',
   './services/archiveCodec.js',
   './services/exportService.js',
   './services/importService.js',
@@ -65,12 +75,15 @@ const PRECACHE_URLS = [
   './components/fileTransfer.js',
   './components/PlantCard.js',
   './components/EventFormDialog.js',
+  './components/FormDialog.js',
+  './components/PlantPestSection.js',
   './pages/DashboardPage.js',
   './pages/PlantsPage.js',
   './pages/PlantFormPage.js',
   './pages/PlantDetailPage.js',
   './pages/NotesPage.js',
   './pages/NoteFormPage.js',
+  './pages/LocationsPage.js',
   './pages/SettingsPage.js',
   './pages/DiagnosticsPage.js',
   './pages/NotFoundPage.js',

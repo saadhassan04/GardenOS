@@ -35,16 +35,16 @@
 
 ## 🟠 High Priority (v1.1 Plant Manager — starts after v1.0 ships)
 
-- [ ] **T-030** Models + validators (DATABASE.md §3): Plant ✓, CareEvent ✓, Note ✓ (2026-07-09) — PestRecord, Treatment, Location, CareProfile pending
-- [ ] **T-031** Repositories: Plant ✓ (status query, derived updates, cascade delete), Event ✓ (`[plantId+occurredAt]` timeline w/ type filter, batch delete), Note ✓ (recency listing) (2026-07-09) — Pest, Treatment, Location, CareProfile pending
+- [x] **T-030** Models + validators (DATABASE.md §3): Plant, CareEvent, Note, PestRecord, Treatment, Location, CareProfile (2026-07-09)
+- [x] **T-031** Repositories: Plant (status query, derived updates, cascade delete), Event (`[plantId+occurredAt]` timeline w/ type filter, batch delete), Note (recency) — Pest/Treatment/Location/CareProfile use the base Repository via their services; specialized classes exist only where real queries do (2026-07-09)
 - [x] **T-032** PlantService + CareEventService incl. `logBulk` with shared batchId + undo with derived-cache recompute (FR-3.2, US-A2) (2026-07-09)
 - [x] **T-033** Plant list page: search (incl. botanical), category/status filters, name/newest sort, PlantCard (FR-1.4) — freshness shown as neutral text until care profiles land (T-039) (2026-07-09)
 - [x] **T-034** Plant create/edit form: name-only minimum, categories, container, sun, soil + propagation lineage picker (FR-1.6) with lineage section on detail page (2026-07-09)
 - [x] **T-035** Plant detail + Timeline (paged, type-filterable, notes shown) + one-tap quick log with Undo + manual/backdated event entry dialog (FR-2.3) (2026-07-09)
 - [x] **T-036** Bulk logging flow: select mode on Plants page → action bar (Water/Fertilize/More… with backdating) → one batch, one Undo (US-A2) (2026-07-09)
 - [x] **T-037** Notes module: CRUD, tags (normalized), plant links, pin-to-top, live search across title/body/tags (FR-7) (2026-07-09)
-- [ ] **T-038** Pest & treatment flows incl. "what worked for X" query (FR-10)
-- [ ] **T-039** Locations management; seed Karachi care-profile presets + event-type/category registries in `config/`
+- [x] **T-038** Pest & treatment flows: report (with common-pest suggestions) → treat (with "what worked last time" hints) → outcome → resolve; observations and treatments stamp plant timelines; `whatWorkedFor(pestType)` query (FR-10) (2026-07-09)
+- [x] **T-039** Locations management page (+ resident counts, delete guard); 16 Karachi-tuned care-profile seed presets with seasonal watering (summer/monsoon/winter) + heat-wave/monsoon notes; `config/climate.karachi.js` (care seasons, v2.5 alert thresholds); location & care-profile pickers on the plant form; effective-care resolution (override → seasonal → base) (2026-07-09)
 - [ ] **T-040** Enter full real garden (35+ plants); one-week daily-use validation → v1.1 exit gate → tag
 
 ## 🟡 Medium Priority (v1.2 – v1.5)

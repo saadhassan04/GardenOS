@@ -131,9 +131,11 @@ export async function listPlants({ status = 'active', category = null, search = 
     );
   }
 
+  // Name tiebreak keeps "newest" deterministic when records share a
+  // creation millisecond (bulk imports, tests).
   plants.sort(
     sort === 'newest'
-      ? (a, b) => b.createdAt.localeCompare(a.createdAt)
+      ? (a, b) => b.createdAt.localeCompare(a.createdAt) || a.name.localeCompare(b.name)
       : (a, b) => a.name.localeCompare(b.name),
   );
   return plants;

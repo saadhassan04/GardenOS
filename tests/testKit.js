@@ -76,6 +76,15 @@ export async function runAll(onResult) {
   return { passed, failed };
 }
 
+/**
+ * Small real delay — for tests that assert recency ordering and therefore
+ * need records created in DIFFERENT milliseconds.
+ * @param {number} ms
+ */
+export function pause(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function deepEqual(a, b) {
   if (Object.is(a, b)) {
     return true;
