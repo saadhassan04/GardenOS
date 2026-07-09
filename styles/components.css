@@ -346,6 +346,80 @@
   resize: vertical;
 }
 
+.field__control--multi {
+  min-height: calc(var(--touch-target) * 3);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* ---- Bulk selection & action bar (US-A2) ---- */
+.plant-card--selectable {
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.plant-card--selected {
+  border-color: var(--color-primary);
+  background: var(--color-surface-2);
+}
+
+.action-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--nav-height-mobile) + var(--space-3) + env(safe-area-inset-bottom, 0px));
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-2);
+  max-width: 92vw;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .action-bar {
+    bottom: var(--space-5);
+  }
+}
+
+/* ---- Note cards ---- */
+.note-card {
+  display: block;
+  color: var(--color-text);
+}
+
+.note-card:hover {
+  text-decoration: none;
+  color: var(--color-text);
+  background: var(--color-surface-2);
+}
+
+.note-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.note-card__pin {
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-heading-size);
+}
+
+.note-card__body {
+  margin: var(--space-1) 0 var(--space-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* ---- Confirmation dialog (UI_GUIDELINES.md §7 Feedback) ---- */
 .dialog {
   background: var(--color-surface);

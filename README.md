@@ -50,7 +50,9 @@ It is **not** a demo, a toy, or a throwaway app. It is engineered as an enterpri
 1. Clone or copy the `GardenOS/` directory to any machine.
 2. Serve the directory with any static file server (required for Service Worker registration):
    ```bash
-   # Any one of these — all free:
+   # Recommended during development (disables HTTP caching of ES modules):
+   python3 tests/serve.py 8080
+   # Any static server works too:
    npx serve .
    python3 -m http.server 8080
    ```

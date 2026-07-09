@@ -12,10 +12,12 @@ import { relativeDate, formatDate } from '../utils/dates.js';
 import { logger } from '../utils/logger.js';
 import {
   getPlant,
+  getLineage,
   setPlantStatus,
   deletePlantPermanently,
 } from '../services/plantService.js';
 import { logEvent, getTimeline, undoBatch } from '../services/careEventService.js';
+import { eventFormDialog } from '../components/EventFormDialog.js';
 import {
   PLANT_CATEGORIES,
   PLANT_STATUSES,
@@ -61,6 +63,7 @@ async function build(page, plantId) {
 
   page.append(quickLogSection(plant, refresh));
   page.append(profileSection(plant));
+  page.append(await lineageSection(plant));
   page.append(await timelineSection(plant));
   page.append(managementSection(plant, refresh));
 }
@@ -96,11 +99,80 @@ function quickLogSection(plant, refresh) {
       ),
     );
 
+  const moreButton = el(
+    'button',
+    {
+      className: 'btn btn--ghost quick-log__btn',
+      onClick: async () => {
+        const entry = await eventFormDialog({ title: `Log for ${plant.name}` });
+        if (!entry) {
+          return;
+        }
+        try {
+          const { batchId } = await logEvent(plant.id, entry.type, {
+            occurredAt: entry.occurredAt,
+            data: entry.data,
+          });
+          showToast(`${EVENT_TYPES[entry.type].label} logged`, {
+            actionLabel: 'Undo',
+            onAction: async () => {
+              await undoBatch(batchId);
+              showToast('Undone');
+              refresh();
+            },
+          });
+          refresh();
+        } catch (error) {
+          logger.error('Event log failed', { error: error.message });
+          showToast(`Could not log: ${error.message}`);
+        }
+      },
+    },
+    'Log event…',
+  );
+
   return el(
     'section',
     { className: 'page-section' },
     el('span', { className: 'text-caption' }, 'Quick log'),
-    el('div', { className: 'card quick-log' }, ...buttons),
+    el('div', { className: 'card quick-log' }, ...buttons, moreButton),
+  );
+}
+
+/** Propagation lineage (FR-1.6): shown only when a relationship exists. */
+async function lineageSection(plant) {
+  const { ancestors, children } = await getLineage(plant.id);
+  if (ancestors.length === 0 && children.length === 0) {
+    return el('span', { className: 'visually-hidden' });
+  }
+
+  const rows = [];
+  if (ancestors.length > 0) {
+    rows.push(
+      el(
+        'div',
+        { className: 'status-row' },
+        el('span', {}, 'Grown from'),
+        el('span', { className: 'status-row__value' }, el('a', { href: `#/plants/${ancestors[0].id}` }, ancestors[0].name)),
+      ),
+    );
+  }
+  for (const child of children) {
+    rows.push(
+      el(
+        'div',
+        { className: 'status-row' },
+        el('span', {}, 'Propagated into'),
+        el('span', { className: 'status-row__value' }, el('a', { href: `#/plants/${child.id}` }, child.name)),
+      ),
+    );
+  }
+
+  return el(
+    'section',
+    { className: 'page-section' },
+    el('span', { className: 'text-caption' }, 'Propagation'),
+    el('div', { className: 'card' }, ...rows),
   );
 }
 
@@ -207,6 +279,7 @@ function timelineItem(event) {
       {},
       el('span', {}, spec.label),
       el('p', { className: 'text-small text-muted' }, `${relativeDate(event.occurredAt)} · ${formatDate(event.occurredAt)}`),
+      event.data?.note ? el('p', { className: 'text-small' }, event.data.note) : null,
     ),
   );
 }

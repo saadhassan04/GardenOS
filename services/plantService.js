@@ -82,6 +82,35 @@ export function getPlant(plantId) {
 }
 
 /**
+ * Propagation lineage (FR-1.6): the chain of ancestors this plant was
+ * grown from, and the cuttings/divisions grown from it.
+ * @param {string} plantId
+ * @returns {Promise<{ancestors: object[], children: object[]}>}
+ *   ancestors ordered nearest-first (parent, grandparent, …)
+ */
+export async function getLineage(plantId) {
+  const ancestors = [];
+  const seen = new Set([plantId]);
+  let current = await plantRepository.get(plantId);
+  while (current?.parentPlantId && !seen.has(current.parentPlantId)) {
+    seen.add(current.parentPlantId);
+    const parent = await plantRepository.get(current.parentPlantId);
+    if (!parent) {
+      break; // parent was permanently deleted — chain ends here
+    }
+    ancestors.push(parent);
+    current = parent;
+  }
+
+  const { items: children } = await plantRepository.query({
+    index: 'parentPlantId',
+    range: IDBKeyRange.only(plantId),
+    limit: 200,
+  });
+  return { ancestors, children };
+}
+
+/**
  * Shaped plant list for the Plants screen (FR-1.4).
  * @param {{status?: string, category?: string|null, search?: string,
  *          sort?: 'name'|'newest'}} [options]

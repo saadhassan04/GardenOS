@@ -9,6 +9,7 @@ import { runAll } from './testKit.js';
 import { prepareTestDatabase } from './database.test.js';
 import './backup.test.js';
 import './plants.test.js';
+import './notes.test.js';
 
 const resultsEl = document.getElementById('results');
 const summaryEl = document.getElementById('summary');
@@ -27,14 +28,25 @@ function renderResult({ name, ok, error, ms }) {
 
 (async () => {
   try {
+    // Progress goes through document.title as well: it is readable by
+    // AppleScript-driven verification, and it pinpoints hangs (e.g. a
+    // deleteDatabase blocked by a frozen bfcache tab holding the test DB).
+    document.title = '⏳ preparing test database…';
     await prepareTestDatabase();
-    const { passed, failed } = await runAll(renderResult);
+    document.title = '⏳ running…';
+    let done = 0;
+    const { passed, failed } = await runAll((result) => {
+      done += 1;
+      document.title = `⏳ ${done} run — ${result.ok ? 'ok' : 'FAILED'}: ${result.name.slice(0, 40)}`;
+      renderResult(result);
+    });
     summaryEl.textContent = `${passed} passed, ${failed} failed`;
     summaryEl.className = failed === 0 ? 'pass' : 'fail';
     document.title = `${failed === 0 ? '✓' : '✗'} GardenOS tests — ${passed}/${passed + failed}`;
   } catch (error) {
     summaryEl.textContent = `Harness failure: ${error.message}`;
     summaryEl.className = 'fail';
+    document.title = `✗ harness failure: ${error.message}`.slice(0, 90);
     throw error;
   }
 })();

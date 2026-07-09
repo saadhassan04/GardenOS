@@ -20,6 +20,23 @@
   <h1>GardenOS test suite</h1>
   <p id="summary">Running…</p>
   <ul id="results"></ul>
+  <!-- Surfaces module-graph failures (404s, parse errors) in the title and
+       summary, where headless verification can read them. -->
+  <script>
+    const report = (text) => {
+      document.title = text.slice(0, 100);
+      const summary = document.getElementById('summary');
+      if (summary) {
+        summary.textContent = document.title;
+      }
+    };
+    window.addEventListener('error', (e) => {
+      report(`✗ ${e.message} @ ${(e.filename || '').split('/').pop()}:${e.lineno}`);
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      report(`✗ rejection: ${(e.reason && e.reason.message) || e.reason}`);
+    });
+  </script>
   <script type="module" src="runner.js"></script>
 </body>
 </html>

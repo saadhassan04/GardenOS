@@ -6,7 +6,7 @@
 export const APP_NAME = 'GardenOS';
 
 /** App version — bumped per increment, released per ROADMAP.md gates. */
-export const APP_VERSION = '1.1.0-dev.1';
+export const APP_VERSION = '1.1.0-dev.2';
 
 /** IndexedDB database name and current schema version (DATABASE.md). */
 export const DB_NAME = 'gardenos';

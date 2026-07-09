@@ -18,6 +18,8 @@ import { renderDashboardPage } from '../pages/DashboardPage.js';
 import { renderPlantsPage } from '../pages/PlantsPage.js';
 import { renderPlantFormPage } from '../pages/PlantFormPage.js';
 import { renderPlantDetailPage } from '../pages/PlantDetailPage.js';
+import { renderNotesPage } from '../pages/NotesPage.js';
+import { renderNoteFormPage } from '../pages/NoteFormPage.js';
 import { renderSettingsPage } from '../pages/SettingsPage.js';
 import { renderDiagnosticsPage } from '../pages/DiagnosticsPage.js';
 import { renderNotFoundPage } from '../pages/NotFoundPage.js';
@@ -84,6 +86,9 @@ function registerRoutes() {
   registerRoute('/plants/new', 'Add plant', renderPlantFormPage);
   registerRoute('/plants/:id', 'Plant', renderPlantDetailPage);
   registerRoute('/plants/:id/edit', 'Edit plant', renderPlantFormPage);
+  registerRoute('/notes', 'Notes', renderNotesPage);
+  registerRoute('/notes/new', 'Add note', renderNoteFormPage);
+  registerRoute('/notes/:id/edit', 'Edit note', renderNoteFormPage);
   registerRoute('/settings', 'Settings', renderSettingsPage);
   registerRoute('/diagnostics', 'Diagnostics', renderDiagnosticsPage);
   setNotFound(renderNotFoundPage);
@@ -124,6 +129,7 @@ async function bootstrap() {
   mountNavigation(document.getElementById('app-nav'), [
     { label: 'Dashboard', path: '/', icon: 'home' },
     { label: 'Plants', path: '/plants', icon: 'leaf' },
+    { label: 'Notes', path: '/notes', icon: 'note' },
     { label: 'Settings', path: '/settings', icon: 'gear' },
   ]);
 

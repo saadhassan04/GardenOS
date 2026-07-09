@@ -8,7 +8,7 @@
 import { el } from '../utils/dom.js';
 import { navigate } from '../hooks/router.js';
 import { showToast } from '../components/Toast.js';
-import { createPlant, updatePlant, getPlant } from '../services/plantService.js';
+import { createPlant, updatePlant, getPlant, listPlants } from '../services/plantService.js';
 import { ValidationError } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
 import {
@@ -34,10 +34,20 @@ export async function renderPlantFormPage({ params }) {
     el('header', { className: 'page-header' }, el('h1', {}, editing ? `Edit ${plant.name}` : 'Add plant')),
   );
 
+  // Parent picker (FR-1.6): any other plant can be the propagation source.
+  const candidates = (await listPlants({ status: 'active' }))
+    .concat(await listPlants({ status: 'archived' }))
+    .filter((candidate) => candidate.id !== plant?.id);
+
   const fields = {
     name: textField('Name', plant?.name ?? '', { required: true }),
     botanicalName: textField('Botanical name', plant?.botanicalName ?? ''),
     category: selectField('Category', optionList(PLANT_CATEGORIES, 'No category'), plant?.category ?? ''),
+    parentPlantId: selectField(
+      'Grown from (propagation parent)',
+      [['', 'Not a propagation'], ...candidates.map((c) => [c.id, c.name])],
+      plant?.parentPlantId ?? '',
+    ),
     status: editing
       ? selectField('Status', Object.entries(PLANT_STATUSES).map(([k, s]) => [k, s.label]), plant.status)
       : null,
@@ -91,6 +101,7 @@ function collect(fields, existing) {
     name: fields.name.control.value,
     botanicalName: fields.botanicalName.control.value,
     category: fields.category.control.value || null,
+    parentPlantId: fields.parentPlantId.control.value || null,
     status: fields.status ? fields.status.control.value : 'active',
     acquiredAt: fields.acquiredAt.control.value || null,
     location: {

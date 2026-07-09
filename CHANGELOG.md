@@ -15,6 +15,26 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **v1.1 Plant Manager, increment 2** (app 1.1.0-dev.2):
+  - Bulk care logging (US-A2): Select mode on the Plants page with
+    accessible toggle cards, floating action bar (Water / Fertilize /
+    More… with type + backdate dialog) — one transaction, one batch,
+    one Undo.
+  - Manual/backdated event entry dialog (FR-2.3) on the plant detail page;
+    timeline items now display event notes.
+  - Propagation lineage (FR-1.6): parent picker in the plant form,
+    `getLineage()` walking ancestors and cuttings, lineage section on the
+    detail page.
+  - Garden Notes module (FR-7): validated model (normalized tags, 0/1
+    pinned), repository, service with pinned-first recency ordering and
+    live search across title/body/tags, Notes list + create/edit pages,
+    plant linking, Notes in primary navigation.
+  - Test harness hardening: runner reports progress and module-graph
+    failures through the page title (readable by headless verification);
+    `tests/serve.py` no-cache dev server after live debugging showed
+    Safari's heuristic HTTP cache serving stale ES modules alongside
+    fresh ones ("Importing binding name … not found").
+  - 5 new integration tests (28 total) — all green live in Safari.
 - **v1.1 Plant Manager, increment 1** (app 1.1.0-dev.1):
   - Domain registries (`config/registries.js`): plant categories, statuses,
     sun exposures, container types, and 13 care event types with icon and

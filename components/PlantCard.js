@@ -11,12 +11,34 @@ import { PLANT_CATEGORIES } from '../config/registries.js';
 
 /**
  * @param {object} plant
- * @returns {HTMLElement} an anchor card linking to the plant detail page
+ * @param {{selectable?: boolean, selected?: boolean, onToggle?: (id: string) => void}} [options]
+ *   In selectable mode the card becomes a toggle (bulk logging, US-A2)
+ *   instead of a navigation link.
+ * @returns {HTMLElement}
  */
-export function renderPlantCard(plant) {
+export function renderPlantCard(plant, options = {}) {
+  const { selectable = false, selected = false, onToggle } = options;
+
+  const props = selectable
+    ? {
+        className: `plant-card plant-card--selectable${selected ? ' plant-card--selected' : ''}`,
+        role: 'checkbox',
+        tabindex: '0',
+        'aria-checked': selected ? 'true' : 'false',
+        'aria-label': `Select ${plant.name}`,
+        onClick: () => onToggle(plant.id),
+        onKeydown: (event) => {
+          if (event.key === ' ' || event.key === 'Enter') {
+            event.preventDefault();
+            onToggle(plant.id);
+          }
+        },
+      }
+    : { className: 'plant-card', href: `#/plants/${plant.id}` };
+
   const card = el(
-    'a',
-    { className: 'plant-card', href: `#/plants/${plant.id}` },
+    selectable ? 'div' : 'a',
+    props,
     el('div', { className: 'plant-card__photo' }, svgIcon('leaf', { size: 32 })),
     el(
       'div',
