@@ -11,6 +11,7 @@ import { bus } from '../hooks/bus.js';
 import { registerRoute, setNotFound, startRouter } from '../hooks/router.js';
 import { getSetting } from '../storage/settings.js';
 import { openDatabase } from '../database/db.js';
+import { getBackupStatus } from '../services/backupService.js';
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
 import { renderDashboardPage } from '../pages/DashboardPage.js';
@@ -123,7 +124,27 @@ async function bootstrap() {
   }
   startRouter(document.getElementById('app-main'));
 
+  checkBackupReminder();
   logger.info('GardenOS ready');
+}
+
+/** Boot-time backup reminder (FR-9.4). Fire-and-forget; never blocks startup. */
+async function checkBackupReminder() {
+  try {
+    const status = await getBackupStatus();
+    if (status.reminderDue) {
+      const ago = status.daysSince === null ? 'never been backed up' : `not been backed up for ${status.daysSince} days`;
+      showToast(`Your garden data has ${ago}`, {
+        sticky: true,
+        actionLabel: 'Back up',
+        onAction: () => {
+          window.location.hash = '#/settings';
+        },
+      });
+    }
+  } catch (error) {
+    logger.warn('Backup reminder check failed', { error: error.message });
+  }
 }
 
 bootstrap();

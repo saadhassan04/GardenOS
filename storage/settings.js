@@ -18,6 +18,8 @@ const SCHEMA = Object.freeze({
   theme: { values: ['dark', 'light', 'auto'], defaultValue: 'dark' },
   units: { values: ['metric', 'imperial'], defaultValue: 'metric' },
   weekStart: { values: ['monday', 'sunday', 'saturday'], defaultValue: 'monday' },
+  /** Days between backup reminders (FR-9.4); 'off' disables them. */
+  backupReminderDays: { values: ['7', '14', '30', 'off'], defaultValue: '14' },
 });
 
 function readRaw() {

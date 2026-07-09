@@ -211,6 +211,32 @@
   background: var(--color-danger);
 }
 
+/* ---- Confirmation dialog (UI_GUIDELINES.md §7 Feedback) ---- */
+.dialog {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-l);
+  padding: var(--space-5);
+  max-width: min(92vw, 420px);
+  box-shadow: var(--shadow-2);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+
+.dialog__title {
+  margin-bottom: var(--space-2);
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
 /* ---- Toasts (UI_GUIDELINES.md §7 Feedback) ---- */
 .toast-region {
   position: fixed;

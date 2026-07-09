@@ -64,7 +64,30 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   - DATABASE.md: documented that indexed boolean-like fields are stored as
     0/1 (`notes.pinned`, `oplog.synced`) — IndexedDB cannot index booleans.
 
+- **v1.0 Foundation, increment 3**:
+  - Backup archive format v1 (`services/archiveCodec.js`): single open JSON
+    file, SHA-256 checksum over collections, inline base64 blob fields,
+    out-of-line key preservation; documented in API_DESIGN.md §7.
+  - Export service: `exportFull()` streams every store — tombstones and
+    binary data included — into a deterministic archive.
+  - Import service: `inspectArchive()` validates format/version/structure
+    and recomputes the checksum before anything is touched;
+    `importCollections()` imports in ONE transaction spanning all stores
+    (all-or-nothing), merge or replace; appMeta is never imported.
+  - Backup service: `createBackup()` with appMeta bookkeeping
+    (lastBackupAt + capped backupHistory); `restoreFromArchive()` enforcing
+    checksum + schema-version gates and post-restore count verification;
+    `getBackupStatus()` powering the configurable boot-time backup reminder.
+  - Settings → Backup & data: download backup, guarded restore flow
+    (inspect → named-consequences confirm dialog → automatic pre-restore
+    safety download → atomic restore → reload), reminder cadence setting.
+  - New UI primitives: native `<dialog>`-based ConfirmDialog, file
+    download/pick helpers.
+  - Release-blocking backup round-trip test suite (6 tests) added to the
+    harness: export→wipe→restore fidelity incl. blob bytes and tombstones,
+    tamper refusal, schema-gate refusal, device identity preservation.
+
 ### Notes
-- v1.0 increment 3 (next): backup/restore/export/import services and UI
-  (T-022–T-025) + the release-blocking backup round-trip test, closing the
-  v1.0 exit gate (T-027). Live in-browser verification owed as T-028.
+- v1.0 is now feature-complete. Remaining for the exit gate (T-027): the
+  live in-browser pass (T-028) — install, offline reload, green test run —
+  then tag v1.0.0 and begin v1.1 Plant Manager.

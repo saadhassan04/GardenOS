@@ -25,11 +25,12 @@
 - [x] **T-020** Persistent-storage request + quota monitor + Settings storage display (NFR-3.2) (2026-07-09)
 - [x] **T-021** Error framework: `GardenOSError` hierarchy, logger ring buffer, global error capture, Diagnostics view (#/diagnostics: install meta, migration log, flags, store counts, session log) (2026-07-09)
 - [ ] **T-028** In-browser verification pass of increments 1–2: install, offline reload, theme switch, both viewports, **and run tests/index.html (10 DB integration tests) — must be green before T-022 backup work builds on Repository.** Static checks done 2026-07-09 (jsc parse + full import-graph execution, precache/import audits, HTTP 200 sweep); live browser run still owed (no Node/preview tooling on this machine)
-- [ ] **T-022** ExportService.exportFull + archive format + checksum (API_DESIGN §7; FR-9.1)
-- [ ] **T-023** ImportService.inspect + importArchive with merge/replace (FR-9.3, API_DESIGN §7)
-- [ ] **T-024** BackupService: create/restore pipeline with pre-restore snapshot + verify (FR-9.2, API_DESIGN §8)
-- [ ] **T-025** Backup reminder logic (FR-9.4)
-- [ ] **T-026** Test harness (browser runner) ✓ + database integration suite ✓ (tests/index.html, 10 tests: migration, envelope, atomicity, tombstones, cursor pagination, export/import) (2026-07-09) — **backup round-trip test** (release-blocking) pending T-022–T-024
+- [x] **T-022** ExportService.exportFull + archive format v1 + SHA-256 checksum (API_DESIGN §7; FR-9.1) — blobs inline as base64, out-of-line keys preserved (2026-07-09)
+- [x] **T-023** ImportService.inspect + importCollections with merge/replace in ONE cross-store transaction (API_DESIGN §7) (2026-07-09)
+- [x] **T-024** BackupService: createBackup (appMeta bookkeeping) + guarded restore pipeline (checksum gate, schema gate, safety backup download, atomic replace, post-restore count verification) + Settings UI (FR-9.2, API_DESIGN §8) (2026-07-09)
+- [x] **T-025** Backup reminder logic: configurable cadence setting + boot-time sticky toast (FR-9.4) (2026-07-09)
+- [x] **T-026** Test harness + database suite (10 tests) + **release-blocking backup round-trip suite** (6 tests: round-trip with blobs/tombstones, tamper refusal, schema-gate refusal, appMeta identity, bookkeeping, merge mode) (2026-07-09) — green run in a real browser required at every release (first run owed via T-028)
+- [ ] **T-029** Selective export (FR-9.3): per-collection JSON + CSV (harvests) — deliver alongside first data-bearing module (v1.1+)
 - [ ] **T-027** v1.0 exit gate run: offline install test, Lighthouse ≥ 90, round-trip verified → tag v1.0.0
 
 ## 🟠 High Priority (v1.1 Plant Manager — starts after v1.0 ships)

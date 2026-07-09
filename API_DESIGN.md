@@ -159,10 +159,16 @@ ImportService:
   importArchive(file, {mode: "merge"|"replace"}): Promise<ImportReport>
   importCSV(file, {collection, mapping}): Promise<ImportReport>
 
-Archive format (versioned, documented, open):
-{ meta: {app: "GardenOS", appVersion, schemaVersion, createdAt, checksum: "sha-256", counts: {…}},
-  collections: { plants: […], events: […], … },
-  images: [{record, blobBase64}] }                  // or bundled binary container
+Archive format v1 (versioned, documented, open — implemented in services/archiveCodec.js):
+{ format: "gardenos-backup", formatVersion: 1,
+  meta: {app: "GardenOS", appVersion, schemaVersion, createdAt, checksum: "sha-256 hex", counts: {…}},
+  collections: { <store>: { records: […], keys: […] }, … } }
+// - checksum covers JSON.stringify(collections); collections serialize in
+//   database/stores.js registry order (deterministic).
+// - Blob fields travel inline inside their records as
+//   { "__gardenosBlob": { base64, type } } — no separate images section.
+// - keys preserve out-of-line primary keys (autoIncrement stores).
+// - appMeta is exported for forensics but NEVER imported (device identity).
 ```
 
 ## 8. Backup / Restore API (v1.0)

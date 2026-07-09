@@ -7,6 +7,7 @@
 
 import { runAll } from './testKit.js';
 import { prepareTestDatabase } from './database.test.js';
+import './backup.test.js';
 
 const resultsEl = document.getElementById('results');
 const summaryEl = document.getElementById('summary');

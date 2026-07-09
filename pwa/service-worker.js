@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v0.2.0';
+const CACHE_VERSION = 'gardenos-shell-v0.3.0';
 
 const PRECACHE_URLS = [
   './',
@@ -31,6 +31,8 @@ const PRECACHE_URLS = [
   './utils/format.js',
   './utils/logger.js',
   './utils/uuid.js',
+  './utils/checksum.js',
+  './utils/blobCodec.js',
   './storage/settings.js',
   './hooks/bus.js',
   './hooks/router.js',
@@ -42,8 +44,14 @@ const PRECACHE_URLS = [
   './database/migrations/index.js',
   './database/migrations/001_initial_schema.js',
   './services/storageStatusService.js',
+  './services/archiveCodec.js',
+  './services/exportService.js',
+  './services/importService.js',
+  './services/backupService.js',
   './components/Navigation.js',
   './components/Toast.js',
+  './components/ConfirmDialog.js',
+  './components/fileTransfer.js',
   './pages/DashboardPage.js',
   './pages/SettingsPage.js',
   './pages/DiagnosticsPage.js',

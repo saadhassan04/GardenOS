@@ -8,12 +8,21 @@
 import { el, svgIcon } from '../utils/dom.js';
 import { getSetting, setSetting } from '../storage/settings.js';
 import { showToast } from '../components/Toast.js';
+import { confirmDialog } from '../components/ConfirmDialog.js';
+import { triggerDownload, pickFile } from '../components/fileTransfer.js';
 import { APP_VERSION } from '../config/constants.js';
 import { formatBytes, formatPercent } from '../utils/format.js';
+import { logger } from '../utils/logger.js';
 import {
   getStorageStatus,
   requestPersistentStorage,
 } from '../services/storageStatusService.js';
+import { inspectArchive } from '../services/importService.js';
+import {
+  createBackup,
+  restoreFromArchive,
+  getBackupStatus,
+} from '../services/backupService.js';
 
 /** @returns {HTMLElement} */
 export function renderSettingsPage() {
@@ -47,6 +56,7 @@ export function renderSettingsPage() {
         ['saturday', 'Saturday'],
       ]),
     ]),
+    backupSection(),
     storageSection(),
     section('About', [
       el(
@@ -64,8 +74,8 @@ export function renderSettingsPage() {
       el(
         'p',
         { className: 'text-small text-muted' },
-        'All garden data stays on this device. Backup & restore arrive in the next '
-          + 'Foundation increment, before any plant data is ever entered.',
+        'All garden data stays on this device — nothing is uploaded anywhere. '
+          + 'Backups are plain files you control.',
       ),
     ]),
   );
@@ -109,6 +119,133 @@ function selectField(label, key, options) {
   select.value = getSetting(key);
 
   return el('div', { className: 'field' }, el('label', { className: 'field__label', for: id }, label), select);
+}
+
+function backupSection() {
+  const lastBackupValue = el('span', { className: 'status-row__value' }, 'Checking…');
+  const statusRow = el(
+    'div',
+    { className: 'status-row' },
+    el('span', {}, 'Last backup'),
+    lastBackupValue,
+  );
+
+  const refreshStatus = async () => {
+    try {
+      const status = await getBackupStatus();
+      if (status.lastBackupAt === null) {
+        lastBackupValue.textContent = status.dataRecords > 0 ? 'Never — back up soon' : 'Never';
+        lastBackupValue.classList.toggle('status-row__value--warn', status.dataRecords > 0);
+      } else {
+        const days = status.daysSince === 0 ? 'today' : `${status.daysSince} day(s) ago`;
+        lastBackupValue.textContent = `${days} (${status.lastBackupAt.slice(0, 10)})`;
+        lastBackupValue.classList.toggle('status-row__value--warn', status.reminderDue);
+      }
+    } catch (error) {
+      lastBackupValue.textContent = 'Unavailable';
+      logger.warn('Backup status unavailable', { error: error.message });
+    }
+  };
+  refreshStatus();
+
+  const downloadButton = el(
+    'button',
+    {
+      className: 'btn btn--primary',
+      onClick: async () => {
+        downloadButton.disabled = true;
+        try {
+          const { blob, filename } = await createBackup();
+          triggerDownload(blob, filename);
+          showToast('Backup downloaded — keep a copy off this device');
+          refreshStatus();
+        } catch (error) {
+          logger.error('Backup failed', { error: error.message });
+          showToast(`Backup failed: ${error.message}`);
+        } finally {
+          downloadButton.disabled = false;
+        }
+      },
+    },
+    'Download backup',
+  );
+
+  const restoreButton = el(
+    'button',
+    { className: 'btn', onClick: () => runRestoreFlow(refreshStatus) },
+    'Restore from backup…',
+  );
+
+  return section('Backup & data', [
+    statusRow,
+    el(
+      'p',
+      { className: 'text-small text-muted' },
+      'A backup is one file holding your entire garden: every plant, event, note, and photo.',
+    ),
+    el('div', { className: 'dialog__actions' }, restoreButton, downloadButton),
+    selectField('Remind me to back up', 'backupReminderDays', [
+      ['7', 'Every 7 days'],
+      ['14', 'Every 14 days'],
+      ['30', 'Every 30 days'],
+      ['off', 'Never'],
+    ]),
+  ]);
+}
+
+/**
+ * Guarded restore pipeline (NFR-4.4): pick → inspect/validate → explicit
+ * confirmation naming the consequences → safety backup of current data →
+ * atomic restore → reload into clean state.
+ * @param {() => void} refreshStatus
+ */
+async function runRestoreFlow(refreshStatus) {
+  const file = await pickFile('.json,application/json');
+  if (!file) {
+    return;
+  }
+
+  let inspection;
+  try {
+    inspection = await inspectArchive(await file.text());
+  } catch (error) {
+    showToast(error.message);
+    return;
+  }
+  if (!inspection.checksumOk) {
+    showToast('This backup file failed its integrity check — refusing to restore');
+    return;
+  }
+
+  const { meta } = inspection;
+  const totalRecords = Object.values(meta.counts).reduce((sum, n) => sum + n, 0);
+  const confirmed = await confirmDialog({
+    title: 'Replace all data with this backup?',
+    body:
+      `Backup from ${meta.createdAt.slice(0, 10)} (app v${meta.appVersion}, `
+      + `${totalRecords} records). Everything currently in GardenOS will be replaced. `
+      + 'A safety copy of the current data downloads first, and the app reloads when done.',
+    confirmLabel: 'Replace everything',
+    danger: true,
+  });
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const current = await getBackupStatus();
+    if (current.dataRecords > 0) {
+      const safety = await createBackup();
+      triggerDownload(safety.blob, safety.filename.replace('backup', 'pre-restore-safety'));
+    }
+    await restoreFromArchive(inspection.archive, inspection.checksumOk);
+    showToast('Restore complete — reloading…');
+    window.setTimeout(() => window.location.reload(), 900);
+  } catch (error) {
+    logger.error('Restore failed', { error: error.message });
+    showToast(`Restore failed: ${error.message}`);
+    refreshStatus();
+  }
 }
 
 function storageSection() {
