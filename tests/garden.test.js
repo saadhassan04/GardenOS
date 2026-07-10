@@ -26,6 +26,8 @@ import {
   recordOutcome,
   whatWorkedFor,
 } from '../services/treatmentService.js';
+import { ensureSeededGarden, _clearSeedFlagForTests } from '../services/gardenSeedService.js';
+import { KARACHI_STARTER_GARDEN } from '../database/seed/ownerGarden.karachi.js';
 import { ValidationError } from '../utils/errors.js';
 
 test('should manage locations and refuse deleting one with residents', async () => {
@@ -72,6 +74,37 @@ test('should resolve effective watering: override → seasonal → base', async 
   assertEqual(effectiveWateringDays(overridden, plumeria, july), 2, 'plant override must win');
 
   assertEqual(effectiveWateringDays(plant, null), null, 'no profile, no override → unknown');
+});
+
+test('should seed the owner starter garden once, on fresh installs only', async () => {
+  const plants = new Repository(STORES.plants);
+  await plants.clearAll();
+  await _clearSeedFlagForTests();
+
+  const first = await ensureSeededGarden();
+  assertEqual(first.seeded, KARACHI_STARTER_GARDEN.length);
+  assertEqual(await plants.count(), KARACHI_STARTER_GARDEN.length);
+
+  const { items } = await plants.query({ index: 'name', range: IDBKeyRange.only('Black Plumeria'), limit: 1 });
+  const blackPlumeria = items[0];
+  assert(blackPlumeria, 'the flagship plumeria must be planted');
+  assert(blackPlumeria.careProfileId, 'seeded plants must link their Karachi care profile');
+  assertEqual(blackPlumeria.botanicalName, 'Plumeria rubra');
+
+  const second = await ensureSeededGarden();
+  assertEqual(second.seeded, 0, 'seeding must be idempotent');
+
+  // A deliberately emptied garden stays empty: the flag outlives the data.
+  await plants.clearAll();
+  const third = await ensureSeededGarden();
+  assertEqual(third.seeded, 0, 'an emptied garden must never re-seed');
+
+  // A pre-existing garden without the flag (restored backup) is untouched.
+  await _clearSeedFlagForTests();
+  await createPlant({ name: 'Pre-existing Plant' });
+  const fourth = await ensureSeededGarden();
+  assertEqual(fourth.seeded, 0, 'an existing garden must never be seeded over');
+  assertEqual(await plants.count(), 1);
 });
 
 test('should run the pest lifecycle and stamp plant timelines', async () => {

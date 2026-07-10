@@ -12,6 +12,8 @@ import { registerRoute, setNotFound, startRouter } from '../hooks/router.js';
 import { getSetting } from '../storage/settings.js';
 import { openDatabase } from '../database/db.js';
 import { getBackupStatus } from '../services/backupService.js';
+import { ensureSeededGarden } from '../services/gardenSeedService.js';
+import { getStorageStatus, requestPersistentStorage } from '../services/storageStatusService.js';
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
 import '../widgets/index.js'; // widgets self-register before the dashboard renders
@@ -119,9 +121,11 @@ async function bootstrap() {
   // user can inspect the failure and (soon) restore a backup.
   try {
     await openDatabase();
-    // Karachi care-profile presets, first run only (T-039); user data is
-    // never overwritten.
+    // First-run seeding: Karachi care presets (T-039), then the owner's
+    // documented starter garden. User data is never overwritten.
     await ensureSeededCareProfiles();
+    await ensureSeededGarden();
+    protectStorage();
   } catch (error) {
     logger.error('Database unavailable', { error: error.message });
     showToast('Garden database could not be opened — see Diagnostics', {
@@ -159,6 +163,23 @@ async function bootstrap() {
   checkBackupReminder();
   announceDueTasks(); // badge + (permitted) notification for due tasks
   logger.info('GardenOS ready');
+}
+
+/**
+ * Ask the browser to protect our storage from eviction as soon as data
+ * exists (NFR-3.2). Fire-and-forget: browsers grant silently, prompt, or
+ * decline by heuristic — Settings → Storage shows the outcome and keeps
+ * the manual button for retries.
+ */
+async function protectStorage() {
+  try {
+    const status = await getStorageStatus();
+    if (status.persisted === false) {
+      await requestPersistentStorage();
+    }
+  } catch (error) {
+    logger.warn('Storage protection request failed', { error: error.message });
+  }
 }
 
 /** Boot-time backup reminder (FR-9.4). Fire-and-forget; never blocks startup. */
