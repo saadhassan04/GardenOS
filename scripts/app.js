@@ -20,6 +20,7 @@ import { renderPlantFormPage } from '../pages/PlantFormPage.js';
 import { renderPlantDetailPage } from '../pages/PlantDetailPage.js';
 import { renderNotesPage } from '../pages/NotesPage.js';
 import { renderLocationsPage } from '../pages/LocationsPage.js';
+import { renderGalleryPage } from '../pages/GalleryPage.js';
 import { ensureSeededCareProfiles } from '../services/careProfileService.js';
 import { renderNoteFormPage } from '../pages/NoteFormPage.js';
 import { renderSettingsPage } from '../pages/SettingsPage.js';
@@ -92,6 +93,7 @@ function registerRoutes() {
   registerRoute('/notes/new', 'Add note', renderNoteFormPage);
   registerRoute('/notes/:id/edit', 'Edit note', renderNoteFormPage);
   registerRoute('/locations', 'Locations', renderLocationsPage);
+  registerRoute('/gallery', 'Gallery', renderGalleryPage);
   registerRoute('/settings', 'Settings', renderSettingsPage);
   registerRoute('/diagnostics', 'Diagnostics', renderDiagnosticsPage);
   setNotFound(renderNotFoundPage);
@@ -135,6 +137,7 @@ async function bootstrap() {
   mountNavigation(document.getElementById('app-nav'), [
     { label: 'Dashboard', path: '/', icon: 'home' },
     { label: 'Plants', path: '/plants', icon: 'leaf' },
+    { label: 'Gallery', path: '/gallery', icon: 'camera' },
     { label: 'Notes', path: '/notes', icon: 'note' },
     { label: 'Settings', path: '/settings', icon: 'gear' },
   ]);

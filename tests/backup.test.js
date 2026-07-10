@@ -45,6 +45,9 @@ async function seedFixture() {
     plantId: alive.id,
     blob: new Blob([new Uint8Array(BLOB_BYTES)], { type: 'image/webp' }),
     mimeType: 'image/webp',
+    byteSize: BLOB_BYTES.length,
+    width: 1,
+    height: 1,
     capturedAt: '2026-07-06T09:00:00.000Z',
   });
 

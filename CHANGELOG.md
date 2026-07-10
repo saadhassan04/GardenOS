@@ -15,6 +15,27 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **v1.2 Image Manager** (app 1.2.0-dev.1):
+  - Ingest pipeline (FR-6.1): decode → downscale (2048px max edge) → WebP
+    re-encode with automatic JPEG fallback where the browser can't encode
+    WebP (Safari) → 320px thumbnail → one atomic transaction that also
+    maintains the plant's photo count and auto-assigns the first photo as
+    cover. capturedAt comes from the file's lastModified (camera shot time).
+  - Growth photo strip on the plant detail page; all-photos Gallery page
+    (paged, newest-first) in primary navigation; photo viewer dialog with
+    caption editing, cover selection, and confirmed deletion.
+  - Plant cards now show cover thumbnails; camera capture opens directly on
+    mobile (`capture="environment"`).
+  - Object-URL lifecycle: page-scoped URLs revoked wholesale on navigation.
+  - Per-plant photo storage accounting + photo totals in Settings → Storage
+    (FR-6.5); images ride the existing checksummed backup round-trip.
+  - 5 new integration tests (38 total) exercising the real canvas encode
+    path — all green live in Safari.
+
+### Fixed
+- Storage accounting no longer produces NaN totals for image records that
+  lack byteSize (hand-imported or pre-v1.2 data): byte counts fall back to
+  the blob's actual size. Caught live at 37/38.
 - **v1.1 Plant Manager, increment 3** (app 1.1.0-dev.3):
   - Pest & treatment flows (FR-10): report with common-Karachi-pest
     suggestions, treat with "what worked last time" hints drawn from

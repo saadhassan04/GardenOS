@@ -17,6 +17,7 @@ import {
   getStorageStatus,
   requestPersistentStorage,
 } from '../services/storageStatusService.js';
+import { getStorageStats } from '../services/imageService.js';
 import { inspectArchive } from '../services/importService.js';
 import {
   createBackup,
@@ -267,6 +268,7 @@ function storageSection() {
   const meterFill = el('div', { className: 'meter__fill' });
   meterFill.style.width = '0%';
   const usageText = el('p', { className: 'text-small text-muted' }, 'Checking storage…');
+  const photosText = el('p', { className: 'text-small text-muted' }, '');
   const persistRow = el('div', { className: 'stack' });
 
   const refresh = async () => {
@@ -280,6 +282,15 @@ function storageSection() {
         `${formatBytes(status.usageBytes)} used of ${formatBytes(status.quotaBytes)} available`;
     } else {
       usageText.textContent = 'This browser does not report storage usage.';
+    }
+
+    try {
+      const photos = await getStorageStats();
+      photosText.textContent = photos.count > 0
+        ? `Photos: ${photos.count} using ${formatBytes(photos.totalBytes)}`
+        : 'Photos: none yet';
+    } catch {
+      photosText.textContent = '';
     }
 
     persistRow.replaceChildren();
@@ -321,5 +332,5 @@ function storageSection() {
 
   refresh();
 
-  return section('Storage', [el('div', { className: 'meter' }, meterFill), usageText, persistRow]);
+  return section('Storage', [el('div', { className: 'meter' }, meterFill), usageText, photosText, persistRow]);
 }

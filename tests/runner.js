@@ -11,6 +11,7 @@ import './backup.test.js';
 import './plants.test.js';
 import './notes.test.js';
 import './garden.test.js';
+import './images.test.js';
 
 const resultsEl = document.getElementById('results');
 const summaryEl = document.getElementById('summary');

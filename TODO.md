@@ -50,11 +50,11 @@
 ## 🟡 Medium Priority (v1.2 – v1.5)
 
 ### v1.2 Image Manager
-- [ ] **T-050** Image ingest pipeline: capture/upload → webp re-encode → thumbnail → transactional store (FR-6.1, API §5)
-- [ ] **T-051** Growth gallery + all-photos gallery (paged, `[plantId+capturedAt]`) (FR-6.4)
-- [ ] **T-052** Attach images to events/notes/pests; cover image (FR-6.2)
-- [ ] **T-053** Images in backup archive; storage breakdown per plant (FR-6.5)
-- [ ] **T-054** 200-photo performance validation on mid-range Android → exit gate
+- [x] **T-050** Image ingest pipeline: camera/file capture → downscale (2048 max) → WebP re-encode with JPEG fallback (Safari) → 320px thumbnail → ONE transaction incl. plant imageCount/cover bookkeeping; capturedAt from file lastModified (full EXIF parse deferred to v2.0 needs) (FR-6.1) (2026-07-09)
+- [x] **T-051** Growth photo strip on plant detail + all-photos Gallery page (paged, `[plantId+capturedAt]` / `capturedAt` desc) + photo viewer (caption edit, cover, confirmed delete); page-scoped object-URL lifecycle revoked on navigation (FR-6.4) (2026-07-09)
+- [ ] **T-052** Attach images: plants ✓ + cover image ✓ (auto-first + manual) (2026-07-09) — attach-from-event/note/pest UI pending (record model + service links ready)
+- [x] **T-053** Images in backup archive (generic blob round-trip, release-gating test) + per-plant storage accounting with byteSize fallbacks + photo totals in Settings → Storage (FR-6.5) (2026-07-09)
+- [ ] **T-054** 200-photo performance validation on mid-range Android → v1.2 exit gate (owner device required)
 
 ### v1.3 Kitchen Garden
 - [ ] **T-060** SowingBatch + Harvest models/repos/services; stage-change events (FR-5.1)

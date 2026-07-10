@@ -8,6 +8,7 @@
 import { el, svgIcon } from '../utils/dom.js';
 import { relativeDate } from '../utils/dates.js';
 import { PLANT_CATEGORIES } from '../config/registries.js';
+import { thumbnailUrl } from '../services/imageService.js';
 
 /**
  * @param {object} plant
@@ -36,10 +37,22 @@ export function renderPlantCard(plant, options = {}) {
       }
     : { className: 'plant-card', href: `#/plants/${plant.id}` };
 
+  const photoSlot = el('div', { className: 'plant-card__photo' }, svgIcon('leaf', { size: 32 }));
+  if (plant.coverImageId) {
+    // Async cover load; the leaf placeholder stays until (unless) it lands.
+    thumbnailUrl(plant.coverImageId).then((url) => {
+      if (url) {
+        photoSlot.replaceChildren(
+          el('img', { className: 'plant-card__cover', src: url, alt: '', loading: 'lazy' }),
+        );
+      }
+    });
+  }
+
   const card = el(
     selectable ? 'div' : 'a',
     props,
-    el('div', { className: 'plant-card__photo' }, svgIcon('leaf', { size: 32 })),
+    photoSlot,
     el(
       'div',
       { className: 'plant-card__body' },

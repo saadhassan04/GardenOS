@@ -21,6 +21,9 @@ import { eventFormDialog } from '../components/EventFormDialog.js';
 import { renderPestSection } from '../components/PlantPestSection.js';
 import { getLocation } from '../services/locationsService.js';
 import { getCareProfile } from '../services/careProfileService.js';
+import { pickFile } from '../components/fileTransfer.js';
+import { photoTile } from './GalleryPage.js';
+import { ingestImage, getGrowthSeries } from '../services/imageService.js';
 import {
   PLANT_CATEGORIES,
   PLANT_STATUSES,
@@ -65,6 +68,7 @@ async function build(page, plantId) {
   );
 
   page.append(quickLogSection(plant, refresh));
+  page.append(await photosSection(plant, refresh));
   page.append(await profileSection(plant));
   page.append(await renderPestSection(plant, refresh));
   page.append(await lineageSection(plant));
@@ -140,6 +144,55 @@ function quickLogSection(plant, refresh) {
     { className: 'page-section' },
     el('span', { className: 'text-caption' }, 'Quick log'),
     el('div', { className: 'card quick-log' }, ...buttons, moreButton),
+  );
+}
+
+/**
+ * Growth photo strip (FR-6.4): the plant's newest photos, horizontally
+ * scrollable, plus camera capture. Chronology reads right-to-left here;
+ * the full story lives in the viewer and gallery.
+ */
+async function photosSection(plant, refresh) {
+  const { items } = await getGrowthSeries(plant.id, { limit: 12 });
+
+  const strip = el('div', { className: 'photo-strip' });
+  for (const record of items) {
+    strip.append(await photoTile(record, refresh));
+  }
+  if (items.length === 0) {
+    strip.append(
+      el('p', { className: 'text-small text-muted' }, 'No photos yet — capture the first chapter.'),
+    );
+  }
+
+  const addButton = el(
+    'button',
+    {
+      className: 'btn',
+      onClick: async () => {
+        const file = await pickFile('image/*', { capture: 'environment' });
+        if (!file) {
+          return;
+        }
+        try {
+          await ingestImage(file, { plantId: plant.id });
+          showToast(`Photo added to ${plant.name}`);
+          refresh();
+        } catch (error) {
+          logger.error('Photo ingest failed', { error: error.message });
+          showToast(error.message);
+        }
+      },
+    },
+    svgIcon('camera', { size: 20 }),
+    'Add photo',
+  );
+
+  return el(
+    'section',
+    { className: 'page-section' },
+    el('span', { className: 'text-caption' }, `Photos (${plant.derived.imageCount})`),
+    el('div', { className: 'card stack' }, strip, el('div', { className: 'dialog__actions' }, addButton)),
   );
 }
 

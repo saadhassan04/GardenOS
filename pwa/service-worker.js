@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.1.0-dev.3';
+const CACHE_VERSION = 'gardenos-shell-v1.2.0-dev.1';
 
 const PRECACHE_URLS = [
   './',
@@ -47,6 +47,7 @@ const PRECACHE_URLS = [
   './models/Treatment.js',
   './models/Location.js',
   './models/CareProfile.js',
+  './models/ImageRecord.js',
   './database/db.js',
   './database/idb.js',
   './database/stores.js',
@@ -54,6 +55,7 @@ const PRECACHE_URLS = [
   './database/PlantRepository.js',
   './database/EventRepository.js',
   './database/NoteRepository.js',
+  './database/ImageRepository.js',
   './database/migrations/index.js',
   './database/migrations/001_initial_schema.js',
   './database/seed/careProfiles.karachi.js',
@@ -65,6 +67,7 @@ const PRECACHE_URLS = [
   './services/treatmentService.js',
   './services/locationsService.js',
   './services/careProfileService.js',
+  './services/imageService.js',
   './services/archiveCodec.js',
   './services/exportService.js',
   './services/importService.js',
@@ -77,6 +80,7 @@ const PRECACHE_URLS = [
   './components/EventFormDialog.js',
   './components/FormDialog.js',
   './components/PlantPestSection.js',
+  './components/PhotoViewer.js',
   './pages/DashboardPage.js',
   './pages/PlantsPage.js',
   './pages/PlantFormPage.js',
@@ -84,6 +88,7 @@ const PRECACHE_URLS = [
   './pages/NotesPage.js',
   './pages/NoteFormPage.js',
   './pages/LocationsPage.js',
+  './pages/GalleryPage.js',
   './pages/SettingsPage.js',
   './pages/DiagnosticsPage.js',
   './pages/NotFoundPage.js',

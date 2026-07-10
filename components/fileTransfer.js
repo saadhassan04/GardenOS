@@ -24,11 +24,18 @@ export function triggerDownload(blob, filename) {
 /**
  * Ask the user to pick a single file.
  * @param {string} accept input accept attribute, e.g. ".json,application/json"
+ * @param {{capture?: 'environment'|'user'}} [options] mobile browsers open
+ *   the camera directly when capture is set (photo logging in the garden)
  * @returns {Promise<File|null>} null when the picker is dismissed
  */
-export function pickFile(accept) {
+export function pickFile(accept, options = {}) {
   return new Promise((resolve) => {
-    const input = el('input', { type: 'file', accept, className: 'visually-hidden' });
+    const input = el('input', {
+      type: 'file',
+      accept,
+      capture: options.capture ?? null,
+      className: 'visually-hidden',
+    });
     const finish = (file) => {
       input.remove();
       resolve(file);
