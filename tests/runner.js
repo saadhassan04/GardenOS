@@ -14,6 +14,7 @@ import './garden.test.js';
 import './images.test.js';
 import './kitchen.test.js';
 import './dashboard.test.js';
+import './tasks.test.js';
 
 const resultsEl = document.getElementById('results');
 const summaryEl = document.getElementById('summary');

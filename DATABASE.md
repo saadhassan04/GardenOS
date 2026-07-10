@@ -131,6 +131,7 @@ Sixteen stores in schema v1. Stores marked 🔮 are created empty now (cheap) so
   status: "pending|done|skipped",
   completedAt: null | "ISO",
   completedEventBatchId: null | "uuid",   // link to auto-logged care events
+  spawnedTaskId: null | "uuid",           // next instance this completion created (undo support)
   seriesId: null | "uuid",                // stable id across recurring instances
   notes: ""
 }

@@ -23,7 +23,9 @@ import { renderNotesPage } from '../pages/NotesPage.js';
 import { renderLocationsPage } from '../pages/LocationsPage.js';
 import { renderGalleryPage } from '../pages/GalleryPage.js';
 import { renderKitchenGardenPage } from '../pages/KitchenGardenPage.js';
+import { renderTasksPage } from '../pages/TasksPage.js';
 import { renderMorePage } from '../pages/MorePage.js';
+import { announceDueTasks } from '../services/notificationService.js';
 import { ensureSeededCareProfiles } from '../services/careProfileService.js';
 import { renderNoteFormPage } from '../pages/NoteFormPage.js';
 import { renderSettingsPage } from '../pages/SettingsPage.js';
@@ -98,6 +100,7 @@ function registerRoutes() {
   registerRoute('/locations', 'Locations', renderLocationsPage);
   registerRoute('/gallery', 'Gallery', renderGalleryPage);
   registerRoute('/kitchen', 'Kitchen garden', renderKitchenGardenPage);
+  registerRoute('/tasks', 'Tasks', renderTasksPage);
   registerRoute('/more', 'More', renderMorePage);
   registerRoute('/settings', 'Settings', renderSettingsPage);
   registerRoute('/diagnostics', 'Diagnostics', renderDiagnosticsPage);
@@ -143,8 +146,8 @@ async function bootstrap() {
   mountNavigation(document.getElementById('app-nav'), [
     { label: 'Dashboard', path: '/', icon: 'home' },
     { label: 'Plants', path: '/plants', icon: 'leaf' },
+    { label: 'Tasks', path: '/tasks', icon: 'calendar' },
     { label: 'Kitchen', path: '/kitchen', icon: 'basket' },
-    { label: 'Gallery', path: '/gallery', icon: 'camera' },
     { label: 'More', path: '/more', icon: 'dots' },
   ]);
 
@@ -154,6 +157,7 @@ async function bootstrap() {
   startRouter(document.getElementById('app-main'));
 
   checkBackupReminder();
+  announceDueTasks(); // badge + (permitted) notification for due tasks
   logger.info('GardenOS ready');
 }
 

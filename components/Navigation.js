@@ -45,6 +45,21 @@ export function mountNavigation(container, items) {
   );
   container.append(...links);
 
+  // Due-task count badge (FR-4.5 fallback inbox): rides the Tasks item.
+  const tasksIndex = items.findIndex((item) => item.path === '/tasks');
+  if (tasksIndex !== -1) {
+    const badge = el('span', { className: 'nav-badge', hidden: '' });
+    links[tasksIndex].append(badge);
+    bus.on('tasks:badge', ({ count }) => {
+      if (count > 0) {
+        badge.textContent = String(count);
+        badge.removeAttribute('hidden');
+      } else {
+        badge.setAttribute('hidden', '');
+      }
+    });
+  }
+
   const syncActive = () => {
     const path = currentPath();
     items.forEach((item, index) => {

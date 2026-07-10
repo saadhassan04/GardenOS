@@ -15,6 +15,35 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **v1.5 Task Scheduler** (app 1.5.0-dev.1) — the offline core is now
+  feature-complete (ROADMAP.md v1.x):
+  - Pure recurrence engine (FR-4.1): daily/every-N-days count from the
+    completion date (care cadence — a late watering doesn't spawn an
+    already-overdue next); weekly/monthly/seasonal follow the calendar,
+    rolled forward past now; month-end clamping (Jan 31 → Feb 28),
+    seasonal year rollover, series end dates. Local-calendar math
+    throughout.
+  - Tasks page in primary navigation: inbox (overdue / today / next 7
+    days / later), weekStart-aware month calendar with day drill-down,
+    task creation dialog (types, plant link, repeat patterns).
+  - Complete → auto-log → spawn (FR-4.4): completing a care-type task logs
+    the matching events for its plants and spawns the next recurring
+    instance — with full Undo (pending restored, spawned instance removed,
+    events reverted). Skip keeps the series alive.
+  - Notifications (FR-4.5): capability-detected permission flow in
+    Settings, tagged open-time summary notification (no push server —
+    honestly scoped), and the always-available due-count badge on the
+    Tasks nav item.
+  - Care-profile suggestions (T-084): fertilizing cadences without a
+    pending task surface as one-tap recurring-task creation.
+  - Due-tasks dashboard widget (the FR-8.1 widget that waited for tasks);
+    Gallery moved under More to keep five nav slots.
+  - 6 new integration tests (54 total) — all green live in Safari.
+
+### Fixed
+- Test-suite time-of-day flake: day-count assertions anchored at noon
+  passed only when the suite ran after noon. Fixtures now use exact
+  elapsed offsets. Caught live at 53/54.
 - **v1.4 Garden Dashboard** (app 1.4.0-dev.1):
   - Widget registry (FR-8.2): widgets self-register with id/title/order/
     render/refreshOn; the dashboard renders whatever is registered and

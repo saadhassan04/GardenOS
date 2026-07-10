@@ -4,6 +4,7 @@
  * new file + one import line here; the dashboard never changes.
  */
 
+import './dueTasksWidget.js';
 import './needsAttentionWidget.js';
 import './quickLogWidget.js';
 import './statsWidget.js';

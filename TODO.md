@@ -68,12 +68,12 @@
 - [x] **T-072** Canvas chart primitives (DPR-crisp bar chart + calendar heatmap, token colors, visually-hidden text alternatives) + AnalyticsService (gardenStats, zero-filled dailyEventCounts, dailyActivity) (2026-07-09)
 
 ### v1.5 Task Scheduler
-- [ ] **T-080** Task model + recurrence engine (daily/N-days/weekly/monthly/seasonal) with timezone/DST tests (FR-4.1)
-- [ ] **T-081** Task inbox (overdue/today/upcoming) + calendar views (FR-4.3)
-- [ ] **T-082** Complete-task → auto-log care event flow (FR-4.4)
-- [ ] **T-083** Notifications with capability detection + fallback inbox (FR-4.5, API §6)
-- [ ] **T-084** Care-profile-driven task suggestions
-- [ ] **T-085** One-month recurrence soak test → v1.5 exit gate → stabilization pass
+- [x] **T-080** Task model + pure recurrence engine: daily/everyNDays count from completion (care cadence), weekly/monthly/seasonal follow the calendar rolled past now; month-end clamping, seasonal year rollover, endAt termination — all local-calendar math, edge cases tested (FR-4.1) (2026-07-09)
+- [x] **T-081** Task inbox (overdue/today/next-7-days/later via `[status+dueAt]`) + month calendar view (weekStart-aware, day drill-down) (FR-4.3) (2026-07-09) — instance editing deferred (delete + recreate covers it; revisit on demand)
+- [x] **T-082** Complete-task → auto-log care events (batchId) → spawn next instance, with FULL undo (restores pending, deletes spawned instance, reverts events); skip-occurrence keeps series alive (FR-4.4) (2026-07-09)
+- [x] **T-083** NotificationService: capability detection, permission flow in Settings, open-time summary notification (tagged, no push server — honestly scoped), always-on fallback badge on the Tasks nav item (FR-4.5) (2026-07-09)
+- [x] **T-084** Care-profile fertilizing suggestions: profile/override cadence without a pending task → one-tap recurring task creation, first due one cadence after the last fertilizing (2026-07-09)
+- [ ] **T-085** One-month recurrence soak test in real use → v1.5 exit gate → stabilization pass (owner)
 
 ## 🟢 Low Priority (v2.0+ — do not start; keep contracts warm)
 

@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.4.0-dev.1';
+const CACHE_VERSION = 'gardenos-shell-v1.5.0-dev.1';
 
 const PRECACHE_URLS = [
   './',
@@ -50,6 +50,7 @@ const PRECACHE_URLS = [
   './models/ImageRecord.js',
   './models/SowingBatch.js',
   './models/Harvest.js',
+  './models/Task.js',
   './database/db.js',
   './database/idb.js',
   './database/stores.js',
@@ -74,6 +75,9 @@ const PRECACHE_URLS = [
   './services/kitchenGardenService.js',
   './services/sowingCalendarService.js',
   './services/analyticsService.js',
+  './services/recurrence.js',
+  './services/taskSchedulerService.js',
+  './services/notificationService.js',
   './services/archiveCodec.js',
   './services/exportService.js',
   './services/importService.js',
@@ -98,6 +102,7 @@ const PRECACHE_URLS = [
   './widgets/recentPhotosWidget.js',
   './widgets/careChartsWidget.js',
   './widgets/statusWidget.js',
+  './widgets/dueTasksWidget.js',
   './pages/DashboardPage.js',
   './pages/PlantsPage.js',
   './pages/PlantFormPage.js',
@@ -107,6 +112,7 @@ const PRECACHE_URLS = [
   './pages/LocationsPage.js',
   './pages/GalleryPage.js',
   './pages/KitchenGardenPage.js',
+  './pages/TasksPage.js',
   './pages/MorePage.js',
   './pages/SettingsPage.js',
   './pages/DiagnosticsPage.js',

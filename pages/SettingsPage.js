@@ -18,6 +18,7 @@ import {
   requestPersistentStorage,
 } from '../services/storageStatusService.js';
 import { getStorageStats } from '../services/imageService.js';
+import { getCapability, requestPermission, announceDueTasks } from '../services/notificationService.js';
 import { inspectArchive } from '../services/importService.js';
 import {
   createBackup,
@@ -57,6 +58,7 @@ export function renderSettingsPage() {
         ['saturday', 'Saturday'],
       ]),
     ]),
+    notificationsSection(),
     section('Garden setup', [
       el(
         'div',
@@ -260,6 +262,53 @@ async function runRestoreFlow(refreshStatus) {
     showToast(`Restore failed: ${error.message}`);
     refreshStatus();
   }
+}
+
+/** Task notifications (FR-4.5): capability display + permission request. */
+function notificationsSection() {
+  const stateValue = el('span', { className: 'status-row__value' }, '');
+  const actionRow = el('div', {});
+
+  const refresh = () => {
+    const capability = getCapability();
+    const labels = {
+      granted: 'On — due tasks notify when the app opens',
+      denied: 'Blocked in browser settings',
+      unsupported: 'Not supported by this browser',
+      'not-asked': 'Off',
+    };
+    stateValue.textContent = labels[capability];
+    stateValue.classList.toggle('status-row__value--ok', capability === 'granted');
+    actionRow.replaceChildren();
+    if (capability === 'not-asked') {
+      actionRow.append(
+        el(
+          'button',
+          {
+            className: 'btn btn--primary',
+            onClick: async () => {
+              const result = await requestPermission();
+              showToast(result === 'granted' ? 'Notifications enabled' : 'Notifications stay off');
+              announceDueTasks();
+              refresh();
+            },
+          },
+          'Enable notifications',
+        ),
+      );
+    }
+  };
+  refresh();
+
+  return section('Notifications', [
+    el('div', { className: 'status-row' }, el('span', {}, 'Due-task notifications'), stateValue),
+    el(
+      'p',
+      { className: 'text-small text-muted' },
+      'GardenOS has no servers, so notifications fire when the app opens or is in use; the badge on the Tasks tab always shows the due count.',
+    ),
+    actionRow,
+  ]);
 }
 
 function storageSection() {

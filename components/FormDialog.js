@@ -18,6 +18,8 @@ import { el } from '../utils/dom.js';
  * @property {string} [placeholder]
  * @property {string[]} [suggestions] datalist entries for kind 'text'
  * @property {string} [hint]
+ * @property {boolean} [allowFuture] date fields clamp to today (backdating)
+ *   unless this is set — due dates need tomorrow
  */
 
 /**
@@ -49,7 +51,7 @@ export function formDialog({ title, fields, submitLabel = 'Save', intro = null }
           value: spec.value ?? '',
           placeholder: spec.placeholder ?? null,
         });
-        if (spec.kind === 'date') {
+        if (spec.kind === 'date' && !spec.allowFuture) {
           control.setAttribute('max', new Date().toISOString().slice(0, 10));
         }
         if (spec.kind === 'number') {

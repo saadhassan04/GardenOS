@@ -37,6 +37,15 @@ function daysAgoNoon(days) {
   return d.toISOString();
 }
 
+/**
+ * Exactly N days + 1 hour ago: floor(elapsed/day) === N at ANY time of day.
+ * (Noon anchoring made day-count assertions depend on whether the suite ran
+ * before or after noon — a real flake caught live.)
+ */
+function daysAgoExact(days) {
+  return new Date(Date.now() - days * DAY_MS - 3_600_000).toISOString();
+}
+
 test('should order, toggle, and persist dashboard widgets via the registry', async () => {
   _resetRegistryForTests();
   const render = () => {};
@@ -96,7 +105,7 @@ test('should zero-fill and bucket daily event counts by local day', async () => 
 test('should list watering-due plants most-overdue first', async () => {
   const overdue = await createPlant({ name: 'Overdue Rose' });
   await updatePlant(overdue.id, { careOverrides: { wateringEveryDays: 2 } });
-  await logEvent(overdue.id, 'watering', { occurredAt: daysAgoNoon(5) });
+  await logEvent(overdue.id, 'watering', { occurredAt: daysAgoExact(5) });
 
   const fresh = await createPlant({ name: 'Fresh Mint' });
   await updatePlant(fresh.id, { careOverrides: { wateringEveryDays: 10 } });
