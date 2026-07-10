@@ -15,6 +15,24 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **v1.4 Garden Dashboard** (app 1.4.0-dev.1):
+  - Widget registry (FR-8.2): widgets self-register with id/title/order/
+    render/refreshOn; the dashboard renders whatever is registered and
+    re-renders individual widgets live on their declared bus topics
+    (subscriptions torn down on navigation). Customize dialog toggles and
+    reorders widgets; layout persists via a new json-kind setting.
+  - Eight widgets: needs-attention (care profile vs. actual history,
+    one-tap watering with Undo), quick actions, garden stats, kitchen
+    batches, recent harvests, recent photos strip, care activity charts,
+    and platform status (relocated from the old dashboard).
+  - Canvas chart primitives (T-072, no libraries): DPR-crisp bar chart and
+    calendar heatmap, colored from design tokens, each with a
+    visually-hidden text alternative for screen readers.
+  - AnalyticsService: gardenStats headline numbers, zero-filled daily
+    event-count series (watering chart), and all-event daily activity
+    (12-week heatmap).
+  - Settings storage now supports json-kind values alongside enums.
+  - 4 new integration tests (48 total) — all green live in Safari.
 - **v1.3 Kitchen Garden** (app 1.3.0-dev.1):
   - Sowing batches (FR-5.1): validated model, forward-only stage lifecycle
     (sown → … → finished, skips allowed for direct-sown crops) with

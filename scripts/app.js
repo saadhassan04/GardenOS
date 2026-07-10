@@ -14,6 +14,7 @@ import { openDatabase } from '../database/db.js';
 import { getBackupStatus } from '../services/backupService.js';
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
+import '../widgets/index.js'; // widgets self-register before the dashboard renders
 import { renderDashboardPage } from '../pages/DashboardPage.js';
 import { renderPlantsPage } from '../pages/PlantsPage.js';
 import { renderPlantFormPage } from '../pages/PlantFormPage.js';

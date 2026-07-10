@@ -142,6 +142,20 @@ export async function getYield({ crop = null, from = null, to = null } = {}) {
 }
 
 /**
+ * The most recent harvests across all crops (dashboard widget).
+ * @param {number} [limit]
+ * @returns {Promise<object[]>}
+ */
+export async function listRecentHarvests(limit = 5) {
+  const { items } = await harvestRepository.query({
+    index: 'harvestedAt',
+    direction: 'prev',
+    limit,
+  });
+  return items;
+}
+
+/**
  * The current Karachi growing season's date range for yield summaries:
  * winter (Oct–Feb, the main season) or summer (Mar–Sep).
  * @param {Date} [date]

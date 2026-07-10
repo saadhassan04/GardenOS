@@ -464,6 +464,28 @@
   }
 }
 
+/* ---- Dashboard widgets (FR-8) ---- */
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.widget > .text-caption {
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.widget--wide {
+  grid-column: 1 / -1;
+}
+
+.widget__body .chart {
+  margin: var(--space-2) 0 var(--space-3);
+  overflow-x: auto;
+}
+
 /* ---- More page entries ---- */
 .more-entry {
   color: var(--color-text);

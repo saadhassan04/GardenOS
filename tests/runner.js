@@ -13,6 +13,7 @@ import './notes.test.js';
 import './garden.test.js';
 import './images.test.js';
 import './kitchen.test.js';
+import './dashboard.test.js';
 
 const resultsEl = document.getElementById('results');
 const summaryEl = document.getElementById('summary');

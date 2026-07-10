@@ -13,6 +13,8 @@ import { STORAGE_KEYS } from '../config/constants.js';
  * Settings schema: every key declares its allowed values and default.
  * Adding a setting = adding one entry here; unknown/invalid stored values
  * fall back to defaults so a corrupt store can never break the app.
+ * Enum settings declare `values`; free-shape settings declare kind 'json'
+ * (any JSON-serializable value, e.g. the dashboard layout).
  */
 const SCHEMA = Object.freeze({
   theme: { values: ['dark', 'light', 'auto'], defaultValue: 'dark' },
@@ -20,6 +22,8 @@ const SCHEMA = Object.freeze({
   weekStart: { values: ['monday', 'sunday', 'saturday'], defaultValue: 'monday' },
   /** Days between backup reminders (FR-9.4); 'off' disables them. */
   backupReminderDays: { values: ['7', '14', '30', 'off'], defaultValue: '14' },
+  /** Dashboard widget order/visibility (FR-8.2); null = registry defaults. */
+  dashboardLayout: { kind: 'json', defaultValue: null },
 });
 
 function readRaw() {
@@ -34,7 +38,7 @@ function readRaw() {
 /**
  * Get one validated setting.
  * @param {keyof typeof SCHEMA} key
- * @returns {string}
+ * @returns {*} enum settings return a string; json settings return the value
  */
 export function getSetting(key) {
   const spec = SCHEMA[key];
@@ -42,6 +46,9 @@ export function getSetting(key) {
     throw new ValidationError(`Unknown setting "${key}"`);
   }
   const stored = readRaw()[key];
+  if (spec.kind === 'json') {
+    return stored === undefined ? spec.defaultValue : stored;
+  }
   return spec.values.includes(stored) ? stored : spec.defaultValue;
 }
 
@@ -64,7 +71,13 @@ export function setSetting(key, value) {
   if (!spec) {
     throw new ValidationError(`Unknown setting "${key}"`);
   }
-  if (!spec.values.includes(value)) {
+  if (spec.kind === 'json') {
+    try {
+      JSON.stringify(value);
+    } catch {
+      throw new ValidationError(`Setting "${key}" must be JSON-serializable`);
+    }
+  } else if (!spec.values.includes(value)) {
     throw new ValidationError(`Invalid value "${value}" for setting "${key}"`, {
       details: { allowed: spec.values },
     });

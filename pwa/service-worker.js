@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.3.0-dev.1';
+const CACHE_VERSION = 'gardenos-shell-v1.4.0-dev.1';
 
 const PRECACHE_URLS = [
   './',
@@ -73,6 +73,7 @@ const PRECACHE_URLS = [
   './services/imageService.js',
   './services/kitchenGardenService.js',
   './services/sowingCalendarService.js',
+  './services/analyticsService.js',
   './services/archiveCodec.js',
   './services/exportService.js',
   './services/importService.js',
@@ -86,6 +87,17 @@ const PRECACHE_URLS = [
   './components/FormDialog.js',
   './components/PlantPestSection.js',
   './components/PhotoViewer.js',
+  './components/charts.js',
+  './widgets/registry.js',
+  './widgets/index.js',
+  './widgets/needsAttentionWidget.js',
+  './widgets/quickLogWidget.js',
+  './widgets/statsWidget.js',
+  './widgets/batchesWidget.js',
+  './widgets/recentHarvestsWidget.js',
+  './widgets/recentPhotosWidget.js',
+  './widgets/careChartsWidget.js',
+  './widgets/statusWidget.js',
   './pages/DashboardPage.js',
   './pages/PlantsPage.js',
   './pages/PlantFormPage.js',

@@ -63,9 +63,9 @@
 - [x] **T-063** Karachi sowing calendar: 19 seeded crops with months + notes, merged with user-added custom crops (add/remove via dialog, stored in appMeta) (FR-5.4) (2026-07-09)
 
 ### v1.4 Dashboard
-- [ ] **T-070** Widget registry + dashboard page with toggle/reorder persistence (FR-8.2)
-- [ ] **T-071** Widgets: due tasks, stats, recent photos, recent harvests, needs-attention, quick-log
-- [ ] **T-072** Canvas chart primitives (bar/line/heatmap) + first analytics (AnalyticsService)
+- [x] **T-070** Widget registry (self-registering specs: id/title/order/wide/render/refreshOn) + dashboard rendering registry order with live per-widget bus refresh and subscription teardown on navigation; Customize dialog (toggle + reorder) persisted via new json-kind setting (FR-8.2) (2026-07-09)
+- [x] **T-071** Eight widgets: needs-attention (profile vs. history, one-tap water + Undo), quick actions, garden stats, kitchen batches, recent harvests, recent photos, care charts, platform status. Due-TASKS widget arrives with v1.5 tasks themselves (2026-07-09)
+- [x] **T-072** Canvas chart primitives (DPR-crisp bar chart + calendar heatmap, token colors, visually-hidden text alternatives) + AnalyticsService (gardenStats, zero-filled dailyEventCounts, dailyActivity) (2026-07-09)
 
 ### v1.5 Task Scheduler
 - [ ] **T-080** Task model + recurrence engine (daily/N-days/weekly/monthly/seasonal) with timezone/DST tests (FR-4.1)

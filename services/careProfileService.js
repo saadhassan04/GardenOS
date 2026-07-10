@@ -7,12 +7,15 @@
 
 import { validateCareProfile } from '../models/CareProfile.js';
 import { Repository } from '../database/Repository.js';
+import { plantRepository } from '../database/PlantRepository.js';
 import { STORES } from '../database/stores.js';
 import { KARACHI_CARE_PROFILES } from '../database/seed/careProfiles.karachi.js';
 import { currentSeason } from '../config/climate.karachi.js';
 import { bus } from '../hooks/bus.js';
 import { logger } from '../utils/logger.js';
 import { NotFoundError } from '../utils/errors.js';
+
+const DAY_MS = 86_400_000;
 
 const careProfileRepository = new Repository(STORES.careProfiles);
 
@@ -80,4 +83,35 @@ export function effectiveWateringDays(plant, profile, date = new Date()) {
   }
   const season = currentSeason(date);
   return profile.wateringSeasonal?.[season] ?? profile.wateringEveryDays ?? null;
+}
+
+/**
+ * Active plants whose watering is due or overdue right now — care profile
+ * (or override) vs. actual history (FR-8.1 "needs attention"). Plants with
+ * no known interval are skipped: no guessing.
+ * @param {Date} [date]
+ * @returns {Promise<{plant: object, everyDays: number, daysSince: number|null}[]>}
+ *   most-overdue first; daysSince null = never watered
+ */
+export async function listNeedsWatering(date = new Date()) {
+  const [plants, profiles] = await Promise.all([
+    plantRepository.listByStatus('active'),
+    listCareProfiles(),
+  ]);
+  const profileById = new Map(profiles.map((p) => [p.id, p]));
+
+  const due = [];
+  for (const plant of plants) {
+    const profile = plant.careProfileId ? profileById.get(plant.careProfileId) ?? null : null;
+    const everyDays = effectiveWateringDays(plant, profile, date);
+    if (!everyDays) {
+      continue;
+    }
+    const last = plant.derived.lastWateredAt;
+    const daysSince = last ? Math.floor((date.getTime() - Date.parse(last)) / DAY_MS) : null;
+    if (daysSince === null || daysSince >= everyDays) {
+      due.push({ plant, everyDays, daysSince });
+    }
+  }
+  return due.sort((a, b) => (b.daysSince ?? Infinity) - (a.daysSince ?? Infinity));
 }
