@@ -11,7 +11,7 @@ import { el } from '../utils/dom.js';
  * @typedef {object} FieldSpec
  * @property {string} name key in the resolved values object
  * @property {string} label
- * @property {'text'|'textarea'|'select'|'date'} [kind] default 'text'
+ * @property {'text'|'textarea'|'select'|'date'|'number'} [kind] default 'text'
  * @property {[string, string][]} [options] for kind 'select'
  * @property {string} [value] initial value
  * @property {boolean} [required]
@@ -45,12 +45,17 @@ export function formDialog({ title, fields, submitLabel = 'Save', intro = null }
         control = el('input', {
           className: 'field__control',
           id,
-          type: spec.kind === 'date' ? 'date' : 'text',
+          type: spec.kind === 'date' ? 'date' : spec.kind === 'number' ? 'number' : 'text',
           value: spec.value ?? '',
           placeholder: spec.placeholder ?? null,
         });
         if (spec.kind === 'date') {
           control.setAttribute('max', new Date().toISOString().slice(0, 10));
+        }
+        if (spec.kind === 'number') {
+          control.setAttribute('min', '0');
+          control.setAttribute('step', 'any');
+          control.setAttribute('inputmode', 'decimal');
         }
       }
       if (spec.required) {

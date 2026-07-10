@@ -21,6 +21,8 @@ import { renderPlantDetailPage } from '../pages/PlantDetailPage.js';
 import { renderNotesPage } from '../pages/NotesPage.js';
 import { renderLocationsPage } from '../pages/LocationsPage.js';
 import { renderGalleryPage } from '../pages/GalleryPage.js';
+import { renderKitchenGardenPage } from '../pages/KitchenGardenPage.js';
+import { renderMorePage } from '../pages/MorePage.js';
 import { ensureSeededCareProfiles } from '../services/careProfileService.js';
 import { renderNoteFormPage } from '../pages/NoteFormPage.js';
 import { renderSettingsPage } from '../pages/SettingsPage.js';
@@ -94,6 +96,8 @@ function registerRoutes() {
   registerRoute('/notes/:id/edit', 'Edit note', renderNoteFormPage);
   registerRoute('/locations', 'Locations', renderLocationsPage);
   registerRoute('/gallery', 'Gallery', renderGalleryPage);
+  registerRoute('/kitchen', 'Kitchen garden', renderKitchenGardenPage);
+  registerRoute('/more', 'More', renderMorePage);
   registerRoute('/settings', 'Settings', renderSettingsPage);
   registerRoute('/diagnostics', 'Diagnostics', renderDiagnosticsPage);
   setNotFound(renderNotFoundPage);
@@ -134,12 +138,13 @@ async function bootstrap() {
 
   registerRoutes();
 
+  // Five slots (UI_GUIDELINES.md §5); everything else lives under More.
   mountNavigation(document.getElementById('app-nav'), [
     { label: 'Dashboard', path: '/', icon: 'home' },
     { label: 'Plants', path: '/plants', icon: 'leaf' },
+    { label: 'Kitchen', path: '/kitchen', icon: 'basket' },
     { label: 'Gallery', path: '/gallery', icon: 'camera' },
-    { label: 'Notes', path: '/notes', icon: 'note' },
-    { label: 'Settings', path: '/settings', icon: 'gear' },
+    { label: 'More', path: '/more', icon: 'dots' },
   ]);
 
   if (!window.location.hash) {

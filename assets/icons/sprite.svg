@@ -53,6 +53,11 @@
       <path d="M12 8 V19 M9.5 5.5 L8 3.5 M14.5 5.5 L16 3.5 M9.5 5.5 a3.5 3.5 0 0 1 5 0"/>
       <path d="M7.5 11.5 H4 M7.5 15.5 L4.5 17.5 M16.5 11.5 H20 M16.5 15.5 L19.5 17.5"/>
     </symbol>
+    <symbol id="dots" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="5" cy="12" r="1.2"/>
+      <circle cx="12" cy="12" r="1.2"/>
+      <circle cx="19" cy="12" r="1.2"/>
+    </symbol>
     <symbol id="spray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M8.5 11 h6 v8 a1.5 1.5 0 0 1-1.5 1.5 h-3 a1.5 1.5 0 0 1-1.5-1.5 Z"/>
       <path d="M9.5 11 V7.5 h4 V11"/>

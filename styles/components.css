@@ -464,6 +464,23 @@
   }
 }
 
+/* ---- More page entries ---- */
+.more-entry {
+  color: var(--color-text);
+}
+
+.more-entry:hover {
+  text-decoration: none;
+  color: var(--color-text);
+  background: var(--color-surface-2);
+}
+
+.more-entry__body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 /* ---- Note cards ---- */
 .note-card {
   display: block;

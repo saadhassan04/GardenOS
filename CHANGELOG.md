@@ -15,6 +15,23 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **v1.3 Kitchen Garden** (app 1.3.0-dev.1):
+  - Sowing batches (FR-5.1): validated model, forward-only stage lifecycle
+    (sown → … → finished, skips allowed for direct-sown crops) with
+    on-record stage history; plant-linked batches stamp stage-change and
+    harvest events onto plant timelines.
+  - Harvest logging (FR-5.3): crop inherited from the batch, first harvest
+    auto-advances a batch to "harvesting"; yield totals grouped by crop and
+    unit, windowed by Karachi growing season (Winter Oct–Feb / Summer
+    Mar–Sep).
+  - Karachi sowing calendar (FR-5.4): 19 seeded crops with sowing months
+    and notes, merged with user-added crops (add/remove, stored in appMeta);
+    crop-name suggestions in the sowing form.
+  - Kitchen garden page in primary navigation: sow-this-month chips, batch
+    cards with day counters, stage/harvest dialogs, season yield summary.
+  - "More" hub page (Notes, Locations, Settings, Diagnostics) keeps the
+    mobile bottom bar at the five slots UI_GUIDELINES.md specifies.
+  - 6 new integration tests (44 total) — all green live in Safari.
 - **v1.2 Image Manager** (app 1.2.0-dev.1):
   - Ingest pipeline (FR-6.1): decode → downscale (2048px max edge) → WebP
     re-encode with automatic JPEG fallback where the browser can't encode

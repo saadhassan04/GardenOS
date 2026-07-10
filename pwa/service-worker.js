@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.2.0-dev.1';
+const CACHE_VERSION = 'gardenos-shell-v1.3.0-dev.1';
 
 const PRECACHE_URLS = [
   './',
@@ -48,6 +48,8 @@ const PRECACHE_URLS = [
   './models/Location.js',
   './models/CareProfile.js',
   './models/ImageRecord.js',
+  './models/SowingBatch.js',
+  './models/Harvest.js',
   './database/db.js',
   './database/idb.js',
   './database/stores.js',
@@ -59,6 +61,7 @@ const PRECACHE_URLS = [
   './database/migrations/index.js',
   './database/migrations/001_initial_schema.js',
   './database/seed/careProfiles.karachi.js',
+  './database/seed/sowingCalendar.karachi.js',
   './services/storageStatusService.js',
   './services/plantService.js',
   './services/careEventService.js',
@@ -68,6 +71,8 @@ const PRECACHE_URLS = [
   './services/locationsService.js',
   './services/careProfileService.js',
   './services/imageService.js',
+  './services/kitchenGardenService.js',
+  './services/sowingCalendarService.js',
   './services/archiveCodec.js',
   './services/exportService.js',
   './services/importService.js',
@@ -89,6 +94,8 @@ const PRECACHE_URLS = [
   './pages/NoteFormPage.js',
   './pages/LocationsPage.js',
   './pages/GalleryPage.js',
+  './pages/KitchenGardenPage.js',
+  './pages/MorePage.js',
   './pages/SettingsPage.js',
   './pages/DiagnosticsPage.js',
   './pages/NotFoundPage.js',

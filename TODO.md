@@ -57,10 +57,10 @@
 - [ ] **T-054** 200-photo performance validation on mid-range Android → v1.2 exit gate (owner device required)
 
 ### v1.3 Kitchen Garden
-- [ ] **T-060** SowingBatch + Harvest models/repos/services; stage-change events (FR-5.1)
-- [ ] **T-061** Kitchen garden pages: batches, stage advancement, day counters
-- [ ] **T-062** Harvest logging + per-crop/per-season totals (FR-5.3)
-- [ ] **T-063** Karachi sowing calendar seed data (researched & horticulturally reviewed) + editor (FR-5.4)
+- [x] **T-060** SowingBatch + Harvest models/services: forward-only stage lifecycle (skips allowed for direct-sown crops) with stageHistory; plant-linked batches stamp stage-change and harvest events onto plant timelines (FR-5.1) (2026-07-09)
+- [x] **T-061** Kitchen garden page: sow-this-month suggestions, batch cards with stage chips + day counters, stage advancement dialog, finished-batch toggle; "More" hub page keeps primary nav at five slots (2026-07-09)
+- [x] **T-062** Harvest logging (crop inherits from batch; first harvest auto-advances to harvesting) + per-crop/per-unit totals windowed by Karachi growing season (Winter Oct–Feb / Summer Mar–Sep) (FR-5.3) (2026-07-09)
+- [x] **T-063** Karachi sowing calendar: 19 seeded crops with months + notes, merged with user-added custom crops (add/remove via dialog, stored in appMeta) (FR-5.4) (2026-07-09)
 
 ### v1.4 Dashboard
 - [ ] **T-070** Widget registry + dashboard page with toggle/reorder persistence (FR-8.2)
