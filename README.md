@@ -62,6 +62,21 @@ It is **not** a demo, a toy, or a throwaway app. It is engineered as an enterpri
 
 No build step, no package installation, and no account are required to run GardenOS.
 
+### Personal install on macOS
+
+macOS blocks login services from reading `~/Documents`, so the always-on
+local server serves a deployed copy instead:
+
+1. `sh deploy-local.sh` — copies the app to `~/GardenOS` (run after every update).
+2. A LaunchAgent (`~/Library/LaunchAgents/com.gardenos.server.plist`) keeps
+   `python3 ~/GardenOS/tests/serve.py 8080` running from login.
+3. Open `http://127.0.0.1:8080` in Safari → **File → Add to Dock…** (or
+   Chrome → Install). **Always use this exact address** — garden data lives
+   in browser storage tied to it.
+
+To remove: `launchctl bootout gui/$(id -u)/com.gardenos.server` and delete
+the plist and `~/GardenOS`.
+
 ## 5. Architecture Overview
 
 GardenOS is a layered, modular, offline-first client application:
