@@ -40,6 +40,12 @@ test('should validate plant input when creating', async () => {
     ValidationError,
   );
 
+  // All registry categories, old and new, must validate.
+  for (const category of ['flower', 'foliage', 'succulent', 'shrub', 'climber', 'bonsai', 'bulb']) {
+    const p = await createPlant({ name: `Cat ${category}`, category });
+    assertEqual(p.category, category, `category "${category}" must be accepted`);
+  }
+
   const plant = await createPlant({ name: '  Black Plumeria  ', category: 'flower' });
   assertEqual(plant.name, 'Black Plumeria', 'name must be trimmed');
   assertEqual(plant.status, 'active');

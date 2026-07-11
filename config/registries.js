@@ -8,11 +8,17 @@
 
 export const PLANT_CATEGORIES = Object.freeze({
   flower: { label: 'Flower' },
+  foliage: { label: 'Foliage / Ornamental' },
+  succulent: { label: 'Succulents & Cacti' },
+  shrub: { label: 'Shrubs' },
+  climber: { label: 'Climbers & Vines' },
+  tree: { label: 'Tree' },
+  bonsai: { label: 'Bonsai' },
+  bulb: { label: 'Bulbs & Rhizomes' },
+  herb: { label: 'Herb' },
+  vegetable: { label: 'Vegetable' },
   indoor: { label: 'Indoor' },
   outdoor: { label: 'Outdoor' },
-  tree: { label: 'Tree' },
-  vegetable: { label: 'Vegetable' },
-  herb: { label: 'Herb' },
   seedling: { label: 'Seedling' },
   propagation: { label: 'Propagation' },
 });
