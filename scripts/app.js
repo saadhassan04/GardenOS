@@ -12,7 +12,7 @@ import { registerRoute, setNotFound, startRouter } from '../hooks/router.js';
 import { getSetting } from '../storage/settings.js';
 import { openDatabase } from '../database/db.js';
 import { getBackupStatus } from '../services/backupService.js';
-import { ensureSeededGarden } from '../services/gardenSeedService.js';
+import { ensureSeededGarden, ensureGardenRecategorized } from '../services/gardenSeedService.js';
 import { getStorageStatus, requestPersistentStorage } from '../services/storageStatusService.js';
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
@@ -130,6 +130,7 @@ async function bootstrap() {
     // documented starter garden. User data is never overwritten.
     await ensureSeededCareProfiles();
     await ensureSeededGarden();
+    await ensureGardenRecategorized();
     protectStorage();
   } catch (error) {
     logger.error('Database unavailable', { error: error.message });

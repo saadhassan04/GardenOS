@@ -11,22 +11,22 @@ export const KARACHI_STARTER_GARDEN = [
   { name: 'Black Plumeria', botanicalName: 'Plumeria rubra', category: 'flower', careProfileName: 'Plumeria (Karachi)' },
   { name: 'Thai Plumeria', botanicalName: 'Plumeria obtusa', category: 'flower', careProfileName: 'Plumeria (Karachi)' },
   { name: 'Plumeria', botanicalName: 'Plumeria', category: 'flower', careProfileName: 'Plumeria (Karachi)' },
-  { name: 'Bougainvillea', botanicalName: 'Bougainvillea glabra', category: 'flower', careProfileName: 'Bougainvillea (Karachi)' },
-  { name: 'Rose', botanicalName: 'Rosa indica', category: 'flower', careProfileName: 'Rose — desi (Karachi)' },
-  { name: 'Jasmine', botanicalName: 'Jasminum grandiflorum', category: 'flower', careProfileName: 'Jasmine / Motia (Karachi)' },
-  { name: 'Motia', botanicalName: 'Jasminum sambac', category: 'flower', careProfileName: 'Jasmine / Motia (Karachi)' },
+  { name: 'Bougainvillea', botanicalName: 'Bougainvillea glabra', category: 'climber', careProfileName: 'Bougainvillea (Karachi)' },
+  { name: 'Rose', botanicalName: 'Rosa indica', category: 'shrub', careProfileName: 'Rose — desi (Karachi)' },
+  { name: 'Jasmine', botanicalName: 'Jasminum grandiflorum', category: 'climber', careProfileName: 'Jasmine / Motia (Karachi)' },
+  { name: 'Motia', botanicalName: 'Jasminum sambac', category: 'shrub', careProfileName: 'Jasmine / Motia (Karachi)' },
   { name: 'Tulsi', botanicalName: 'Ocimum tenuiflorum', category: 'herb', careProfileName: 'Tulsi (Karachi)' },
-  { name: 'Boston Fern', botanicalName: 'Nephrolepis exaltata', category: 'indoor', careProfileName: 'Boston Fern (Karachi)' },
-  { name: 'Lady Palm', botanicalName: 'Rhapis excelsa', category: 'indoor', careProfileName: 'Palm — Areca / Lady / Malaysian (Karachi)' },
-  { name: 'Areca Palm', botanicalName: 'Dypsis lutescens', category: 'indoor', careProfileName: 'Palm — Areca / Lady / Malaysian (Karachi)' },
-  { name: 'Malaysian Palm', botanicalName: '', category: 'indoor', careProfileName: 'Palm — Areca / Lady / Malaysian (Karachi)' },
-  { name: 'Snake Plant', botanicalName: 'Dracaena trifasciata', category: 'indoor', careProfileName: 'Snake Plant (Karachi)' },
-  { name: 'Money Plant', botanicalName: 'Epipremnum aureum', category: 'indoor', careProfileName: 'Money Plant / Pothos (Karachi)' },
-  { name: 'Rubber Plant', botanicalName: 'Ficus elastica', category: 'indoor', careProfileName: 'Rubber Plant (Karachi)' },
-  { name: 'African Hosta', botanicalName: 'Drimiopsis maculata', category: 'indoor', careProfileName: null },
-  { name: 'Dieffenbachia', botanicalName: 'Dieffenbachia seguine', category: 'indoor', careProfileName: 'Dieffenbachia (Karachi)' },
-  { name: 'Dracaena', botanicalName: 'Dracaena', category: 'indoor', careProfileName: 'Dracaena / Song of India (Karachi)' },
-  { name: 'Song of India', botanicalName: 'Dracaena reflexa', category: 'indoor', careProfileName: 'Dracaena / Song of India (Karachi)' },
+  { name: 'Boston Fern', botanicalName: 'Nephrolepis exaltata', category: 'foliage', careProfileName: 'Boston Fern (Karachi)' },
+  { name: 'Lady Palm', botanicalName: 'Rhapis excelsa', category: 'foliage', careProfileName: 'Palm — Areca / Lady / Malaysian (Karachi)' },
+  { name: 'Areca Palm', botanicalName: 'Dypsis lutescens', category: 'foliage', careProfileName: 'Palm — Areca / Lady / Malaysian (Karachi)' },
+  { name: 'Malaysian Palm', botanicalName: '', category: 'foliage', careProfileName: 'Palm — Areca / Lady / Malaysian (Karachi)' },
+  { name: 'Snake Plant', botanicalName: 'Dracaena trifasciata', category: 'succulent', careProfileName: 'Snake Plant (Karachi)' },
+  { name: 'Money Plant', botanicalName: 'Epipremnum aureum', category: 'climber', careProfileName: 'Money Plant / Pothos (Karachi)' },
+  { name: 'Rubber Plant', botanicalName: 'Ficus elastica', category: 'foliage', careProfileName: 'Rubber Plant (Karachi)' },
+  { name: 'African Hosta', botanicalName: 'Drimiopsis maculata', category: 'foliage', careProfileName: null },
+  { name: 'Dieffenbachia', botanicalName: 'Dieffenbachia seguine', category: 'foliage', careProfileName: 'Dieffenbachia (Karachi)' },
+  { name: 'Dracaena', botanicalName: 'Dracaena', category: 'foliage', careProfileName: 'Dracaena / Song of India (Karachi)' },
+  { name: 'Song of India', botanicalName: 'Dracaena reflexa', category: 'foliage', careProfileName: 'Dracaena / Song of India (Karachi)' },
   { name: 'Curry Leaf', botanicalName: 'Murraya koenigii', category: 'tree', careProfileName: 'Curry Leaf (Karachi)' },
   { name: 'Lemon', botanicalName: 'Citrus limon', category: 'tree', careProfileName: 'Lemon / Citrus (Karachi)' },
   { name: 'Mint', botanicalName: 'Mentha', category: 'herb', careProfileName: 'Mint (Karachi)' },
@@ -43,3 +43,28 @@ export const KARACHI_STARTER_GARDEN = [
   { name: 'Apple Gourd', botanicalName: '', category: 'vegetable', careProfileName: 'Kitchen garden vegetables (Karachi winter)' },
   { name: 'Vegetable Seedlings (tray)', botanicalName: '', category: 'seedling', careProfileName: 'Kitchen garden vegetables (Karachi winter)' },
 ];
+
+/**
+ * One-time category corrections for gardens seeded before the richer
+ * category taxonomy existed. Applied by services/gardenSeedService.js only
+ * to plants whose category still equals `from` (so a plant the user has
+ * already recategorized is never touched). Fresh installs skip these
+ * naturally — their plants are seeded at the `to` value already.
+ */
+export const CATEGORY_FIXUPS = Object.freeze([
+  { name: 'Bougainvillea', from: 'flower', to: 'climber' },
+  { name: 'Rose', from: 'flower', to: 'shrub' },
+  { name: 'Jasmine', from: 'flower', to: 'climber' },
+  { name: 'Motia', from: 'flower', to: 'shrub' },
+  { name: 'Boston Fern', from: 'indoor', to: 'foliage' },
+  { name: 'Lady Palm', from: 'indoor', to: 'foliage' },
+  { name: 'Areca Palm', from: 'indoor', to: 'foliage' },
+  { name: 'Malaysian Palm', from: 'indoor', to: 'foliage' },
+  { name: 'Snake Plant', from: 'indoor', to: 'succulent' },
+  { name: 'Money Plant', from: 'indoor', to: 'climber' },
+  { name: 'Rubber Plant', from: 'indoor', to: 'foliage' },
+  { name: 'African Hosta', from: 'indoor', to: 'foliage' },
+  { name: 'Dieffenbachia', from: 'indoor', to: 'foliage' },
+  { name: 'Dracaena', from: 'indoor', to: 'foliage' },
+  { name: 'Song of India', from: 'indoor', to: 'foliage' },
+]);

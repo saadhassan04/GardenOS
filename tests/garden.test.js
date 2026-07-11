@@ -30,7 +30,7 @@ import {
   recordOutcome,
   whatWorkedFor,
 } from '../services/treatmentService.js';
-import { ensureSeededGarden, _clearSeedFlagForTests } from '../services/gardenSeedService.js';
+import { ensureSeededGarden, ensureGardenRecategorized, _clearSeedFlagForTests } from '../services/gardenSeedService.js';
 import { KARACHI_STARTER_GARDEN } from '../database/seed/ownerGarden.karachi.js';
 import { ValidationError } from '../utils/errors.js';
 
@@ -153,6 +153,32 @@ test('should seed the owner starter garden once, on fresh installs only', async 
   const fourth = await ensureSeededGarden();
   assertEqual(fourth.seeded, 0, 'an existing garden must never be seeded over');
   assertEqual(await plants.count(), 1);
+});
+
+test('should recategorize old-taxonomy seeded plants once, sparing user edits', async () => {
+  const plants = new Repository(STORES.plants);
+  await plants.clearAll();
+  await _clearSeedFlagForTests();
+
+  // Simulate a garden seeded under the OLD taxonomy.
+  const snake = await createPlant({ name: 'Snake Plant', category: 'indoor' });
+  const rose = await createPlant({ name: 'Rose', category: 'flower' });
+  // A plant the user already recategorized themselves — must be left alone.
+  const userMoved = await createPlant({ name: 'Bougainvillea', category: 'shrub' });
+  // A same-name plant that is not at the "from" value — untouched.
+  const lemon = await createPlant({ name: 'Lemon', category: 'tree' });
+
+  const { updated } = await ensureGardenRecategorized();
+  assert(updated >= 2, 'old-taxonomy plants must be corrected');
+
+  assertEqual((await plants.get(snake.id)).category, 'succulent', 'snake plant → succulent');
+  assertEqual((await plants.get(rose.id)).category, 'shrub', 'rose → shrub');
+  assertEqual((await plants.get(userMoved.id)).category, 'shrub', 'user-set category must be preserved (not forced to climber)');
+  assertEqual((await plants.get(lemon.id)).category, 'tree', 'non-matching category untouched');
+
+  // Idempotent: a second run changes nothing.
+  const again = await ensureGardenRecategorized();
+  assertEqual(again.updated, 0, 'recategorization must run only once');
 });
 
 test('should run the pest lifecycle and stamp plant timelines', async () => {
