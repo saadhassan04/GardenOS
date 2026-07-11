@@ -23,6 +23,8 @@ import { renderPlantFormPage } from '../pages/PlantFormPage.js';
 import { renderPlantDetailPage } from '../pages/PlantDetailPage.js';
 import { renderNotesPage } from '../pages/NotesPage.js';
 import { renderLocationsPage } from '../pages/LocationsPage.js';
+import { renderCareProfilesPage } from '../pages/CareProfilesPage.js';
+import { renderCareProfileFormPage } from '../pages/CareProfileFormPage.js';
 import { renderGalleryPage } from '../pages/GalleryPage.js';
 import { renderKitchenGardenPage } from '../pages/KitchenGardenPage.js';
 import { renderTasksPage } from '../pages/TasksPage.js';
@@ -100,6 +102,9 @@ function registerRoutes() {
   registerRoute('/notes/new', 'Add note', renderNoteFormPage);
   registerRoute('/notes/:id/edit', 'Edit note', renderNoteFormPage);
   registerRoute('/locations', 'Locations', renderLocationsPage);
+  registerRoute('/care-profiles', 'Care profiles', renderCareProfilesPage);
+  registerRoute('/care-profiles/new', 'New care profile', renderCareProfileFormPage);
+  registerRoute('/care-profiles/:id/edit', 'Edit care profile', renderCareProfileFormPage);
   registerRoute('/gallery', 'Gallery', renderGalleryPage);
   registerRoute('/kitchen', 'Kitchen garden', renderKitchenGardenPage);
   registerRoute('/tasks', 'Tasks', renderTasksPage);

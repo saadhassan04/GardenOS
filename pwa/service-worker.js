@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.5.0-dev.2';
+const CACHE_VERSION = 'gardenos-shell-v1.5.0-dev.3';
 
 const PRECACHE_URLS = [
   './',
@@ -112,6 +112,8 @@ const PRECACHE_URLS = [
   './pages/NotesPage.js',
   './pages/NoteFormPage.js',
   './pages/LocationsPage.js',
+  './pages/CareProfilesPage.js',
+  './pages/CareProfileFormPage.js',
   './pages/GalleryPage.js',
   './pages/KitchenGardenPage.js',
   './pages/TasksPage.js',

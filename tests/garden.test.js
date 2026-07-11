@@ -18,6 +18,10 @@ import {
   ensureSeededCareProfiles,
   listCareProfiles,
   effectiveWateringDays,
+  createCareProfile,
+  updateCareProfile,
+  deleteCareProfile,
+  countPlantsUsingProfile,
 } from '../services/careProfileService.js';
 import { KARACHI_CARE_PROFILES } from '../database/seed/careProfiles.karachi.js';
 import { observePest, resolvePest, listActivePestsForPlant } from '../services/pestService.js';
@@ -74,6 +78,50 @@ test('should resolve effective watering: override → seasonal → base', async 
   assertEqual(effectiveWateringDays(overridden, plumeria, july), 2, 'plant override must win');
 
   assertEqual(effectiveWateringDays(plant, null), null, 'no profile, no override → unknown');
+});
+
+test('should create, edit, and guard-delete user care profiles', async () => {
+  const created = await createCareProfile({
+    name: 'My Test Roses',
+    species: 'Rosa',
+    wateringSeasonal: { summer: 1, monsoon: 3, winter: 2 },
+    fertilizeEveryDays: 15,
+  });
+  assertEqual(created.source, 'user', 'user-created profiles must be tagged user');
+  assertEqual(created.wateringSeasonal.summer, 1);
+
+  const edited = await updateCareProfile(created.id, { fertilizeEveryDays: 21 });
+  assertEqual(edited.fertilizeEveryDays, 21);
+  assertEqual(edited.source, 'user', 'editing must preserve source');
+
+  // Editing a seeded preset keeps its 'seed' source (auditability).
+  const seeded = (await listCareProfiles()).find((p) => p.source === 'seed');
+  const editedSeed = await updateCareProfile(seeded.id, { pruningNotes: 'tweaked' });
+  assertEqual(editedSeed.source, 'seed', 'editing a preset must not relabel it');
+
+  // Delete guard: a profile in use cannot be deleted.
+  const plant = await createPlant({ name: 'Profile User Plant', careProfileId: created.id });
+  assertEqual(await countPlantsUsingProfile(created.id), 1);
+  await assertThrows(() => deleteCareProfile(created.id), ValidationError);
+
+  await updatePlant(plant.id, { careProfileId: null });
+  await deleteCareProfile(created.id);
+  assert(!(await listCareProfiles()).some((p) => p.id === created.id), 'unused profile must delete');
+});
+
+test('should round-trip a per-plant watering override', async () => {
+  const profiles = await listCareProfiles();
+  const anyProfile = profiles[0];
+  const plant = await createPlant({ name: 'Override Round Trip', careProfileId: anyProfile.id });
+
+  const withOverride = await updatePlant(plant.id, { careOverrides: { wateringEveryDays: 4 } });
+  assertEqual(withOverride.careOverrides.wateringEveryDays, 4);
+  assertEqual(effectiveWateringDays(withOverride, anyProfile), 4, 'override must beat the profile');
+
+  // Clearing the override falls back to the profile.
+  const cleared = await updatePlant(plant.id, { careOverrides: null });
+  assertEqual(cleared.careOverrides, null);
+  assert(effectiveWateringDays(cleared, anyProfile) !== 4, 'cleared override must fall back to profile');
 });
 
 test('should seed the owner starter garden once, on fresh installs only', async () => {

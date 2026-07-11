@@ -13,7 +13,7 @@ import { KARACHI_CARE_PROFILES } from '../database/seed/careProfiles.karachi.js'
 import { currentSeason } from '../config/climate.karachi.js';
 import { bus } from '../hooks/bus.js';
 import { logger } from '../utils/logger.js';
-import { NotFoundError } from '../utils/errors.js';
+import { NotFoundError, ValidationError } from '../utils/errors.js';
 
 const DAY_MS = 86_400_000;
 
@@ -63,6 +63,32 @@ export async function updateCareProfile(profileId, patch) {
     profileId,
     validateCareProfile({ ...existing, ...patch, source: existing.source }),
   );
+}
+
+/**
+ * Plants (any status) currently assigned to a profile. No dedicated index:
+ * a bounded scan is fine at garden scale (DATABASE.md §6 philosophy —
+ * indexes exist for measured hot paths only).
+ * @param {string} profileId
+ * @returns {Promise<number>}
+ */
+export async function countPlantsUsingProfile(profileId) {
+  const { items } = await plantRepository.query({ limit: 2000 });
+  return items.filter((plant) => plant.careProfileId === profileId).length;
+}
+
+/**
+ * Delete a profile — refused while any plant still uses it, so plants
+ * never point at a ghost (mirrors the locations rule).
+ * @param {string} profileId
+ */
+export async function deleteCareProfile(profileId) {
+  const inUse = await countPlantsUsingProfile(profileId);
+  if (inUse > 0) {
+    throw new ValidationError(`${inUse} plant(s) use this profile — reassign them first`);
+  }
+  await careProfileRepository.softDelete(profileId);
+  bus.emit('careProfile:deleted', { profileId });
 }
 
 /**

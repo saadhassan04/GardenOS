@@ -66,6 +66,7 @@ export async function renderPlantFormPage({ params }) {
       [['', 'No profile'], ...careProfiles.map((p) => [p.id, p.name])],
       plant?.careProfileId ?? '',
     ),
+    wateringOverride: numberField('Water every N days (override profile)', plant?.careOverrides?.wateringEveryDays ?? ''),
     sunExposure: selectField('Sun exposure', optionList(SUN_EXPOSURES, 'Not set'), plant?.location?.sunExposure ?? ''),
     containerType: selectField('Container', optionList(CONTAINER_TYPES, 'None / not set'), plant?.container?.type ?? ''),
     containerSize: numberField('Container size (inches)', plant?.container?.sizeInches ?? ''),
@@ -111,6 +112,15 @@ export async function renderPlantFormPage({ params }) {
 function collect(fields, existing) {
   const containerType = fields.containerType.control.value;
   const sizeRaw = fields.containerSize.control.value;
+  const overrideRaw = fields.wateringOverride.control.value.trim();
+  // Preserve any non-watering overrides the model may hold; only the
+  // watering interval is user-editable here.
+  const careOverrides = overrideRaw === ''
+    ? (existing?.careOverrides && 'wateringEveryDays' in existing.careOverrides
+        ? stripKey(existing.careOverrides, 'wateringEveryDays')
+        : existing?.careOverrides ?? null)
+    : { ...(existing?.careOverrides ?? {}), wateringEveryDays: Number(overrideRaw) };
+
   return {
     name: fields.name.control.value,
     botanicalName: fields.botanicalName.control.value,
@@ -118,6 +128,7 @@ function collect(fields, existing) {
     parentPlantId: fields.parentPlantId.control.value || null,
     locationId: fields.locationId.control.value || null,
     careProfileId: fields.careProfileId.control.value || null,
+    careOverrides,
     status: fields.status ? fields.status.control.value : 'active',
     acquiredAt: fields.acquiredAt.control.value || null,
     location: {
@@ -130,6 +141,12 @@ function collect(fields, existing) {
     soilMix: fields.soilMix.control.value,
     notes: fields.notes.control.value,
   };
+}
+
+/** A copy of obj without one key; if that empties it, returns null. */
+function stripKey(obj, key) {
+  const { [key]: _removed, ...rest } = obj;
+  return Object.keys(rest).length === 0 ? null : rest;
 }
 
 function optionList(registry, emptyLabel) {
