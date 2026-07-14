@@ -89,6 +89,13 @@ Format: **Version · Date · Summary · Files/Areas Changed · Architecture Impa
 - **Architecture impact:** None new — additive via registry + existing event/timeline pipeline. Milestones carry no `derivedField` (don't touch care caches); `flowering`/`fruiting` (quickLog) also appear as schedulable task types.
 - **Future notes:** Progress "current phase" derived state deliberately not added (timeline suffices) — revisit only if a "what's flowering now" dashboard view is wanted.
 
+## Sprint S-14 — Photo-audit corrections
+- **Version:** 1.5.0-dev.7 · **Date:** 2026-07-15 · **Commit:** `cb6effb`
+- **Summary:** Applied the 2026-07-12 photo-audit findings via a second AD-009 guarded routine, `ensurePhotoAuditCorrected()` (flag `ownerPhotoAuditCorrectedAt`). `CATEGORY_FIXUPS` matches seed names only, so owner-renamed plants were never corrected; the new `PHOTO_AUDIT_CATEGORY_FIXUPS` is keyed by the owner's **current** names (sourced from the fresher `gardenos-backup-2026-07-13-04-20.json`, not the audit's 2026-07-11 snapshot). 22 category fixes (bougainvillea 1–4 + money plant → climber; snake plant 1–3 → succulent; ferns/rubber/palms/bamboo palm/coleus/umbrella → foliage; motia 1–2/roses/hibiscus/copperleaf → shrub) + `PHOTO_AUDIT_BOTANICAL_FIXUPS` (Rose Pink → *Rosa indica*, only while empty). Owner decisions (2026-07-15): full set; both low-confidence IDs (Bamboo Palm, Copperleaf) keep their names — category only, no renames. 61 tests green live; dry-run against the real backup confirmed exactly 23 changes, no unintended matches, nothing left in indoor/outdoor.
+- **Areas:** `database/seed/ownerGarden.karachi.js`, `services/gardenSeedService.js`, `scripts/app.js`, `tests/garden.test.js`.
+- **Architecture impact:** None new — second application of AD-009. Extracted a shared `findPlantsByName()` helper; fresh seeds now mark the photo-audit flag too (final values already seeded), keeping the routine a no-op on new installs.
+- **Future notes:** The audit's **health observations** (jasmine heat stress, bamboo-palm cane lesions, soil algae) were deliberately **not** auto-created as pest records — they are point-in-time facts from 2026-07-11 that would be back-dated into the event log without the owner witnessing them; the owner logs these by hand if still relevant (see KNOWN_TECH_DEBT TD-L8). Both correction routines are owner-specific and removable once the flags are set everywhere.
+
 ## Project Memory System
 - **Version:** 1.5.0-dev.5 · **Date:** 2026-07-12
 - **Summary:** Created `docs/project-memory/` (PROJECT_STATE, HANDOFF, CLAUDE, ARCHITECTURE_DECISIONS, ENGINEERING_LOG, NEXT_SPRINT, KNOWN_TECH_DEBT, GARDEN_AI_ROADMAP, PRODUCT_VISION) + root `CLAUDE.md` pointer. GardenOS is now self-documenting (AD-010).

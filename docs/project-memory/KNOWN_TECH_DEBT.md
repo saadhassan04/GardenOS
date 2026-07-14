@@ -1,7 +1,7 @@
 # GardenOS — Known Technical Debt
 
 Tracked by severity. Update after every Architecture Audit and whenever debt is added or resolved.
-Last reviewed: 2026-07-12 (after Sprint S-13).
+Last reviewed: 2026-07-15 (after Sprint S-14).
 
 ---
 
@@ -11,8 +11,7 @@ Last reviewed: 2026-07-12 (after Sprint S-13).
 ## Medium
 
 - **TD-M1 — Owner exit gates unmet (v1.1–v1.5 untagged).** Real-world validations still pending: v1.1 daily-use week (T-040), v1.2 200-photo Android performance (T-054), v1.3 full winter-crop cycle, v1.5 one-month recurrence soak (T-085). *Impact:* v1.1–v1.5 stay code-complete but unreleased. *Action:* support owner in real use; tag when passed.
-- **TD-M3 — Photo-audit corrections not applied.** Confirmed inconsistencies (categories for renamed ornamentals; Bamboo Palm likely mis-ID; Copperleaf low-confidence; Rose Pink missing botanical) identified but not yet corrected. *Impact:* data slightly inaccurate. *Action:* Sprint S-14, pending owner confirmation.
-- **TD-M4 — Name-keyed recategorization misses renamed plants.** `ensureGardenRecategorized` matches exact seed names, so owner-renamed plants ("Bougainvillea 1 White") were not auto-corrected. *Impact:* several plants retain old categories. *Action:* folded into TD-M3 (S-14 correction set covers renamed plants).
+- **TD-M5 — Two plant IDs remain unresolved (owner-side).** The audit flagged "Bamboo Palm" as most likely a *Dracaena* cane rather than a *Chamaedorea*, and "Copperleaf" (*Acalypha wilkesiana*) as a low-confidence ID. The owner chose to keep both names for now (S-14 corrected only their categories). *Impact:* two names may be botanically wrong; categories are right either way. *Action:* owner confirms from the live plants; rename by hand — no code needed.
 
 ## Low
 
@@ -23,6 +22,8 @@ Last reviewed: 2026-07-12 (after Sprint S-13).
 - **TD-L5 — Chilli group category split.** "Green Chilli 4" is `seedling` while siblings are `vegetable` (a reasonable stage distinction, flagged for awareness). *Action:* none unless owner wants consistency.
 - **TD-L6 — Derived-cache rebuild tool.** Derived plant caches are maintained incrementally and on undo; a full "rebuild all derived caches" Diagnostics action (mentioned in ADR-0002 consequences) is not yet built. *Action:* add to Diagnostics if a drift bug ever appears.
 - **TD-L7 — No automated CI.** Tests run manually in Safari (no Node.js). *Impact:* relies on discipline. *Action:* optional lightweight CI if the toolchain changes.
+- **TD-L8 — Photo-audit health observations not logged.** The audit noted jasmine heat stress, bamboo-palm cane lesions, and soil algae (2026-07-11). Deliberately not auto-created as pest/observation records — back-dating unwitnessed events into the log would pollute the care history that v2.0 AI will read. *Action:* owner logs by hand if the conditions persist.
+- **TD-L9 — Owner-specific correction routines accumulate in startup.** `ensureGardenRecategorized` + `ensurePhotoAuditCorrected` bake this deployment's plant names into source and run on every boot (flag-guarded, so a single `appMeta` read once set). *Impact:* minor startup cost + owner data in the repo. *Action:* remove both once the flags are set on every install the owner uses; revisit if a third correction is ever needed (a generic mechanism would beat a third one-off).
 
 ## Resolved
 
@@ -33,3 +34,5 @@ Last reviewed: 2026-07-12 (after Sprint S-13).
 - **TD-R5 — `setFlag()` missing keyed argument (keyPath error).** Early-return path fixed to pass the flag key. Resolved 2026-07-12.
 - **TD-R6 — Safari heuristic ES-module caching served stale modules.** `tests/serve.py` no-cache dev server added; documented. Resolved 2026-07-09.
 - **TD-R7 — In-flight uncommitted location-filter work.** Committed in Sprint S-13 (`758f2cb`). Resolved 2026-07-12.
+- **TD-R8 — Photo-audit corrections not applied.** Applied in Sprint S-14 (`cb6effb`) via the AD-009 guarded routine: 22 categories + Rose Pink's botanical. Resolved 2026-07-15.
+- **TD-R9 — Name-keyed recategorization misses renamed plants.** `PHOTO_AUDIT_CATEGORY_FIXUPS` is keyed by the owner's current names, covering the renamed plants `ensureGardenRecategorized` could not match. Resolved 2026-07-15 (S-14).

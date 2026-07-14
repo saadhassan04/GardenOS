@@ -4,43 +4,42 @@
 
 ---
 
-## Sprint S-14 — Photo-Audit Corrections
+## Sprint S-15 — v1.x Stabilization & Exit-Gate Support
 
-**Status:** Ready, but **BLOCKED on owner confirmation** (two questions below). Do not apply data changes until answered.
-**Target version:** `1.5.0-dev.7`.
+**Status:** Ready. No owner decision blocks the code items; the release items below are owner calls.
+**Target version:** `1.5.0-dev.8` (see "Version policy" — this sprint does **not** finalize `1.5.0`).
 
 ### Background
-On 2026-07-12 a human-in-the-loop photo audit (Claude vision over the owner's backup `gardenos-backup-2026-07-11-22-07.json`) reviewed all 32 plant photos vs. records. IDs were overwhelmingly correct. Findings and the full proposed change set are in [ENGINEERING_LOG.md](ENGINEERING_LOG.md) (2026-07-12 photo-audit entry). Nothing has been applied.
+The v1.x offline core is feature-complete and code-complete at 61 green tests. What stands between it and a finalized `1.5.0` is not missing features but **real-world validation**: four owner exit gates are still open (TD-M1). S-15 therefore adds no new user-facing capability — it closes documented debt and makes the open gates easier to pass and diagnose.
 
 ### Objectives
-Correct the identified plant-data inconsistencies safely, without clobbering any owner edits made since the backup.
+Reduce the risk that a long validation period turns up an un-diagnosable problem, and close the debt that v1.x shipped with.
 
 ### Scope
-1. **Category corrections** for renamed ornamentals/foliage/climbers/succulents that today's name-keyed auto-recategorization missed (e.g. Bougainvillea 1–4 → climber, Snake Plant 1–3 → succulent, palms/ferns/rubber/hosta → foliage, Money Plant → climber, Motia/Rose/Hibiscus → shrub, Coleus/Umbrella Plant → foliage, Copperleaf → shrub).
-2. **Specific data fixes:** add `Rosa indica` to "Rose Pink".
-3. **ID flags (owner decides the name):** "Bamboo Palm" looks like a Dracaena cane, not a Chamaedorea; "Copperleaf" low-confidence. Only touch their category unless the owner confirms a rename.
-4. *(Optional)* convert audit health observations (jasmine heat stress, bamboo-palm cane lesions, soil algae) into pest/observation records.
+1. **Derived-cache rebuild action in Diagnostics (TD-L6).** ADR-0002 lists this as a consequence of derived caches: they are maintained incrementally and on undo, with no way to recover from drift. If drift appears during the owner's validation week, there is currently no fix short of a restore. Recompute every plant's derived cache from the immutable `events` log (the event-sourcing guarantee that makes this safe), reporting how many plants changed.
+2. **Exit-gate support.** Whatever friction the owner reports from real use. *Nothing is queued here yet — this is owner-driven and must not be invented.*
 
-### Mechanism (recommended)
-A guarded, one-time correction routine mirroring `ensureGardenRecategorized` (AD-009): keyed by plant name, changing a plant's category **only if it still equals the wrong value**, idempotent, flag-gated in `appMeta`. Add the Rose-Pink botanical the same way. This never overwrites divergent live data and is a no-op on fresh installs. **Do not** apply via a full backup restore (the live DB has diverged from the snapshot).
+### Explicitly out of scope
+- **Finalizing `1.5.0` / tagging v1.1–v1.5.** The standing stance (HANDOFF → Open Questions) is to hold until the exit gates pass; they are real-use validations, not code checks. Dropping the `-dev` suffix is a release act and stays the owner's call.
+- **New features.** v1.x is feature-complete; anything genuinely new belongs to a later sprint or the v2.0 AI era.
+- **Auto-logging the photo audit's health observations** (TD-L8) — back-dating unwitnessed events would pollute the care history v2.0 AI reads.
 
-### Blocking questions for the owner
-1. **Scope:** photo-verified plants only, or the full set (incl. renamed non-photographed foliage/climbers)? (Recommend: full set — logic is identical.)
-2. **Flags:** confirm/rename Bamboo Palm & Copperleaf yourself (routine only touches category), and OK to add *Rosa indica* to Rose Pink?
+### Version policy
+Bump to `1.5.0-dev.8` (APP_VERSION + CACHE_VERSION together, as always). `1.5.0` proper is cut by the owner once the four gates pass.
 
 ### Deliverables
-- Guarded correction routine + test (applies once, spares user-edited categories, idempotent); verified live; committed with version + cache bump; deployed.
-- Memory system updated; this file replaced with S-15.
+- Diagnostics rebuild action + test (recomputes from events; idempotent; a no-op run reports 0 changes); verified live; committed with version + cache bump; deployed.
+- Memory system updated; this file replaced with S-16.
 
 ### Risks
-- Backup is a point-in-time snapshot; the routine must be name/field-surgical (mitigated by the AD-009 pattern).
-- Baking owner-specific plant names into a correction list is acceptable for this personal deployment; keep it flag-guarded and removable.
+- A rebuild that recomputes *wrongly* is worse than drift, because it overwrites good caches. Mitigation: derive strictly from the `events` log using the same code path `careEventService` already uses — no second implementation of the rules (DRY; a divergent copy would rot).
+- Rebuilding a large garden touches every plant in one pass. Mitigation: garden scale is ~54 plants; revisit only if that stops being true.
 
 ### Success Criteria
-- Confirmed plants land in the correct categories; Rose Pink gains its botanical; no unrelated fields or user edits changed; full suite green live.
+- The owner can rebuild derived caches from Diagnostics and see what changed; a rebuild on healthy data changes nothing; full suite green live.
 
 ---
 
-## On deck (after S-14)
-- **S-15 — v1.x stabilization & exit-gate support:** address friction from real use; support owner exit gates (validation week, 200-photo Android perf, winter-crop cycle, one-month recurrence soak); then finalize `1.5.0` and decide on tagging v1.1–v1.5.
+## On deck (after S-15)
+- **Owner exit gates** (TD-M1): v1.1 daily-use week (T-040), v1.2 200-photo Android performance (T-054), v1.3 full winter-crop cycle, v1.5 one-month recurrence soak. These are real-use validations, not sprints — when they pass, finalize `1.5.0` and decide whether to tag v1.1–v1.5 retroactively or roll them into a single "offline core complete" milestone.
 - Then the **v2.0 AI era** begins with an ADR (first-ever dependency) — see [GARDEN_AI_ROADMAP.md](GARDEN_AI_ROADMAP.md).
