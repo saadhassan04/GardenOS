@@ -153,6 +153,54 @@ test('should filter, search, and sort the plant list', async () => {
   assertEqual(search.length, 1, 'search must cover botanical names');
 });
 
+test('should filter the plant list by location', async () => {
+  await clearPlantStores();
+  await new Repository(STORES.locations).clearAll();
+  const balcony = await new Repository(STORES.locations).add({ name: 'Balcony', kind: 'balcony' });
+  const roof = await new Repository(STORES.locations).add({ name: 'Roof', kind: 'rooftop' });
+
+  await createPlant({ name: 'Balcony Rose', locationId: balcony.id });
+  await createPlant({ name: 'Balcony Fern', locationId: balcony.id });
+  await createPlant({ name: 'Roof Plumeria', locationId: roof.id });
+  await createPlant({ name: 'Homeless Mint' }); // no location
+
+  const onBalcony = await listPlants({ locationId: balcony.id });
+  assertEqual(onBalcony.map((p) => p.name), ['Balcony Fern', 'Balcony Rose'], 'only balcony plants, name-sorted');
+
+  const onRoof = await listPlants({ locationId: roof.id });
+  assertEqual(onRoof.map((p) => p.name), ['Roof Plumeria']);
+
+  // Location combines with other filters.
+  const balconyFerns = await listPlants({ locationId: balcony.id, search: 'fern' });
+  assertEqual(balconyFerns.map((p) => p.name), ['Balcony Fern']);
+
+  const all = await listPlants();
+  assertEqual(all.length, 4, 'no location filter returns everything');
+});
+
+test('should log flowering and fruiting milestone events onto the timeline', async () => {
+  await clearPlantStores();
+  const plant = await createPlant({ name: 'Milestone Plumeria' });
+
+  await logEvent(plant.id, 'flowering', { occurredAt: '2026-05-01T09:00:00.000Z', data: { note: 'first bloom' } });
+  await logEvent(plant.id, 'fruiting', { occurredAt: '2026-06-01T09:00:00.000Z' });
+  await logEvent(plant.id, 'new-growth', { occurredAt: '2026-04-01T09:00:00.000Z' });
+
+  const flowering = await getTimeline(plant.id, { types: ['flowering'], limit: 5 });
+  assertEqual(flowering.items.length, 1, 'flowering milestone must be logged');
+  assertEqual(flowering.items[0].data.note, 'first bloom', 'milestone note must persist');
+
+  const full = await getTimeline(plant.id, { limit: 10 });
+  assertEqual(full.items.map((e) => e.type), ['fruiting', 'flowering', 'new-growth'], 'milestones ordered newest-first');
+
+  // Milestones are not care-cadence, so they must not touch watering caches.
+  const after = await getPlant(plant.id);
+  assertEqual(after.derived.lastWateredAt, null, 'milestones must not affect care caches');
+  assertEqual(after.derived.eventCount, 3, 'but they do count as events');
+
+  await assertThrows(() => logEvent(plant.id, 'blooming-hard'), ValidationError);
+});
+
 test('should cascade events when a plant is deleted permanently', async () => {
   const plant = await createPlant({ name: 'Doomed Okra', category: 'vegetable' });
   await logBulk([plant.id], 'watering', {});

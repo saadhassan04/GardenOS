@@ -112,15 +112,18 @@ export async function getLineage(plantId) {
 
 /**
  * Shaped plant list for the Plants screen (FR-1.4).
- * @param {{status?: string, category?: string|null, search?: string,
- *          sort?: 'name'|'newest'}} [options]
+ * @param {{status?: string, category?: string|null, locationId?: string|null,
+ *          search?: string, sort?: 'name'|'newest'}} [options]
  * @returns {Promise<object[]>}
  */
-export async function listPlants({ status = 'active', category = null, search = '', sort = 'name' } = {}) {
+export async function listPlants({ status = 'active', category = null, locationId = null, search = '', sort = 'name' } = {}) {
   let plants = await plantRepository.listByStatus(status);
 
   if (category) {
     plants = plants.filter((plant) => plant.category === category);
+  }
+  if (locationId) {
+    plants = plants.filter((plant) => plant.locationId === locationId);
   }
   const needle = search.trim().toLowerCase();
   if (needle) {

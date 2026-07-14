@@ -112,7 +112,13 @@ function quickLogSection(plant, refresh) {
     {
       className: 'btn btn--ghost quick-log__btn',
       onClick: async () => {
-        const entry = await eventFormDialog({ title: `Log for ${plant.name}` });
+        // Defaults to a dated observation note — the everyday "log an update"
+        // path — but any event type (incl. flowering/fruiting milestones) is
+        // selectable in the dialog.
+        const entry = await eventFormDialog({
+          title: `Add update for ${plant.name}`,
+          defaultType: 'observation',
+        });
         if (!entry) {
           return;
         }
@@ -136,13 +142,14 @@ function quickLogSection(plant, refresh) {
         }
       },
     },
-    'Log event…',
+    svgIcon('note', { size: 20 }),
+    'Add note / update…',
   );
 
   return el(
     'section',
     { className: 'page-section' },
-    el('span', { className: 'text-caption' }, 'Quick log'),
+    el('span', { className: 'text-caption' }, 'Quick log & progress'),
     el('div', { className: 'card quick-log' }, ...buttons, moreButton),
   );
 }

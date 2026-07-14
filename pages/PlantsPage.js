@@ -5,6 +5,7 @@
 
 import { el, svgIcon, clear } from '../utils/dom.js';
 import { listPlants } from '../services/plantService.js';
+import { listLocations } from '../services/locationsService.js';
 import { logBulk, undoBatch } from '../services/careEventService.js';
 import { renderPlantCard } from '../components/PlantCard.js';
 import { showToast } from '../components/Toast.js';
@@ -18,6 +19,7 @@ export function renderPlantsPage() {
   const state = {
     status: 'active',
     category: '',
+    locationId: '',
     search: '',
     sort: 'name',
     selectMode: false,
@@ -80,12 +82,23 @@ export function renderPlantsPage() {
     refresh();
   });
 
+  // Location filter: options arrive async from the locations store.
+  const locationSelect = filterSelect('Location', [['', 'All locations']], (value) => {
+    state.locationId = value;
+    refresh();
+  });
+  listLocations().then((locations) => {
+    for (const location of locations) {
+      locationSelect.append(el('option', { value: location.id }, location.name));
+    }
+  });
+
   const sortSelect = filterSelect('Sort', [['name', 'By name'], ['newest', 'Newest first']], (value) => {
     state.sort = value;
     refresh();
   });
 
-  page.append(el('div', { className: 'filter-bar' }, searchInput, categorySelect, statusSelect, sortSelect));
+  page.append(el('div', { className: 'filter-bar' }, searchInput, categorySelect, locationSelect, statusSelect, sortSelect));
 
   const listRegion = el('div', { className: 'plant-grid' });
   const actionBar = el('div', { className: 'action-bar', hidden: '' });
@@ -96,17 +109,19 @@ export function renderPlantsPage() {
       const plants = await listPlants({
         status: state.status,
         category: state.category || null,
+        locationId: state.locationId || null,
         search: state.search,
         sort: state.sort,
       });
       clear(listRegion);
       if (plants.length === 0) {
+        const filtered = state.search || state.category || state.locationId;
         listRegion.append(
           el(
             'div',
             { className: 'card empty-state' },
-            el('p', {}, state.search || state.category ? 'No plants match those filters.' : 'No plants yet.'),
-            state.search || state.category
+            el('p', {}, filtered ? 'No plants match those filters.' : 'No plants yet.'),
+            filtered
               ? null
               : el('a', { className: 'btn btn--primary', href: '#/plants/new' }, 'Add your first plant'),
           ),
