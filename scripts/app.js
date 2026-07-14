@@ -12,7 +12,11 @@ import { registerRoute, setNotFound, startRouter } from '../hooks/router.js';
 import { getSetting } from '../storage/settings.js';
 import { openDatabase } from '../database/db.js';
 import { getBackupStatus } from '../services/backupService.js';
-import { ensureSeededGarden, ensureGardenRecategorized } from '../services/gardenSeedService.js';
+import {
+  ensureSeededGarden,
+  ensureGardenRecategorized,
+  ensurePhotoAuditCorrected,
+} from '../services/gardenSeedService.js';
 import { getStorageStatus, requestPersistentStorage } from '../services/storageStatusService.js';
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
@@ -131,6 +135,7 @@ async function bootstrap() {
     await ensureSeededCareProfiles();
     await ensureSeededGarden();
     await ensureGardenRecategorized();
+    await ensurePhotoAuditCorrected();
     protectStorage();
   } catch (error) {
     logger.error('Database unavailable', { error: error.message });

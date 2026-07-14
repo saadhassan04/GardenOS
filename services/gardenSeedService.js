@@ -8,7 +8,12 @@
  *      backup before this code ever ran) marks the flag and seeds nothing.
  */
 
-import { KARACHI_STARTER_GARDEN, CATEGORY_FIXUPS } from '../database/seed/ownerGarden.karachi.js';
+import {
+  KARACHI_STARTER_GARDEN,
+  CATEGORY_FIXUPS,
+  PHOTO_AUDIT_CATEGORY_FIXUPS,
+  PHOTO_AUDIT_BOTANICAL_FIXUPS,
+} from '../database/seed/ownerGarden.karachi.js';
 import { validatePlant } from '../models/Plant.js';
 import { plantRepository } from '../database/PlantRepository.js';
 import { openDatabase, getAppMeta } from '../database/db.js';
@@ -21,6 +26,7 @@ import { logger } from '../utils/logger.js';
 
 const FLAG_KEY = 'ownerGardenSeededAt';
 const RECAT_FLAG_KEY = 'ownerGardenRecategorizedAt';
+const PHOTO_AUDIT_FLAG_KEY = 'ownerPhotoAuditCorrectedAt';
 
 /** @returns {Promise<{seeded: number}>} */
 export async function ensureSeededGarden() {
@@ -50,6 +56,7 @@ export async function ensureSeededGarden() {
   await plantRepository.addMany(bodies);
   await setFlag(FLAG_KEY);
   await setFlag(RECAT_FLAG_KEY); // fresh seed already uses final categories
+  await setFlag(PHOTO_AUDIT_FLAG_KEY); // …and final names/botanicals
   logger.info(`Seeded the starter garden (${bodies.length} plants)`);
   bus.emit('plant:created', { seeded: bodies.length });
   return { seeded: bodies.length };
@@ -70,12 +77,7 @@ export async function ensureGardenRecategorized() {
 
   let updated = 0;
   for (const fix of CATEGORY_FIXUPS) {
-    const { items } = await plantRepository.query({
-      index: 'name',
-      range: IDBKeyRange.only(fix.name),
-      limit: 50,
-    });
-    for (const plant of items) {
+    for (const plant of await findPlantsByName(fix.name)) {
       if (plant.category === fix.from) {
         await updatePlant(plant.id, { category: fix.to });
         updated += 1;
@@ -91,6 +93,63 @@ export async function ensureGardenRecategorized() {
   return { updated };
 }
 
+/**
+ * One-time photo-audit corrections (Sprint S-14, AD-009). Fixes the
+ * categories that CATEGORY_FIXUPS missed because the owner had renamed the
+ * plants, and fills in botanical names the audit identified. Runs once (an
+ * appMeta flag) and is field-surgical: a category changes only while it still
+ * equals the audited wrong value, a botanical name only while it is still
+ * empty — so owner edits made since the audit are never clobbered, and a
+ * fresh install (already seeded at the final values) is a no-op.
+ * @returns {Promise<{updated: number}>}
+ */
+export async function ensurePhotoAuditCorrected() {
+  const meta = await getAppMeta();
+  if (meta[PHOTO_AUDIT_FLAG_KEY]) {
+    return { updated: 0 };
+  }
+
+  let updated = 0;
+  for (const fix of PHOTO_AUDIT_CATEGORY_FIXUPS) {
+    for (const plant of await findPlantsByName(fix.name)) {
+      if (plant.category === fix.from) {
+        await updatePlant(plant.id, { category: fix.to });
+        updated += 1;
+      }
+    }
+  }
+  for (const fix of PHOTO_AUDIT_BOTANICAL_FIXUPS) {
+    for (const plant of await findPlantsByName(fix.name)) {
+      if (!plant.botanicalName) {
+        await updatePlant(plant.id, { botanicalName: fix.botanicalName });
+        updated += 1;
+      }
+    }
+  }
+
+  await setFlag(PHOTO_AUDIT_FLAG_KEY);
+  if (updated > 0) {
+    logger.info(`Applied ${updated} photo-audit corrections`);
+    bus.emit('plant:updated', { photoAuditCorrected: updated });
+  }
+  return { updated };
+}
+
+/**
+ * Plants carrying an exact name (soft-deleted ones excluded by the
+ * repository). Duplicated names are legal, so every match is returned.
+ * @param {string} name
+ * @returns {Promise<object[]>}
+ */
+async function findPlantsByName(name) {
+  const { items } = await plantRepository.query({
+    index: 'name',
+    range: IDBKeyRange.only(name),
+    limit: 50,
+  });
+  return items;
+}
+
 async function setFlag(key) {
   const db = await openDatabase();
   const tx = db.transaction(STORES.appMeta, 'readwrite');
@@ -98,11 +157,12 @@ async function setFlag(key) {
   await transactionDone(tx);
 }
 
-/** Test hook: clear the seed + recategorization flags (never used by the app). */
+/** Test hook: clear the seed + correction flags (never used by the app). */
 export async function _clearSeedFlagForTests() {
   const db = await openDatabase();
   const tx = db.transaction(STORES.appMeta, 'readwrite');
   tx.objectStore(STORES.appMeta).delete(FLAG_KEY);
   tx.objectStore(STORES.appMeta).delete(RECAT_FLAG_KEY);
+  tx.objectStore(STORES.appMeta).delete(PHOTO_AUDIT_FLAG_KEY);
   await transactionDone(tx);
 }

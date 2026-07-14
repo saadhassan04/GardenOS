@@ -68,3 +68,50 @@ export const CATEGORY_FIXUPS = Object.freeze([
   { name: 'Dracaena', from: 'indoor', to: 'foliage' },
   { name: 'Song of India', from: 'indoor', to: 'foliage' },
 ]);
+
+/**
+ * Photo-audit category corrections (Sprint S-14, owner-confirmed 2026-07-15).
+ *
+ * CATEGORY_FIXUPS above matches the original seed names only, so plants the
+ * owner renamed ("Bougainvillea" → "Bougainvillea 1 White") kept their old
+ * category. These entries are keyed by the owner's *current* names, taken
+ * from the 2026-07-13 backup. Applied by services/gardenSeedService.js under
+ * the AD-009 guard: a plant changes only while its category still equals
+ * `from`, so any category the owner has since chosen themselves is preserved.
+ *
+ * Owner decisions recorded for this set: the two low-confidence IDs
+ * ("Bamboo Palm" — looks like a Dracaena cane rather than a Chamaedorea;
+ * "Copperleaf") keep their names — category only, no renames.
+ */
+export const PHOTO_AUDIT_CATEGORY_FIXUPS = Object.freeze([
+  { name: 'Bougainvillea 1 White', from: 'flower', to: 'climber' },
+  { name: 'Bougainvillea 2 Orange', from: 'flower', to: 'climber' },
+  { name: 'Bougainvillea 3 Red', from: 'flower', to: 'climber' },
+  { name: 'Bougainvillea 4 Pink', from: 'flower', to: 'climber' },
+  { name: 'Money Plant 1', from: 'indoor', to: 'climber' },
+  { name: 'Motia 1', from: 'flower', to: 'shrub' },
+  { name: 'Motia 2', from: 'flower', to: 'shrub' },
+  { name: 'Rose Pink', from: 'flower', to: 'shrub' },
+  { name: 'Rose Red 1', from: 'flower', to: 'shrub' },
+  { name: 'Hibiscus / Gudhal', from: 'flower', to: 'shrub' },
+  { name: 'Copperleaf', from: 'outdoor', to: 'shrub' },
+  { name: 'Snake Plant 1', from: 'indoor', to: 'succulent' },
+  { name: 'Snake Plant 2', from: 'indoor', to: 'succulent' },
+  { name: 'Snake Plant 3', from: 'indoor', to: 'succulent' },
+  { name: 'Boston Fern 1', from: 'indoor', to: 'foliage' },
+  { name: 'Boston Fern 2', from: 'indoor', to: 'foliage' },
+  { name: 'Rubber Plant 1', from: 'indoor', to: 'foliage' },
+  { name: 'Rubber Plant 2', from: 'indoor', to: 'foliage' },
+  { name: 'Malaysian Palm 1', from: 'indoor', to: 'foliage' },
+  { name: 'Bamboo Palm', from: 'indoor', to: 'foliage' },
+  { name: 'Coleus', from: 'outdoor', to: 'foliage' },
+  { name: 'Umbrella Plant', from: 'outdoor', to: 'foliage' },
+]);
+
+/**
+ * Photo-audit botanical-name corrections (Sprint S-14). Applied only when the
+ * field is still empty, so an owner-entered name is never overwritten.
+ */
+export const PHOTO_AUDIT_BOTANICAL_FIXUPS = Object.freeze([
+  { name: 'Rose Pink', botanicalName: 'Rosa indica' },
+]);

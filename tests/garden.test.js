@@ -30,7 +30,12 @@ import {
   recordOutcome,
   whatWorkedFor,
 } from '../services/treatmentService.js';
-import { ensureSeededGarden, ensureGardenRecategorized, _clearSeedFlagForTests } from '../services/gardenSeedService.js';
+import {
+  ensureSeededGarden,
+  ensureGardenRecategorized,
+  ensurePhotoAuditCorrected,
+  _clearSeedFlagForTests,
+} from '../services/gardenSeedService.js';
 import { KARACHI_STARTER_GARDEN } from '../database/seed/ownerGarden.karachi.js';
 import { ValidationError } from '../utils/errors.js';
 
@@ -179,6 +184,54 @@ test('should recategorize old-taxonomy seeded plants once, sparing user edits', 
   // Idempotent: a second run changes nothing.
   const again = await ensureGardenRecategorized();
   assertEqual(again.updated, 0, 'recategorization must run only once');
+});
+
+test('should apply photo-audit corrections once, sparing user edits', async () => {
+  const plants = new Repository(STORES.plants);
+  await plants.clearAll();
+  await _clearSeedFlagForTests();
+
+  // Renamed plants the name-keyed recategorization could never match.
+  const bougain = await createPlant({ name: 'Bougainvillea 1 White', category: 'flower' });
+  const snake = await createPlant({ name: 'Snake Plant 2', category: 'indoor' });
+  const coleus = await createPlant({ name: 'Coleus', category: 'outdoor' });
+  // Rose Pink gets both corrections: category → shrub and a botanical name.
+  const rosePink = await createPlant({ name: 'Rose Pink', category: 'flower' });
+  // A plant the owner already recategorized themselves — must be left alone.
+  const userMoved = await createPlant({ name: 'Umbrella Plant', category: 'bonsai' });
+  // An owner-entered botanical must never be overwritten by the audit value.
+  const roseRed = await createPlant({
+    name: 'Rose Red 1',
+    category: 'flower',
+    botanicalName: 'Rosa chinensis',
+  });
+
+  const { updated } = await ensurePhotoAuditCorrected();
+  assert(updated >= 5, 'audited plants must be corrected');
+
+  assertEqual((await plants.get(bougain.id)).category, 'climber', 'bougainvillea → climber');
+  assertEqual((await plants.get(snake.id)).category, 'succulent', 'snake plant → succulent');
+  assertEqual((await plants.get(coleus.id)).category, 'foliage', 'coleus → foliage');
+  assertEqual((await plants.get(rosePink.id)).category, 'shrub', 'rose pink → shrub');
+  assertEqual(
+    (await plants.get(rosePink.id)).botanicalName,
+    'Rosa indica',
+    'rose pink must gain its botanical name',
+  );
+  assertEqual(
+    (await plants.get(userMoved.id)).category,
+    'bonsai',
+    'owner-set category must be preserved (not forced to foliage)',
+  );
+  assertEqual(
+    (await plants.get(roseRed.id)).botanicalName,
+    'Rosa chinensis',
+    'owner-entered botanical must be preserved',
+  );
+
+  // Idempotent: a second run changes nothing.
+  const again = await ensurePhotoAuditCorrected();
+  assertEqual(again.updated, 0, 'photo-audit corrections must run only once');
 });
 
 test('should run the pest lifecycle and stamp plant timelines', async () => {
