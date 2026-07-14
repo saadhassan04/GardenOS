@@ -112,6 +112,72 @@ export function effectiveWateringDays(plant, profile, date = new Date()) {
 }
 
 /**
+ * One plant's watering schedule, or null when the interval is unknown —
+ * unset means unset, so the caller says "no schedule" rather than inventing
+ * a date (Plant Knowledge Philosophy: never guess an interval).
+ *
+ * `daysUntil` counts whole days to the next watering and goes negative when
+ * overdue; it rounds up, so "in 1 day" means "within a day", and 0 means due
+ * today. This agrees exactly with listNeedsWatering's due test at every
+ * boundary because watering intervals are whole days.
+ *
+ * `elapsedRatio` is the fraction of the interval already spent (0 = just
+ * watered, 1 = due or overdue) — the progress bar's value.
+ *
+ * @param {object} plant
+ * @param {object|null} profile the plant's care profile (caller-resolved)
+ * @param {Date} [date]
+ * @returns {{everyDays: number, dueAt: string|null, daysUntil: number,
+ *   elapsedRatio: number, neverWatered: boolean}|null}
+ */
+export function wateringSchedule(plant, profile, date = new Date()) {
+  const everyDays = effectiveWateringDays(plant, profile, date);
+  if (!everyDays) {
+    return null;
+  }
+
+  const last = plant.derived?.lastWateredAt;
+  if (!last) {
+    // Nothing to count from — a plant we've never watered is due now, which
+    // is what listNeedsWatering already concludes.
+    return { everyDays, dueAt: null, daysUntil: 0, elapsedRatio: 1, neverWatered: true };
+  }
+
+  const intervalMs = everyDays * DAY_MS;
+  const dueAtMs = Date.parse(last) + intervalMs;
+  const elapsedMs = date.getTime() - Date.parse(last);
+
+  return {
+    everyDays,
+    dueAt: new Date(dueAtMs).toISOString(),
+    daysUntil: Math.ceil((dueAtMs - date.getTime()) / DAY_MS),
+    elapsedRatio: Math.min(1, Math.max(0, elapsedMs / intervalMs)),
+    neverWatered: false,
+  };
+}
+
+/**
+ * Watering schedules for a whole list, keyed by plant id (values may be
+ * null — see wateringSchedule). Profiles are read once for the batch:
+ * effectiveWateringDays takes a caller-resolved profile precisely so list
+ * views don't query per plant.
+ * @param {object[]} plants
+ * @param {Date} [date]
+ * @returns {Promise<Map<string, object|null>>}
+ */
+export async function resolveWateringSchedules(plants, date = new Date()) {
+  const profiles = await listCareProfiles();
+  const profileById = new Map(profiles.map((profile) => [profile.id, profile]));
+
+  return new Map(
+    plants.map((plant) => {
+      const profile = plant.careProfileId ? profileById.get(plant.careProfileId) ?? null : null;
+      return [plant.id, wateringSchedule(plant, profile, date)];
+    }),
+  );
+}
+
+/**
  * Active plants whose watering is due or overdue right now — care profile
  * (or override) vs. actual history (FR-8.1 "needs attention"). Plants with
  * no known interval are skipped: no guessing.

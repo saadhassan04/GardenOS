@@ -7,6 +7,7 @@ import { test, assert, assertEqual, assertThrows } from './testKit.js';
 import { STORES } from '../database/stores.js';
 import { Repository } from '../database/Repository.js';
 import { createPlant, getPlant, updatePlant } from '../services/plantService.js';
+import { logEvent } from '../services/careEventService.js';
 import { getTimeline } from '../services/careEventService.js';
 import {
   createLocation,
@@ -18,6 +19,9 @@ import {
   ensureSeededCareProfiles,
   listCareProfiles,
   effectiveWateringDays,
+  wateringSchedule,
+  resolveWateringSchedules,
+  listNeedsWatering,
   createCareProfile,
   updateCareProfile,
   deleteCareProfile,
@@ -83,6 +87,72 @@ test('should resolve effective watering: override → seasonal → base', async 
   assertEqual(effectiveWateringDays(overridden, plumeria, july), 2, 'plant override must win');
 
   assertEqual(effectiveWateringDays(plant, null), null, 'no profile, no override → unknown');
+});
+
+test('should compute the watering schedule the plant list renders', async () => {
+  const now = new Date('2026-07-15T12:00:00');
+  const profile = { wateringEveryDays: 10 };
+  const at = (iso) => ({ derived: { lastWateredAt: iso }, careOverrides: {} });
+
+  // Watered 6 days ago on a 10-day interval → 4 days left, 60% of the cycle.
+  const mid = wateringSchedule(at('2026-07-09T12:00:00'), profile, now);
+  assertEqual(mid.daysUntil, 4, 'four days until the next watering');
+  assertEqual(mid.everyDays, 10);
+  assertEqual(Math.round(mid.elapsedRatio * 100), 60, 'progress is the spent fraction of the cycle');
+  assertEqual(mid.neverWatered, false);
+
+  // Due exactly today.
+  assertEqual(wateringSchedule(at('2026-07-05T12:00:00'), profile, now).daysUntil, 0, 'due today');
+
+  // Overdue: negative days, and the bar is capped rather than overflowing.
+  const late = wateringSchedule(at('2026-07-01T12:00:00'), profile, now);
+  assertEqual(late.daysUntil, -4, 'four days overdue');
+  assertEqual(late.elapsedRatio, 1, 'elapsed ratio must clamp at 1');
+
+  // Never watered → due now, nothing to count from.
+  const fresh = wateringSchedule({ derived: { lastWateredAt: null }, careOverrides: {} }, profile, now);
+  assertEqual(fresh.neverWatered, true);
+  assertEqual(fresh.daysUntil, 0);
+
+  // No profile and no override → no schedule. Never a guessed date.
+  assertEqual(wateringSchedule(at('2026-07-09T12:00:00'), null, now), null, 'unknown interval → null');
+
+  // A plant override wins, and rounding is "within N days" (up, not down).
+  const overridden = { derived: { lastWateredAt: '2026-07-14T00:00:00' }, careOverrides: { wateringEveryDays: 3 } };
+  assertEqual(wateringSchedule(overridden, profile, now).daysUntil, 2, 'partial days round up');
+});
+
+test('should agree with the dashboard on which plants are due', async () => {
+  const plants = new Repository(STORES.plants);
+  await plants.clearAll();
+  const profiles = await listCareProfiles();
+  const plumeria = profiles.find((p) => p.name.startsWith('Plumeria'));
+
+  const due = await createPlant({ name: 'Thirsty One', careProfileId: plumeria.id });
+  const watered = await createPlant({ name: 'Fine One', careProfileId: plumeria.id });
+  const unknown = await createPlant({ name: 'No Profile One' });
+  // Plumeria in monsoon is every 7 days: 30 days ago is due, today is not.
+  await logEvent(due.id, 'watering', { occurredAt: '2026-06-15T06:00:00.000Z' });
+  await logEvent(watered.id, 'watering');
+  await logEvent(unknown.id, 'watering', { occurredAt: '2026-06-15T06:00:00.000Z' });
+
+  const loaded = await Promise.all([getPlant(due.id), getPlant(watered.id), getPlant(unknown.id)]);
+  const schedules = await resolveWateringSchedules(loaded);
+
+  assert(schedules.get(due.id).daysUntil <= 0, 'long-unwatered plant must read as due');
+  assert(schedules.get(watered.id).daysUntil > 0, 'just-watered plant must not read as due');
+  assertEqual(schedules.get(unknown.id), null, 'no profile → no schedule, so never "due"');
+
+  // The Plants list and the dashboard widget must never disagree.
+  const needsWatering = new Set((await listNeedsWatering()).map(({ plant }) => plant.id));
+  for (const plant of loaded) {
+    const schedule = schedules.get(plant.id);
+    assertEqual(
+      Boolean(schedule) && schedule.daysUntil <= 0,
+      needsWatering.has(plant.id),
+      `due state for ${plant.name} must match listNeedsWatering`,
+    );
+  }
 });
 
 test('should create, edit, and guard-delete user care profiles', async () => {

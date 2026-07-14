@@ -6,7 +6,8 @@
 import { el, svgIcon, clear } from '../utils/dom.js';
 import { listPlants } from '../services/plantService.js';
 import { listLocations } from '../services/locationsService.js';
-import { logBulk, undoBatch } from '../services/careEventService.js';
+import { resolveWateringSchedules } from '../services/careProfileService.js';
+import { logEvent, logBulk, undoBatch } from '../services/careEventService.js';
 import { renderPlantCard } from '../components/PlantCard.js';
 import { showToast } from '../components/Toast.js';
 import { eventFormDialog } from '../components/EventFormDialog.js';
@@ -22,6 +23,7 @@ export function renderPlantsPage() {
     locationId: '',
     search: '',
     sort: 'name',
+    watering: '',
     selectMode: false,
     selected: new Set(),
   };
@@ -98,7 +100,16 @@ export function renderPlantsPage() {
     refresh();
   });
 
-  page.append(el('div', { className: 'filter-bar' }, searchInput, categorySelect, locationSelect, statusSelect, sortSelect));
+  // Watering filter is applied client-side: it depends on the schedules the
+  // list resolves after loading, not on an indexed field.
+  const wateringSelect = filterSelect('Watering', [['', 'All plants'], ['due', 'Due for watering']], (value) => {
+    state.watering = value;
+    refresh();
+  });
+
+  page.append(
+    el('div', { className: 'filter-bar' }, searchInput, categorySelect, locationSelect, statusSelect, wateringSelect, sortSelect),
+  );
 
   const listRegion = el('div', { className: 'plant-grid' });
   const actionBar = el('div', { className: 'action-bar', hidden: '' });
@@ -106,26 +117,21 @@ export function renderPlantsPage() {
 
   async function refresh() {
     try {
-      const plants = await listPlants({
+      const loaded = await listPlants({
         status: state.status,
         category: state.category || null,
         locationId: state.locationId || null,
         search: state.search,
         sort: state.sort,
       });
+      // One profile read for the whole page, not one per card.
+      const schedules = await resolveWateringSchedules(loaded);
+      const plants =
+        state.watering === 'due' ? loaded.filter((plant) => isDue(schedules.get(plant.id))) : loaded;
+
       clear(listRegion);
       if (plants.length === 0) {
-        const filtered = state.search || state.category || state.locationId;
-        listRegion.append(
-          el(
-            'div',
-            { className: 'card empty-state' },
-            el('p', {}, filtered ? 'No plants match those filters.' : 'No plants yet.'),
-            filtered
-              ? null
-              : el('a', { className: 'btn btn--primary', href: '#/plants/new' }, 'Add your first plant'),
-          ),
-        );
+        listRegion.append(renderEmptyState(loaded.length));
         renderActionBar();
         return;
       }
@@ -134,6 +140,8 @@ export function renderPlantsPage() {
           renderPlantCard(plant, {
             selectable: state.selectMode,
             selected: state.selected.has(plant.id),
+            schedule: schedules.get(plant.id) ?? null,
+            onLogWatering: logWatering,
             onToggle: (id) => {
               if (state.selected.has(id)) {
                 state.selected.delete(id);
@@ -150,6 +158,48 @@ export function renderPlantsPage() {
       logger.error('Plant list failed to load', { error: error.message });
       clear(listRegion);
       listRegion.append(el('div', { className: 'card' }, `Could not load plants: ${error.message}`));
+    }
+  }
+
+  /**
+   * @param {number} loadedCount plants before the client-side watering filter
+   * @returns {HTMLElement}
+   */
+  function renderEmptyState(loadedCount) {
+    if (state.watering === 'due' && loadedCount > 0) {
+      return el(
+        'div',
+        { className: 'card empty-state' },
+        el('p', {}, 'Nothing needs watering. The garden approves.'),
+      );
+    }
+    const filtered = state.search || state.category || state.locationId;
+    return el(
+      'div',
+      { className: 'card empty-state' },
+      el('p', {}, filtered ? 'No plants match those filters.' : 'No plants yet.'),
+      filtered
+        ? null
+        : el('a', { className: 'btn btn--primary', href: '#/plants/new' }, 'Add your first plant'),
+    );
+  }
+
+  /** One-tap watering from a card, with the same Undo affordance as bulk. */
+  async function logWatering(plant) {
+    try {
+      const { batchId } = await logEvent(plant.id, 'watering');
+      showToast(`${plant.name} watered`, {
+        actionLabel: 'Undo',
+        onAction: async () => {
+          await undoBatch(batchId);
+          showToast('Undone');
+          refresh();
+        },
+      });
+      refresh();
+    } catch (error) {
+      logger.error('Watering log failed', { error: error.message });
+      showToast(`Could not log watering: ${error.message}`);
     }
   }
 
@@ -207,6 +257,17 @@ export function renderPlantsPage() {
 
   refresh();
   return page;
+}
+
+/**
+ * Due = the schedule says today or earlier. A plant whose interval is
+ * unknown is never "due": we don't guess a schedule, so we can't claim one
+ * has lapsed. Matches listNeedsWatering's test exactly.
+ * @param {object|null|undefined} schedule
+ * @returns {boolean}
+ */
+function isDue(schedule) {
+  return Boolean(schedule) && schedule.daysUntil <= 0;
 }
 
 function filterSelect(label, options, onChange) {
