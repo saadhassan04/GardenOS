@@ -4,43 +4,43 @@
 
 ---
 
-## Sprint S-13 — Daily Tracking Usability
+## Sprint S-14 — Photo-Audit Corrections
 
-**Status:** In progress (paused to build the Project Memory System).
-**Target version:** `1.5.0-dev.6`.
+**Status:** Ready, but **BLOCKED on owner confirmation** (two questions below). Do not apply data changes until answered.
+**Target version:** `1.5.0-dev.7`.
+
+### Background
+On 2026-07-12 a human-in-the-loop photo audit (Claude vision over the owner's backup `gardenos-backup-2026-07-11-22-07.json`) reviewed all 32 plant photos vs. records. IDs were overwhelmingly correct. Findings and the full proposed change set are in [ENGINEERING_LOG.md](ENGINEERING_LOG.md) (2026-07-12 photo-audit entry). Nothing has been applied.
 
 ### Objectives
-Make day-to-day progress tracking effortless: filter plants by location, and log dated progress notes / milestones (flowering, fruiting…) directly from a plant.
+Correct the identified plant-data inconsistencies safely, without clobbering any owner edits made since the backup.
 
 ### Scope
-1. **Location filter on the Plants page.** ⏳ *In-flight (uncommitted).*
-   - `services/plantService.js` — `listPlants` accepts `locationId` and filters. ✅ done in working tree.
-   - `pages/PlantsPage.js` — add a Location `<select>` in the filter bar, populated async from `listLocations()`; empty-state copy accounts for the location filter. ✅ done in working tree.
-   - Remaining: version + cache bump, add a location-filter test, verify live, commit.
-2. **Per-plant progress notes & milestone events.** 🔲 Not started.
-   - `config/registries.js` — add event types `flowering`, `fruiting`, `new-growth` (milestones; `flowering`/`fruiting` `quickLog: true`, no `derivedField`).
-   - `assets/icons/sprite.svg` — add `flower`, `fruit`, `sprout` icons.
-   - `pages/PlantDetailPage.js` — relabel the "Log event…" action to an obvious **"Add note / update…"** defaulting to `observation`; the new milestone types auto-appear as quick-log buttons. Ensure event notes render on the timeline (already do).
-   - Confirm the event dialog's date field allows the correct range (today + backdating) for notes.
+1. **Category corrections** for renamed ornamentals/foliage/climbers/succulents that today's name-keyed auto-recategorization missed (e.g. Bougainvillea 1–4 → climber, Snake Plant 1–3 → succulent, palms/ferns/rubber/hosta → foliage, Money Plant → climber, Motia/Rose/Hibiscus → shrub, Coleus/Umbrella Plant → foliage, Copperleaf → shrub).
+2. **Specific data fixes:** add `Rosa indica` to "Rose Pink".
+3. **ID flags (owner decides the name):** "Bamboo Palm" looks like a Dracaena cane, not a Chamaedorea; "Copperleaf" low-confidence. Only touch their category unless the owner confirms a rename.
+4. *(Optional)* convert audit health observations (jasmine heat stress, bamboo-palm cane lesions, soil algae) into pest/observation records.
+
+### Mechanism (recommended)
+A guarded, one-time correction routine mirroring `ensureGardenRecategorized` (AD-009): keyed by plant name, changing a plant's category **only if it still equals the wrong value**, idempotent, flag-gated in `appMeta`. Add the Rose-Pink botanical the same way. This never overwrites divergent live data and is a no-op on fresh installs. **Do not** apply via a full backup restore (the live DB has diverged from the snapshot).
+
+### Blocking questions for the owner
+1. **Scope:** photo-verified plants only, or the full set (incl. renamed non-photographed foliage/climbers)? (Recommend: full set — logic is identical.)
+2. **Flags:** confirm/rename Bamboo Palm & Copperleaf yourself (routine only touches category), and OK to add *Rosa indica* to Rose Pink?
 
 ### Deliverables
-- Location filter working and tested; progress-note/milestone logging working; both verified live in Safari; committed with version + cache bump; `deploy-local.sh` run.
-- Memory system updated (PROJECT_STATE, HANDOFF, ENGINEERING_LOG; this file replaced with S-14).
-
-### Dependencies
-- Locations service (exists). Event pipeline + timeline (exist). No new architecture.
+- Guarded correction routine + test (applies once, spares user-edited categories, idempotent); verified live; committed with version + cache bump; deployed.
+- Memory system updated; this file replaced with S-15.
 
 ### Risks
-- Adding `quickLog` milestone types also adds them to task-type options (`taskSchedulerService.TASK_TYPE_OPTIONS`) — acceptable, verify it reads sensibly.
-- Sprite additions must keep the file valid and precache unaffected (sprite already precached).
+- Backup is a point-in-time snapshot; the routine must be name/field-surgical (mitigated by the AD-009 pattern).
+- Baking owner-specific plant names into a correction list is acceptable for this personal deployment; keep it flag-guarded and removable.
 
 ### Success Criteria
-- Filtering Plants by a location shows only that location's plants; combines with category/status/search.
-- From a plant, the owner can log a dated note and one-tap "Flowering"/"Fruiting"; entries appear on the plant timeline with date + text.
-- Full suite green live in Safari; no console errors; app still installs/offline-loads.
+- Confirmed plants land in the correct categories; Rose Pink gains its botanical; no unrelated fields or user edits changed; full suite green live.
 
 ---
 
-## On deck (do not start until S-13 done)
-- **S-14 — Photo-audit corrections:** apply confirmed category/botanical corrections via a guarded one-time routine (AD-009); optionally log audit health observations as pest/observation records. *Blocked on owner answering scope + the three ID flags (see HANDOFF → Paused).*
-- **S-15 — v1.x stabilization & exit-gate support:** address any friction from real use; support owner exit gates (validation week, 200-photo perf, winter-crop cycle, recurrence soak); then finalize `1.5.0`.
+## On deck (after S-14)
+- **S-15 — v1.x stabilization & exit-gate support:** address friction from real use; support owner exit gates (validation week, 200-photo Android perf, winter-crop cycle, one-month recurrence soak); then finalize `1.5.0` and decide on tagging v1.1–v1.5.
+- Then the **v2.0 AI era** begins with an ADR (first-ever dependency) — see [GARDEN_AI_ROADMAP.md](GARDEN_AI_ROADMAP.md).

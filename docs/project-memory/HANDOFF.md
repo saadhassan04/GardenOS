@@ -7,7 +7,7 @@
 - **Handoff date:** 2026-07-12
 
 ## Current Version
-`1.5.0-dev.5`. Released tag: `v1.0.0`. The v1.x offline core is code-complete; v1.1–v1.5 await owner exit gates before tagging.
+`1.5.0-dev.6`. Released tag: `v1.0.0`. The v1.x offline core is code-complete; v1.1–v1.5 await owner exit gates before tagging.
 
 ## Completed Work
 - v1.0 Foundation (released), v1.1 Plant Manager, v1.2 Image Manager, v1.3 Kitchen Garden, v1.4 Dashboard, v1.5 Task Scheduler — all code-complete, 58 tests green.
@@ -15,20 +15,16 @@
 - Full history: [ENGINEERING_LOG.md](ENGINEERING_LOG.md).
 
 ## Current Sprint
-**Sprint S-13 (in progress): "Daily tracking usability."** Two owner-requested features:
-1. **Location filter on the Plants page** — ⏳ *in-flight, uncommitted in working tree* (`pages/PlantsPage.js`, `services/plantService.js`). Service `listPlants` gained a `locationId` filter; PlantsPage gained a Location `<select>` populated async from `listLocations()`. Not yet version-bumped, tested live, or committed.
-2. **Per-plant progress notes / milestone events** (flowering, fruiting, etc.) — 🔲 not started. Plan: add `flowering`/`fruiting`/`new-growth` event types to `config/registries.js` (quickLog milestones), relabel the plant-detail "Log event…" action to an obvious "Add note / update…" defaulting to `observation`, add the needed sprite icons. These surface on the existing plant timeline (the progress log).
-
-Full sprint definition: [NEXT_SPRINT.md](NEXT_SPRINT.md).
+**Sprint S-13 — "Daily tracking usability" — ✅ COMPLETE (committed `758f2cb`, deployed).** Delivered: (1) Plants location filter (`listPlants` `locationId` + async-populated Location select, combines with other filters); (2) per-plant progress notes + flowering/fruiting/new-growth milestone event types (icons added; plant-detail action relabeled "Add note / update…", defaults to a dated observation). 60 tests green live. **Next up: Sprint S-14** — see [NEXT_SPRINT.md](NEXT_SPRINT.md).
 
 ## Last Commit
-`87a062a` — feat: recategorize seeded plants into the richer taxonomy.
+`758f2cb` — feat: location filter + per-plant progress notes & milestones (Sprint S-13).
 
 ## Current Branch
 `main`.
 
 ## Next Priority
-Finish Sprint S-13 (location filter → commit; progress notes/milestones). Then resolve the two **paused owner decisions** below before or alongside it.
+**Sprint S-14 — Photo-audit corrections** (see NEXT_SPRINT.md), which is **blocked on the paused owner decision below**. If the owner hasn't answered, ask the two questions (scope + the three ID flags) before applying anything. If S-14 stays blocked, proceed to S-15 stabilization.
 
 ## Paused / awaiting owner input
 1. **Category-correction application** (from the photo-audit): owner was asked (a) apply photo-verified changes only vs. the full set incl. renamed non-photographed foliage/climbers, and (b) confirm the three flags (Bamboo Palm likely a Dracaena cane; Copperleaf low-confidence ID; add *Rosa indica* to Rose Pink). **No changes applied yet.** The proposed change set is in [ENGINEERING_LOG.md](ENGINEERING_LOG.md) under the 2026-07-12 photo audit. Recommended mechanism: a guarded one-time correction keyed by plant name that only touches the category field (+ Rose Pink botanical), mirroring `ensureGardenRecategorized`.

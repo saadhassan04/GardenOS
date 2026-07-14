@@ -1,7 +1,7 @@
 # GardenOS — Known Technical Debt
 
 Tracked by severity. Update after every Architecture Audit and whenever debt is added or resolved.
-Last reviewed: 2026-07-12.
+Last reviewed: 2026-07-12 (after Sprint S-13).
 
 ---
 
@@ -11,7 +11,6 @@ Last reviewed: 2026-07-12.
 ## Medium
 
 - **TD-M1 — Owner exit gates unmet (v1.1–v1.5 untagged).** Real-world validations still pending: v1.1 daily-use week (T-040), v1.2 200-photo Android performance (T-054), v1.3 full winter-crop cycle, v1.5 one-month recurrence soak (T-085). *Impact:* v1.1–v1.5 stay code-complete but unreleased. *Action:* support owner in real use; tag when passed.
-- **TD-M2 — In-flight uncommitted work.** Location filter edits sit in the working tree (`pages/PlantsPage.js`, `services/plantService.js`) without version bump/test/commit. *Impact:* risk of loss / confusion. *Action:* finish in Sprint S-13.
 - **TD-M3 — Photo-audit corrections not applied.** Confirmed inconsistencies (categories for renamed ornamentals; Bamboo Palm likely mis-ID; Copperleaf low-confidence; Rose Pink missing botanical) identified but not yet corrected. *Impact:* data slightly inaccurate. *Action:* Sprint S-14, pending owner confirmation.
 - **TD-M4 — Name-keyed recategorization misses renamed plants.** `ensureGardenRecategorized` matches exact seed names, so owner-renamed plants ("Bougainvillea 1 White") were not auto-corrected. *Impact:* several plants retain old categories. *Action:* folded into TD-M3 (S-14 correction set covers renamed plants).
 
@@ -33,3 +32,4 @@ Last reviewed: 2026-07-12.
 - **TD-R4 — Noon-anchored test fixtures time-of-day flake.** Switched to exact elapsed offsets. Resolved 2026-07-09 (v1.5).
 - **TD-R5 — `setFlag()` missing keyed argument (keyPath error).** Early-return path fixed to pass the flag key. Resolved 2026-07-12.
 - **TD-R6 — Safari heuristic ES-module caching served stale modules.** `tests/serve.py` no-cache dev server added; documented. Resolved 2026-07-09.
+- **TD-R7 — In-flight uncommitted location-filter work.** Committed in Sprint S-13 (`758f2cb`). Resolved 2026-07-12.

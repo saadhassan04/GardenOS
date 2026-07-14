@@ -4,10 +4,10 @@
 Update it after every completed sprint.
 
 - **Snapshot date:** 2026-07-12
-- **Current version:** `1.5.0-dev.5` (last released tag: `v1.0.0`)
-- **Last commit:** `87a062a` — feat: recategorize seeded plants into the richer taxonomy
+- **Current version:** `1.5.0-dev.6` (last released tag: `v1.0.0`)
+- **Last commit:** `758f2cb` — feat: location filter + per-plant progress notes & milestones (Sprint S-13)
 - **Branch:** `main`
-- **Uncommitted in-flight work:** location filter (`pages/PlantsPage.js`, `services/plantService.js`) — see [HANDOFF.md](HANDOFF.md)
+- **Uncommitted in-flight work:** none (Sprint S-13 committed)
 
 ---
 
@@ -26,7 +26,7 @@ Update it after every completed sprint.
 | Garden Dashboard (widget registry, needs-attention, canvas charts) | v1.4 | ✅ Code-complete |
 | Task Scheduler (recurrence engine, inbox, calendar, notifications) | v1.5 | ✅ Code-complete |
 
-**Post-v1.5 additions (owner-driven, on `main`):** care-profile management UI + per-plant watering override; six new plant categories (foliage, succulents, shrubs, climbers, bonsai, bulbs); automatic starter-garden seeding of the owner's collection; one-time guarded category recategorization.
+**Post-v1.5 additions (owner-driven, on `main`):** care-profile management UI + per-plant watering override; six new plant categories (foliage, succulents, shrubs, climbers, bonsai, bulbs); automatic starter-garden seeding of the owner's collection; one-time guarded category recategorization; **Project Memory System** (`docs/project-memory/`); **Sprint S-13** — Plants location filter + per-plant progress notes & flowering/fruiting/new-growth milestone events.
 
 ## Current Architecture
 
@@ -56,7 +56,7 @@ HTML5 · CSS3 (custom properties, Grid, Flexbox) · **vanilla JavaScript ES6 mod
 
 ## Current Garden Knowledge
 
-16 Karachi-tuned care profiles (seasonal summer/monsoon/winter watering + heat-wave/monsoon notes) seeded on first run. 19-crop Karachi sowing calendar. Karachi climate profile (`config/climate.karachi.js`: care seasons + v2.5 weather-alert thresholds + coordinates). Owner's real collection seeded automatically (~33 starter plants; owner has since grown it to 50+). Plant taxonomy: 14 categories.
+16 Karachi-tuned care profiles (seasonal summer/monsoon/winter watering + heat-wave/monsoon notes) seeded on first run. 19-crop Karachi sowing calendar. Karachi climate profile (`config/climate.karachi.js`: care seasons + v2.5 weather-alert thresholds + coordinates). Owner's real collection seeded automatically (~33 starter plants; owner has since grown it to 50+). Plant taxonomy: 14 categories. Care event vocabulary includes flowering/fruiting/new-growth progress milestones.
 
 ## Current AI Readiness
 
@@ -64,7 +64,7 @@ HTML5 · CSS3 (custom properties, Grid, Flexbox) · **vanilla JavaScript ES6 mod
 
 ## Current Project Health
 
-**Healthy.** 58 integration tests, all green in Safari against real IndexedDB (release-blocking backup round-trip included). Every increment verified live before commit. Zero dependencies to rot. Clean git history with descriptive commits. Documentation (root `.md` set + this memory system) current. Low technical debt (see [KNOWN_TECH_DEBT.md](KNOWN_TECH_DEBT.md)).
+**Healthy.** 60 integration tests, all green in Safari against real IndexedDB (release-blocking backup round-trip included). Every increment verified live before commit. Zero dependencies to rot. Clean git history with descriptive commits. Documentation (root `.md` set + this memory system) current. Low technical debt (see [KNOWN_TECH_DEBT.md](KNOWN_TECH_DEBT.md)).
 
 ## Current Offline Features
 

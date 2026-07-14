@@ -82,12 +82,12 @@ Format: **Version · Date · Summary · Files/Areas Changed · Architecture Impa
 - **Architecture impact:** Manual precursor to v2.0 AI Vision; will apply via AD-009 guarded correction once confirmed.
 - **Future notes:** See HANDOFF → Paused/awaiting owner input; recommended Sprint S-14.
 
-## Sprint S-13 — Daily tracking usability (IN PROGRESS)
-- **Version:** 1.5.0-dev.5 (working) · **Date:** 2026-07-12
-- **Summary:** (1) Location filter on Plants page — service `listPlants` + PlantsPage select — *edited, uncommitted, untested/undeployed*. (2) Per-plant progress notes / milestone events — not started. Paused to build the Project Memory System first (this document set).
-- **Areas:** `pages/PlantsPage.js`, `services/plantService.js` (uncommitted).
-- **Architecture impact:** None (registry/service additions).
-- **Future notes:** Finish per NEXT_SPRINT.md; commit with version + cache bump.
+## Sprint S-13 — Daily tracking usability
+- **Version:** 1.5.0-dev.6 · **Date:** 2026-07-12 · **Commit:** `758f2cb`
+- **Summary:** (1) Location filter on the Plants page — `listPlants` gained a `locationId` filter; a Location select (async from `listLocations`) joins the filter bar and combines with category/status/search. (2) Per-plant progress notes & milestones — new `flowering`/`fruiting`/`new-growth` event types (flower/fruit/sprout icons); the plant-detail action relabeled "Add note / update…", defaulting to a dated `observation`; entries render on the plant timeline. 60 tests green live.
+- **Areas:** `services/plantService.js`, `pages/PlantsPage.js`, `config/registries.js`, `assets/icons/sprite.svg`, `pages/PlantDetailPage.js`, `tests/plants.test.js`.
+- **Architecture impact:** None new — additive via registry + existing event/timeline pipeline. Milestones carry no `derivedField` (don't touch care caches); `flowering`/`fruiting` (quickLog) also appear as schedulable task types.
+- **Future notes:** Progress "current phase" derived state deliberately not added (timeline suffices) — revisit only if a "what's flowering now" dashboard view is wanted.
 
 ## Project Memory System
 - **Version:** 1.5.0-dev.5 · **Date:** 2026-07-12
