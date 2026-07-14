@@ -4,42 +4,39 @@
 
 ---
 
-## Sprint S-15 — v1.x Stabilization & Exit-Gate Support
+## Sprint S-16 — Exit-Gate Validation (owner-driven)
 
-**Status:** Ready. No owner decision blocks the code items; the release items below are owner calls.
-**Target version:** `1.5.0-dev.8` (see "Version policy" — this sprint does **not** finalize `1.5.0`).
+**Status:** Open, and deliberately **not pre-filled with code work**. v1.x is feature-complete, code-complete, and stabilized (62 green tests). What remains is not something a Claude session can do alone — it is the owner using the app in the real garden.
+**Target version:** `1.5.0` (drop the `-dev` suffix) once the gates below pass.
 
-### Background
-The v1.x offline core is feature-complete and code-complete at 61 green tests. What stands between it and a finalized `1.5.0` is not missing features but **real-world validation**: four owner exit gates are still open (TD-M1). S-15 therefore adds no new user-facing capability — it closes documented debt and makes the open gates easier to pass and diagnose.
+### Why this sprint has no invented backlog
+The constitution says: no placeholders, no speculative features (YAGNI). v1.x has no known defects and no missing v1 feature. Inventing a sprint to look busy would add code the owner never asked for to a product whose next real risk is *unvalidated real-world use*, not *insufficient features*. So this sprint is a checklist, not a build.
 
-### Objectives
-Reduce the risk that a long validation period turns up an un-diagnosable problem, and close the debt that v1.x shipped with.
+### The four exit gates (TD-M1)
+| Gate | Version | What passing looks like |
+|---|---|---|
+| Daily-use week (T-040) | v1.1 | A full week of real logging without friction or workarounds |
+| 200-photo Android performance (T-054) | v1.2 | Gallery/ingest stay responsive at ~200 photos on the owner's phone |
+| Full winter-crop cycle | v1.3 | One Karachi winter crop sown → harvested through the app |
+| One-month recurrence soak (T-085) | v1.5 | A month of recurring tasks spawning correctly, no drift |
 
-### Scope
-1. **Derived-cache rebuild action in Diagnostics (TD-L6).** ADR-0002 lists this as a consequence of derived caches: they are maintained incrementally and on undo, with no way to recover from drift. If drift appears during the owner's validation week, there is currently no fix short of a restore. Recompute every plant's derived cache from the immutable `events` log (the event-sourcing guarantee that makes this safe), reporting how many plants changed.
-2. **Exit-gate support.** Whatever friction the owner reports from real use. *Nothing is queued here yet — this is owner-driven and must not be invented.*
+### What a Claude session should do here
+1. **Ask the owner what actually broke or annoyed them.** Real friction beats guessed friction; fix that.
+2. **Do not add features to fill the sprint.** If nothing surfaced, the correct outcome is "gates progressed, no code changed."
+3. **If a bug surfaces:** fix it with a regression test (a fix without one is not done), verify live, commit, update memory.
+4. **When all four gates pass:** cut `1.5.0` (APP_VERSION + CACHE_VERSION), and settle the standing open question — tag v1.1–v1.5 retroactively, or roll them into a single `1.5.0` "offline core complete" milestone (current lean: the single milestone; the intermediate tags never shipped to anyone).
 
-### Explicitly out of scope
-- **Finalizing `1.5.0` / tagging v1.1–v1.5.** The standing stance (HANDOFF → Open Questions) is to hold until the exit gates pass; they are real-use validations, not code checks. Dropping the `-dev` suffix is a release act and stays the owner's call.
-- **New features.** v1.x is feature-complete; anything genuinely new belongs to a later sprint or the v2.0 AI era.
-- **Auto-logging the photo audit's health observations** (TD-L8) — back-dating unwitnessed events would pollute the care history v2.0 AI reads.
-
-### Version policy
-Bump to `1.5.0-dev.8` (APP_VERSION + CACHE_VERSION together, as always). `1.5.0` proper is cut by the owner once the four gates pass.
-
-### Deliverables
-- Diagnostics rebuild action + test (recomputes from events; idempotent; a no-op run reports 0 changes); verified live; committed with version + cache bump; deployed.
-- Memory system updated; this file replaced with S-16.
-
-### Risks
-- A rebuild that recomputes *wrongly* is worse than drift, because it overwrites good caches. Mitigation: derive strictly from the `events` log using the same code path `careEventService` already uses — no second implementation of the rules (DRY; a divergent copy would rot).
-- Rebuilding a large garden touches every plant in one pass. Mitigation: garden scale is ~54 plants; revisit only if that stops being true.
+### Owner-side items carried in
+- **TD-M5 — two unconfirmed plant IDs.** "Bamboo Palm" is most likely a *Dracaena* cane; "Copperleaf" was a low-confidence ID. S-14 corrected their categories and left the names alone by the owner's choice. Resolve by looking at the actual plants; renaming is a manual edit, no code.
+- **TD-L8 — audit health observations** (jasmine heat stress, bamboo-palm cane lesions, soil algae, all 2026-07-11) were never logged, on purpose — back-dating unwitnessed events would pollute the history v2.0 AI reads. Log by hand if the conditions persist.
+- **TD-L9 — the two one-off correction routines** (`ensureGardenRecategorized`, `ensurePhotoAuditCorrected`) can be deleted once their flags are set on every install the owner uses. If a *third* correction is ever needed, build a generic mechanism instead of a third one-off.
 
 ### Success Criteria
-- The owner can rebuild derived caches from Diagnostics and see what changed; a rebuild on healthy data changes nothing; full suite green live.
+- Gates progressed or passed with evidence from real use; any surfaced bug fixed with a regression test; suite green.
+- `1.5.0` cut only when the gates actually pass — not to tidy the version number.
 
 ---
 
-## On deck (after S-15)
-- **Owner exit gates** (TD-M1): v1.1 daily-use week (T-040), v1.2 200-photo Android performance (T-054), v1.3 full winter-crop cycle, v1.5 one-month recurrence soak. These are real-use validations, not sprints — when they pass, finalize `1.5.0` and decide whether to tag v1.1–v1.5 retroactively or roll them into a single "offline core complete" milestone.
-- Then the **v2.0 AI era** begins with an ADR (first-ever dependency) — see [GARDEN_AI_ROADMAP.md](GARDEN_AI_ROADMAP.md).
+## On deck (after S-16)
+- **v2.0 AI era**, opened by an ADR for the project's first-ever runtime dependency (on-device model stack: TF.js vs. transformers.js/WebGPU). The ground is already prepared — event-sourced history, reserved `analyses` store, documented `IPlantIdentifier`/`IDiseaseDetector`/`IGardenAdvisor` contracts. See [GARDEN_AI_ROADMAP.md](GARDEN_AI_ROADMAP.md).
+- The 2026-07-12 photo audit is the manual precursor to that era: it proves the value (it found real errors) and the workflow (AI proposes, owner confirms — never silent writes).

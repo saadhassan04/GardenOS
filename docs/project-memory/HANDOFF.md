@@ -7,7 +7,7 @@
 - **Handoff date:** 2026-07-15
 
 ## Current Version
-`1.5.0-dev.7`. Released tag: `v1.0.0`. The v1.x offline core is code-complete; v1.1–v1.5 await owner exit gates before tagging.
+`1.5.0-dev.8`. Released tag: `v1.0.0`. The v1.x offline core is code-complete; v1.1–v1.5 await owner exit gates before tagging.
 
 ## Completed Work
 - v1.0 Foundation (released), v1.1 Plant Manager, v1.2 Image Manager, v1.3 Kitchen Garden, v1.4 Dashboard, v1.5 Task Scheduler — all code-complete, 58 tests green.
@@ -15,16 +15,18 @@
 - Full history: [ENGINEERING_LOG.md](ENGINEERING_LOG.md).
 
 ## Current Sprint
-**Sprint S-14 — "Photo-audit corrections" — ✅ COMPLETE (committed `cb6effb`, deployed).** The owner answered both blocking questions on 2026-07-15 (full set; Bamboo Palm & Copperleaf keep their names — category only; *Rosa indica* confirmed). Delivered `ensurePhotoAuditCorrected()` — a second AD-009 guarded routine keyed by the owner's *current* plant names, applying 22 category fixes + Rose Pink's botanical. 61 tests green live; a dry-run against the real backup confirmed exactly 23 changes with no unintended matches. **Next up: Sprint S-15** — see [NEXT_SPRINT.md](NEXT_SPRINT.md).
+**Sprint S-15 — "v1.x stabilization" — ✅ COMPLETE (committed `59bc177`, deployed).** Closed TD-L6: Diagnostics → Maintenance → "Rebuild derived caches" recomputes every plant's cache from the events + images that own the truth, reporting scanned vs. repaired. `recomputeDerived()` now covers `imageCount` too, so there is one definition of a rebuild rather than two partial paths. 62 tests green live; the UI was exercised end-to-end. **Deliberately did not finalize `1.5.0`** — that waits on the owner's exit gates.
+
+Previous: **Sprint S-14 — "Photo-audit corrections" — ✅ COMPLETE (`cb6effb`).** Owner answered both blocking questions on 2026-07-15 (full set; Bamboo Palm & Copperleaf keep their names — category only; *Rosa indica* confirmed). `ensurePhotoAuditCorrected()` applies 22 category fixes + Rose Pink's botanical, keyed by the owner's *current* plant names.
 
 ## Last Commit
-`cb6effb` — feat: apply photo-audit corrections to owner garden (Sprint S-14).
+`59bc177` — feat: rebuild derived caches from Diagnostics (Sprint S-15).
 
 ## Current Branch
 `main`.
 
 ## Next Priority
-**Sprint S-15 — v1.x stabilization & exit-gate support** (see NEXT_SPRINT.md). S-14 is done; no sprint is blocked on the owner.
+**The owner's four exit gates** (TD-M1) — they are real-world validations, not code, and they are now the only thing between `1.5.0-dev.8` and a finalized `1.5.0`. No further sprint is queued or needed; see NEXT_SPRINT.md (S-16 is intentionally owner-driven and empty of invented work).
 
 ## Paused / awaiting owner input
 1. **The S-14 corrections take effect when the owner next opens the app** at `http://127.0.0.1:8080` and accepts the "Update available" prompt — the routine runs once at startup against their live IndexedDB. Expect 23 changes (22 categories + Rose Pink's botanical). Nothing to do in code; just confirm the Plants page looks right afterwards.
@@ -44,7 +46,7 @@ See [KNOWN_TECH_DEBT.md](KNOWN_TECH_DEBT.md). Highlights: owner real-world **exi
 - **Single serving origin is load-bearing:** changing the port/address orphans the IndexedDB data. Documented in README.
 
 ## Recommended Next Sprint
-After S-14: **S-15 "v1.x stabilization & exit-gate support"** — address friction from real use, support the owner's open exit gates, then finalize `1.5.0`. The audit's health observations were deliberately left unlogged (TD-L8) rather than back-dated into the event log.
+None invented. v1.x is feature-complete, code-complete, and stabilized at 62 green tests; the remaining work is the owner's real-use validation (TD-M1). The next *code* sprint should be whatever friction that validation surfaces — or, once the gates pass, cutting `1.5.0` and opening the v2.0 AI era with an ADR. The audit's health observations were deliberately left unlogged (TD-L8) rather than back-dated into the event log.
 
 ## Estimated Next Version
-`1.5.0` (drop the `-dev` suffix) once stabilization completes; then evaluate tagging v1.1–v1.5 retroactively or rolling into a single `1.5.0` "offline core complete" milestone. AI era begins at `2.0.0` (gated by an ADR).
+`1.5.0` (drop the `-dev` suffix) once the exit gates pass; then evaluate tagging v1.1–v1.5 retroactively or rolling into a single `1.5.0` "offline core complete" milestone. AI era begins at `2.0.0` (gated by an ADR).

@@ -1,7 +1,7 @@
 # GardenOS — Known Technical Debt
 
 Tracked by severity. Update after every Architecture Audit and whenever debt is added or resolved.
-Last reviewed: 2026-07-15 (after Sprint S-14).
+Last reviewed: 2026-07-15 (after Sprint S-15).
 
 ---
 
@@ -20,7 +20,6 @@ Last reviewed: 2026-07-15 (after Sprint S-14).
 - **TD-L3 — Lighthouse audit deferred.** No Chromium tooling on the owner's machine. *Impact:* PWA score unverified (low risk for a static precached shell). *Action:* run when Chrome/CI is available.
 - **TD-L4 — Category spelling inconsistency in owner data.** Plants named "Green Chili 1" vs "Green Chilli 2/3/4" (cosmetic). *Action:* owner's choice; not code.
 - **TD-L5 — Chilli group category split.** "Green Chilli 4" is `seedling` while siblings are `vegetable` (a reasonable stage distinction, flagged for awareness). *Action:* none unless owner wants consistency.
-- **TD-L6 — Derived-cache rebuild tool.** Derived plant caches are maintained incrementally and on undo; a full "rebuild all derived caches" Diagnostics action (mentioned in ADR-0002 consequences) is not yet built. *Action:* add to Diagnostics if a drift bug ever appears.
 - **TD-L7 — No automated CI.** Tests run manually in Safari (no Node.js). *Impact:* relies on discipline. *Action:* optional lightweight CI if the toolchain changes.
 - **TD-L8 — Photo-audit health observations not logged.** The audit noted jasmine heat stress, bamboo-palm cane lesions, and soil algae (2026-07-11). Deliberately not auto-created as pest/observation records — back-dating unwitnessed events into the log would pollute the care history that v2.0 AI will read. *Action:* owner logs by hand if the conditions persist.
 - **TD-L9 — Owner-specific correction routines accumulate in startup.** `ensureGardenRecategorized` + `ensurePhotoAuditCorrected` bake this deployment's plant names into source and run on every boot (flag-guarded, so a single `appMeta` read once set). *Impact:* minor startup cost + owner data in the repo. *Action:* remove both once the flags are set on every install the owner uses; revisit if a third correction is ever needed (a generic mechanism would beat a third one-off).
@@ -36,3 +35,4 @@ Last reviewed: 2026-07-15 (after Sprint S-14).
 - **TD-R7 — In-flight uncommitted location-filter work.** Committed in Sprint S-13 (`758f2cb`). Resolved 2026-07-12.
 - **TD-R8 — Photo-audit corrections not applied.** Applied in Sprint S-14 (`cb6effb`) via the AD-009 guarded routine: 22 categories + Rose Pink's botanical. Resolved 2026-07-15.
 - **TD-R9 — Name-keyed recategorization misses renamed plants.** `PHOTO_AUDIT_CATEGORY_FIXUPS` is keyed by the owner's current names, covering the renamed plants `ensureGardenRecategorized` could not match. Resolved 2026-07-15 (S-14).
+- **TD-R10 — Derived-cache rebuild tool.** Built in Sprint S-15 (`59bc177`): Diagnostics → Maintenance → "Rebuild derived caches", recomputing every plant's cache from the events + images that own the truth. Resolved 2026-07-15.
