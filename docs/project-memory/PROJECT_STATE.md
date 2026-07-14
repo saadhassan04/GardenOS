@@ -4,16 +4,16 @@
 Update it after every completed sprint.
 
 - **Snapshot date:** 2026-07-15
-- **Current version:** `1.5.0-dev.8` (last released tag: `v1.0.0`)
-- **Last commit:** `59bc177` — feat: rebuild derived caches from Diagnostics (Sprint S-15)
+- **Current version:** `1.5.0-dev.9` (last released tag: `v1.0.0`)
+- **Last commit:** `9f496dd` — feat: watering schedule on plant cards (Sprint S-16)
 - **Branch:** `main`
-- **Uncommitted in-flight work:** none (Sprint S-15 committed)
+- **Uncommitted in-flight work:** none (Sprint S-16 committed)
 
 ---
 
 ## Current Version
 
-`1.5.0-dev.8`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
+`1.5.0-dev.9`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
 
 ## Completed Modules
 
@@ -26,7 +26,7 @@ Update it after every completed sprint.
 | Garden Dashboard (widget registry, needs-attention, canvas charts) | v1.4 | ✅ Code-complete |
 | Task Scheduler (recurrence engine, inbox, calendar, notifications) | v1.5 | ✅ Code-complete |
 
-**Post-v1.5 additions (owner-driven, on `main`):** care-profile management UI + per-plant watering override; six new plant categories (foliage, succulents, shrubs, climbers, bonsai, bulbs); automatic starter-garden seeding of the owner's collection; one-time guarded category recategorization; **Project Memory System** (`docs/project-memory/`); **Sprint S-13** — Plants location filter + per-plant progress notes & flowering/fruiting/new-growth milestone events; **Sprint S-14** — photo-audit corrections (second AD-009 guarded routine: 22 categories for owner-renamed plants + Rose Pink's botanical); **Sprint S-15** — derived-cache rebuild action on Diagnostics (ADR-0002's recovery path).
+**Post-v1.5 additions (owner-driven, on `main`):** care-profile management UI + per-plant watering override; six new plant categories (foliage, succulents, shrubs, climbers, bonsai, bulbs); automatic starter-garden seeding of the owner's collection; one-time guarded category recategorization; **Project Memory System** (`docs/project-memory/`); **Sprint S-13** — Plants location filter + per-plant progress notes & flowering/fruiting/new-growth milestone events; **Sprint S-14** — photo-audit corrections (second AD-009 guarded routine: 22 categories for owner-renamed plants + Rose Pink's botanical); **Sprint S-15** — derived-cache rebuild action on Diagnostics (ADR-0002's recovery path); **Sprint S-16** — per-plant watering schedule on the Plants list (next-watering countdown, cycle progress bar, one-tap log, due filter).
 
 ## Current Architecture
 
@@ -64,7 +64,7 @@ HTML5 · CSS3 (custom properties, Grid, Flexbox) · **vanilla JavaScript ES6 mod
 
 ## Current Project Health
 
-**Healthy.** 62 integration tests, all green in Safari against real IndexedDB (release-blocking backup round-trip included). Every increment verified live before commit. Zero dependencies to rot. Clean git history with descriptive commits. Documentation (root `.md` set + this memory system) current. Low technical debt (see [KNOWN_TECH_DEBT.md](KNOWN_TECH_DEBT.md)).
+**Healthy.** 64 integration tests, all green in Safari against real IndexedDB (release-blocking backup round-trip included). Every increment verified live before commit. Zero dependencies to rot. Clean git history with descriptive commits. Documentation (root `.md` set + this memory system) current. Low technical debt (see [KNOWN_TECH_DEBT.md](KNOWN_TECH_DEBT.md)).
 
 ## Current Offline Features
 

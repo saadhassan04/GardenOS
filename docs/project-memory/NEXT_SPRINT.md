@@ -4,10 +4,13 @@
 
 ---
 
-## Sprint S-16 — Exit-Gate Validation (owner-driven)
+## Sprint S-17 — Exit-Gate Validation (owner-driven)
 
-**Status:** Open, and deliberately **not pre-filled with code work**. v1.x is feature-complete, code-complete, and stabilized (62 green tests). What remains is not something a Claude session can do alone — it is the owner using the app in the real garden.
+**Status:** Open, and deliberately **not pre-filled with code work**. v1.x is feature-complete, code-complete, and stabilized (64 green tests). What remains is not something a Claude session can do alone — it is the owner using the app in the real garden.
 **Target version:** `1.5.0` (drop the `-dev` suffix) once the gates below pass.
+
+### What S-16 proved about how this works
+S-16 was the exit-gate process working exactly as intended: the owner used the app, hit a real gap (the Plants list showed "watered 3 days ago" but never "due in 4 days"), sent a reference screenshot, and that became the sprint. **That is the pattern to repeat here** — real friction, named by the owner, turned into a small verified increment. Do not pre-invent the next one.
 
 ### Why this sprint has no invented backlog
 The constitution says: no placeholders, no speculative features (YAGNI). v1.x has no known defects and no missing v1 feature. Inventing a sprint to look busy would add code the owner never asked for to a product whose next real risk is *unvalidated real-world use*, not *insufficient features*. So this sprint is a checklist, not a build.
@@ -37,6 +40,6 @@ The constitution says: no placeholders, no speculative features (YAGNI). v1.x ha
 
 ---
 
-## On deck (after S-16)
+## On deck (after S-17)
 - **v2.0 AI era**, opened by an ADR for the project's first-ever runtime dependency (on-device model stack: TF.js vs. transformers.js/WebGPU). The ground is already prepared — event-sourced history, reserved `analyses` store, documented `IPlantIdentifier`/`IDiseaseDetector`/`IGardenAdvisor` contracts. See [GARDEN_AI_ROADMAP.md](GARDEN_AI_ROADMAP.md).
 - The 2026-07-12 photo audit is the manual precursor to that era: it proves the value (it found real errors) and the workflow (AI proposes, owner confirms — never silent writes).
