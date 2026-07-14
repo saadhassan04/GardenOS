@@ -8,9 +8,11 @@
 import { validateCareEvent } from '../models/CareEvent.js';
 import { eventRepository } from '../database/EventRepository.js';
 import { plantRepository } from '../database/PlantRepository.js';
+import { imageRepository } from '../database/ImageRepository.js';
 import { EVENT_TYPES } from '../config/registries.js';
 import { uuid } from '../utils/uuid.js';
 import { bus } from '../hooks/bus.js';
+import { logger } from '../utils/logger.js';
 import { NotFoundError } from '../utils/errors.js';
 
 /**
@@ -99,8 +101,10 @@ async function applyDerivedAfterLog(plant, event) {
 }
 
 /**
- * Full derived-cache rebuild from events (undo path; also the Diagnostics
- * consistency tool later). Derived values are caches — this is the proof.
+ * Full derived-cache rebuild for one plant, from the immutable records that
+ * own the truth: the events log and the images store. Used by the undo path
+ * and by the Diagnostics rebuild tool. Derived values are caches — this is
+ * the proof, and the only definition of how they are computed.
  * @param {string} plantId
  */
 export async function recomputeDerived(plantId) {
@@ -108,7 +112,10 @@ export async function recomputeDerived(plantId) {
   if (!plant) {
     return; // plant deleted meanwhile — nothing to recompute
   }
-  const derivedPatch = { eventCount: await eventRepository.countForPlant(plantId) };
+  const derivedPatch = {
+    eventCount: await eventRepository.countForPlant(plantId),
+    imageCount: await imageRepository.countForPlant(plantId),
+  };
   for (const [type, spec] of Object.entries(EVENT_TYPES)) {
     if (spec.derivedField) {
       const last = await eventRepository.lastOfType(plantId, type);
@@ -116,4 +123,48 @@ export async function recomputeDerived(plantId) {
     }
   }
   await plantRepository.updateDerived(plantId, derivedPatch);
+}
+
+/**
+ * Recompute every plant's derived cache (Diagnostics tool — ADR-0002 listed
+ * this as the recovery path for caches that drift; TD-L6). Reports how many
+ * plants actually changed, so a healthy garden is visibly a no-op rather
+ * than a silent one. Soft-deleted plants are skipped — the repository
+ * excludes them and their caches are moot.
+ * @returns {Promise<{scanned: number, repaired: number}>}
+ */
+export async function rebuildAllDerivedCaches() {
+  let scanned = 0;
+  let repaired = 0;
+  let cursor = null;
+
+  do {
+    const page = await plantRepository.query({ limit: 100, cursor });
+    for (const plant of page.items) {
+      await recomputeDerived(plant.id);
+      const after = await plantRepository.get(plant.id);
+      if (after && derivedDiffers(plant.derived, after.derived)) {
+        repaired += 1;
+      }
+      scanned += 1;
+    }
+    cursor = page.nextCursor;
+  } while (cursor);
+
+  logger.info(`Derived-cache rebuild: ${scanned} plants scanned, ${repaired} repaired`);
+  if (repaired > 0) {
+    bus.emit('plant:updated', { rebuilt: repaired });
+  }
+  return { scanned, repaired };
+}
+
+/**
+ * Key-order-independent comparison — derived values are primitives.
+ * @param {object} before
+ * @param {object} after
+ * @returns {boolean}
+ */
+function derivedDiffers(before, after) {
+  const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+  return [...keys].some((key) => before[key] !== after[key]);
 }

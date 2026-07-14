@@ -21,7 +21,9 @@ import {
   logBulk,
   getTimeline,
   undoBatch,
+  rebuildAllDerivedCaches,
 } from '../services/careEventService.js';
+import { plantRepository } from '../database/PlantRepository.js';
 import { ValidationError, NotFoundError } from '../utils/errors.js';
 
 async function clearPlantStores() {
@@ -112,6 +114,42 @@ test('should bulk-log with one batch id and undo restores derived caches', async
   const bAfter = await getPlant(b.id);
   assertEqual(bAfter.derived.lastWateredAt, null);
   assertEqual(bAfter.derived.eventCount, 0);
+});
+
+test('should rebuild drifted derived caches from events, sparing healthy ones', async () => {
+  await clearPlantStores();
+  const drifted = await createPlant({ name: 'Drifted Fern' });
+  const healthy = await createPlant({ name: 'Healthy Tulsi' });
+  await logEvent(drifted.id, 'watering', { occurredAt: '2026-07-08T06:00:00.000Z' });
+  await logEvent(drifted.id, 'fertilizing', { occurredAt: '2026-07-09T06:00:00.000Z' });
+  await logEvent(healthy.id, 'watering', { occurredAt: '2026-07-10T06:00:00.000Z' });
+
+  // Simulate cache drift: values no incremental path could have produced.
+  await plantRepository.updateDerived(drifted.id, {
+    lastWateredAt: '2020-01-01T00:00:00.000Z',
+    lastFertilizedAt: null,
+    eventCount: 99,
+    imageCount: 7,
+  });
+
+  const { scanned, repaired } = await rebuildAllDerivedCaches();
+  assertEqual(scanned, 2, 'every live plant must be scanned');
+  assertEqual(repaired, 1, 'only the drifted plant counts as repaired');
+
+  const fixed = await getPlant(drifted.id);
+  assertEqual(fixed.derived.lastWateredAt, '2026-07-08T06:00:00.000Z', 'rebuilt from the events log');
+  assertEqual(fixed.derived.lastFertilizedAt, '2026-07-09T06:00:00.000Z');
+  assertEqual(fixed.derived.eventCount, 2, 'event count recomputed');
+  assertEqual(fixed.derived.imageCount, 0, 'image count recomputed from the images store');
+
+  const untouched = await getPlant(healthy.id);
+  assertEqual(untouched.derived.lastWateredAt, '2026-07-10T06:00:00.000Z');
+  assertEqual(untouched.derived.eventCount, 1);
+
+  // Idempotent: a rebuild on healthy data repairs nothing.
+  const again = await rebuildAllDerivedCaches();
+  assertEqual(again.scanned, 2);
+  assertEqual(again.repaired, 0, 'a second rebuild must be a no-op');
 });
 
 test('should serve the timeline newest-first with pagination and type filter', async () => {

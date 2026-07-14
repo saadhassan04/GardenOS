@@ -96,6 +96,18 @@ export class ImageRepository extends Repository {
   }
 
   /**
+   * Live photo count for a plant — the source of truth behind
+   * derived.imageCount. Images are hard-deleted by removeCascade (no
+   * tombstones), so the native index count is exact. Mirrors
+   * EventRepository.countForPlant.
+   * @param {string} plantId
+   * @returns {Promise<number>}
+   */
+  async countForPlant(plantId) {
+    return this.count({ index: 'plantId', range: IDBKeyRange.only(plantId) });
+  }
+
+  /**
    * A plant's photos, newest capture first — the growth gallery query
    * (`[plantId+capturedAt]`, DATABASE.md §6). Same visited-offset cursor
    * semantics as Repository.query.

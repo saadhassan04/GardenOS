@@ -1,8 +1,9 @@
 /**
  * Diagnostics page (UI layer, L5) — ARCHITECTURE.md §13, TODO T-021.
  * Local-only introspection: install metadata, migration history, feature
- * flags, per-store record counts, and the logger ring buffer. Reached from
- * Settings → About; deliberately not in primary navigation.
+ * flags, per-store record counts, the logger ring buffer, and maintenance
+ * actions. Reached from Settings → About; deliberately not in primary
+ * navigation.
  */
 
 import { el, svgIcon } from '../utils/dom.js';
@@ -10,6 +11,8 @@ import { APP_NAME, APP_VERSION, DB_SCHEMA_VERSION } from '../config/constants.js
 import { allFlags } from '../config/featureFlags.js';
 import { getLogEntries } from '../utils/logger.js';
 import { getAppMeta, getStoreCounts } from '../database/db.js';
+import { rebuildAllDerivedCaches } from '../services/careEventService.js';
+import { showToast } from '../components/Toast.js';
 
 /** @returns {HTMLElement} */
 export function renderDiagnosticsPage() {
@@ -28,6 +31,7 @@ export function renderDiagnosticsPage() {
   const migrationsCard = el('div', { className: 'card' });
   const flagsCard = el('div', { className: 'card' });
   const countsCard = el('div', { className: 'card' });
+  const maintenanceCard = el('div', { className: 'card stack' });
   const logCard = el('div', { className: 'card stack' });
 
   page.append(
@@ -35,12 +39,14 @@ export function renderDiagnosticsPage() {
     section('Migrations', migrationsCard),
     section('Feature flags', flagsCard),
     section('Database record counts', countsCard),
+    section('Maintenance', maintenanceCard),
     section('Recent log', logCard),
   );
 
   fillApplication(appCard, migrationsCard);
   fillFlags(flagsCard);
   fillCounts(countsCard);
+  fillMaintenance(maintenanceCard);
   fillLog(logCard);
 
   return page;
@@ -113,6 +119,45 @@ async function fillCounts(card) {
   } catch (error) {
     card.append(row('Counts', `Unavailable: ${error.message}`, 'status-row__value--warn'));
   }
+}
+
+/**
+ * Derived-cache rebuild (TD-L6). Plant "current state" (last watered, event
+ * and photo counts) is a cache maintained incrementally; this recomputes it
+ * from the events and images that actually own the truth. Safe to run any
+ * time — on healthy data it changes nothing, which is the point of showing
+ * the repaired count.
+ * @param {HTMLElement} card
+ */
+function fillMaintenance(card) {
+  const button = el('button', { className: 'btn', type: 'button' }, 'Rebuild derived caches');
+
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    button.textContent = 'Rebuilding…';
+    try {
+      const { scanned, repaired } = await rebuildAllDerivedCaches();
+      showToast(
+        repaired === 0
+          ? `All ${scanned} plants already consistent — nothing to repair`
+          : `Repaired ${repaired} of ${scanned} plants`,
+      );
+    } catch (error) {
+      showToast(`Rebuild failed: ${error.message}`);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Rebuild derived caches';
+    }
+  });
+
+  card.append(
+    el(
+      'p',
+      { className: 'text-small text-muted' },
+      'Recomputes each plant’s last-watered/fertilized/repotted dates and its event and photo counts from the care history. Use if a plant’s summary ever looks out of step with its timeline.',
+    ),
+    button,
+  );
 }
 
 function fillLog(card) {
