@@ -4,16 +4,16 @@
 Update it after every completed sprint.
 
 - **Snapshot date:** 2026-07-15
-- **Current version:** `1.5.0-dev.9` (last released tag: `v1.0.0`)
-- **Last commit:** `9f496dd` — feat: watering schedule on plant cards (Sprint S-16)
+- **Current version:** `1.5.0-dev.10` (last released tag: `v1.0.0`)
+- **Last commit:** `3ed5673` — style: define cards with a hairline border + responsive page header
 - **Branch:** `main`
-- **Uncommitted in-flight work:** none (Sprint S-16 committed)
+- **Uncommitted in-flight work:** none
 
 ---
 
 ## Current Version
 
-`1.5.0-dev.9`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
+`1.5.0-dev.10`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
 
 ## Completed Modules
 
@@ -52,7 +52,7 @@ HTML5 · CSS3 (custom properties, Grid, Flexbox) · **vanilla JavaScript ES6 mod
 
 ## Current UI Theme
 
-"Calm greenhouse." Dark theme default (light + auto available), applied pre-paint (zero flash). All visual values from design tokens in `styles/tokens.css`. Mobile-first: 5-slot bottom nav (Dashboard · Plants · Tasks · Kitchen · More), sidebar on desktop ≥768px. WCAG 2.1 AA target. Canvas charts, no chart libraries.
+"Calm greenhouse." Dark theme default (light + auto available), applied pre-paint (zero flash). All visual values from design tokens in `styles/tokens.css`. Mobile-first: 5-slot bottom nav (Dashboard · Plants · Tasks · Kitchen · More), sidebar on desktop ≥768px. WCAG 2.1 AA target. Canvas charts, no chart libraries. Every card carries a 1px hairline border in both themes (dev.10 structure pass — surfaces read as crisp containers, matching TeacherOS's structural clarity); the split page header stacks its actions below the title at ≤520px.
 
 ## Current Garden Knowledge
 

@@ -7,7 +7,7 @@
 - **Handoff date:** 2026-07-15
 
 ## Current Version
-`1.5.0-dev.9`. Released tag: `v1.0.0`. The v1.x offline core is code-complete; v1.1–v1.5 await owner exit gates before tagging.
+`1.5.0-dev.10`. Released tag: `v1.0.0`. The v1.x offline core is code-complete; v1.1–v1.5 await owner exit gates before tagging.
 
 ## Completed Work
 - v1.0 Foundation (released), v1.1 Plant Manager, v1.2 Image Manager, v1.3 Kitchen Garden, v1.4 Dashboard, v1.5 Task Scheduler — all code-complete, 58 tests green.
@@ -20,7 +20,9 @@
 Previous: **S-15 — "v1.x stabilization" (`59bc177`)** — Diagnostics → Maintenance → "Rebuild derived caches" (TD-L6 closed); `recomputeDerived()` extended to `imageCount`. **S-14 — "Photo-audit corrections" (`cb6effb`)** — `ensurePhotoAuditCorrected()` applies 22 category fixes + Rose Pink's botanical, keyed by the owner's *current* plant names.
 
 ## Last Commit
-`9f496dd` — feat: watering schedule on plant cards (Sprint S-16).
+`3ed5673` — style: define cards with a hairline border + responsive page header. (An owner-driven UI-polish increment on the S-16/S-17 pattern: the owner asked to align GardenOS's interface with the cleanliness/structure of their **TeacherOS** app — `~/Documents/TeacherOS`, whose defining trait is always-bordered cards. Applied that principle within GardenOS's own tokens: hairline border on every `.card` + `.plant-card`, and the split header stacks actions below the title at ≤520px. A bottom-pin plant-card alignment tweak was tried and reverted — it stranded the schedule in a mid-card gap; top-aligned equal-height cards read cleaner. 64/64 tests green, deployed.)
+
+Previous: `9f496dd` — watering schedule on plant cards (Sprint S-16).
 
 ## Current Branch
 `main`.
