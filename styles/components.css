@@ -107,6 +107,9 @@
 /* ---- Cards ---- */
 .card {
   background: var(--color-surface);
+  /* A defining hairline on every card — structure over flat surfaces, so
+     each section reads as a crisp container in both themes. */
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-m);
   padding: var(--space-4);
   box-shadow: var(--shadow-1);
@@ -241,6 +244,17 @@
 /* ---- Plants list & cards (UI_GUIDELINES.md §7 Cards) ---- */
 .page-header--split {
   justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* On a narrow phone the action cluster drops below the title rather than
+   crowding it (TeacherOS page-header pattern). */
+@media (max-width: 520px) {
+  .page-header--split {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .filter-bar {
@@ -268,6 +282,7 @@
   display: flex;
   flex-direction: column;
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-m);
   overflow: hidden;
   color: var(--color-text);
