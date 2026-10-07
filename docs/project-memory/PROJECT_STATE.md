@@ -4,7 +4,7 @@
 Update it after every completed sprint.
 
 - **Snapshot date:** 2026-10-08 (end of Phase 2)
-- **Current version:** `1.6.0-dev.13` (last released tag: `v1.0.0`)
+- **Current version:** `1.6.0-dev.16` (last released tag: `v1.0.0`)
 - **Last commit:** see `git log` (Phase 2 steps 0–5 all pushed to `origin/main`)
 - **Branch:** `main`
 - **Uncommitted in-flight work:** none

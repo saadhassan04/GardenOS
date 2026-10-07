@@ -101,6 +101,7 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   - 6 new integration tests (54 total) — all green live in Safari.
 
 ### Fixed
+- dev.15 and dev.16 are version bumps only, shipped to verify self-update end to end.
 - Updates still did not reach the phone by themselves: the auto-switch only ran
   within 30 s of opening (slow mobile installs missed it), an update that had
   finished installing while the app was closed was never applied at the next

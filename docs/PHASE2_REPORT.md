@@ -1,13 +1,13 @@
 # GardenOS — Phase 2 Status Report (final)
 
-Regenerated 2026-10-08 after the last task fixes. For the owner to evaluate later.
+Regenerated 2026-10-08 after the self-update fix. For the owner to evaluate later.
 Companion docs: [PHASE2_HANDOFF.md](PHASE2_HANDOFF.md) (plan + per-step log), [CHANGELOG.md](../CHANGELOG.md), [project-memory/PROJECT_STATE.md](project-memory/PROJECT_STATE.md).
 
 ## 1. Where things stand
 
 | | |
 |---|---|
-| App version | `1.6.0-dev.13` |
+| App version | `1.6.0-dev.16` |
 | Live URL | https://saadhassan04.github.io/GardenOS/ (GitHub Pages, redeploys on every push to `main`) |
 | Repository | https://github.com/saadhassan04/GardenOS — **public** |
 | Branch state | `main` clean, everything pushed |
@@ -35,14 +35,14 @@ Companion docs: [PHASE2_HANDOFF.md](PHASE2_HANDOFF.md) (plan + per-step log), [C
 - **Tasks, Kitchen, plant detail polish:** task rows with type icons and a round check; sowing-batch cards with a stage progress bar; plant header with cover photo; two-column quick-log grid.
 - **Today hero:** progress ring, one big "Water all N" button, three tap-to-jump stat tiles, time-of-day greeting ("Late night" 22:00–04:59).
 - **Phone → Mac hand-off:** "Send backup…" opens the phone share sheet (with fallbacks) and a 3-step guide in Settings.
-- **Update reliability:** a fresh update is applied automatically right after launch; Settings has "Check for updates" and "Refresh app files"; `reset.html` recovers a stuck phone without touching data; the precache bypasses the HTTP cache.
+- **Update reliability:** a waiting update is applied at launch, after any check, and on navigation whenever nothing is being typed (works for slow installs and for updates that finished while the app was closed); the app re-checks on resume and hourly; the service worker is registered with `updateViaCache: 'none'`; Settings has "Check for updates" and "Refresh app files"; `reset.html` recovers a stuck phone without touching data; the precache bypasses the HTTP cache.
 - **Tasks cleanup and bulk actions (latest):**
   - Tasks for plants that are deceased, archived or deleted are hidden everywhere (Tasks, Today, nav badge, calendar). Tasks shows "N tasks belong to plants that are no longer active" with a **Remove them** button that deletes those tasks and their repeats. Plant history is kept, and restoring a plant brings its tasks back until you remove them.
   - **Select mode** on Tasks: tick rows, "Select all" per section, narrow by type (e.g. **Fertilizing**) with chips, then **Skip**, **Done** or **Delete** for all of them at once. Skip and Done have one Undo for the whole batch; Delete asks first. Skipping a repeating task pushes it a full cycle; a one-off task is dismissed. Checked at phone width: 6 fertilizing tasks skipped in a few taps.
 
 ## 3. Bugs found and fixed along the way
 - Today showed the word **"null"** (an empty section was appended as `null`); it only appeared when every plant had watering history.
-- **Stale phone version:** the new version installs ~2 s after launch and needed a tap that was easy to miss; the new cache could also fill with stale files.
+- **Stale phone version (twice):** first, the update bar was easy to miss and the new cache could fill with stale files; then the auto-switch only worked within 30 s of opening, ignored an update that finished while the app was closed, and a script could be served stale for 10 minutes. All fixed in dev.14.
 - **Deceased/archived plants' tasks** kept appearing (latest fix).
 - Share sheet fell back to Downloads on Android (JSON type refused / tap timing).
 - Empty bulk action bar showed as a stray pill above the nav.
@@ -62,7 +62,7 @@ Companion docs: [PHASE2_HANDOFF.md](PHASE2_HANDOFF.md) (plan + per-step log), [C
 2. **No automatic sync.** Phone is the master; the Mac is refreshed by backup → restore. Restore replaces everything on the Mac and downloads a safety copy each time (they pile up in Downloads).
 3. **The Mac install at `127.0.0.1:8080` is still the old version** and was deliberately never touched; `deploy-local.sh` was not run.
 4. **Public repository.** Plant names (`database/seed/ownerGarden.karachi.js`) and the commit author name/hostname are public. No garden data or secrets are in the repo.
-5. **Auto-apply update is brand new:** it can only be proven on the next release. The new Tasks fixes (dev.13) are the first release that will use it, so confirm the phone updates without help.
+5. **Self-update (dev.14+):** verified on the live site across versions 14→15 (page open and idle) and 15→16 (update finished while the app was closed). A phone still on dev.12/13 needs ONE manual step to reach dev.14 or later: More → Settings → About → "Check for updates" (or `reset.html` as a last resort). After that, updates apply by themselves. Not yet confirmed on the owner's actual phone.
 6. **Skipping tasks:** a skipped repeating task is pushed one cycle from *today*, not from its old due date. A skipped one-off task is simply dismissed (no "snooze 1 week" yet).
 7. **Hidden tasks reappear if you restore a plant** to active, until you press "Remove them".
 8. **Phone share sheet:** fixed and simulated, but the owner has not confirmed the final behaviour on the Xiaomi / Brave.
@@ -71,7 +71,7 @@ Companion docs: [PHASE2_HANDOFF.md](PHASE2_HANDOFF.md) (plan + per-step log), [C
 11. **Kitchen batch harvest** was refactored to the shared sheet and only lightly exercised.
 12. **No automated UI tests.** Visual work was checked by eye; logic additions have tests.
 13. **The `graphify` code graph** covers code only (doc/image pass skipped to save tokens); `graphify-out/` is git-ignored.
-14. `PROJECT_STATE.md` was last refreshed before the Tasks fixes (it says dev.12); refresh before Phase 3.
+14. `PROJECT_STATE.md` says dev.13; refresh before Phase 3. Releases dev.15 and dev.16 are version bumps used only to test self-update.
 
 ## 6. Suggested next steps
 1. Use the app for a week on the phone and list what feels slow, wrong or missing.
