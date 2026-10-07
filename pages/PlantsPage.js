@@ -5,6 +5,7 @@
 
 import { el, svgIcon, clear } from '../utils/dom.js';
 import { listPlants } from '../services/plantService.js';
+import { listActivePests } from '../services/pestService.js';
 import { listLocations } from '../services/locationsService.js';
 import { resolveWateringSchedules } from '../services/careProfileService.js';
 import { logEvent, logBulk, undoBatch } from '../services/careEventService.js';
@@ -109,7 +110,17 @@ export function renderPlantsPage() {
   });
 
   page.append(
-    el('div', { className: 'filter-bar' }, searchInput, categorySelect, locationSelect, statusSelect, wateringSelect, sortSelect),
+    el(
+      'div',
+      { className: 'filter-bar' },
+      searchInput,
+      el(
+        'details',
+        { className: 'filter-details' },
+        el('summary', { className: 'btn' }, 'Filters'),
+        el('div', { className: 'filter-details__body' }, categorySelect, locationSelect, statusSelect, wateringSelect, sortSelect),
+      ),
+    ),
   );
 
   const listRegion = el('div', { className: 'plant-grid' });
@@ -127,6 +138,7 @@ export function renderPlantsPage() {
       });
       // One profile read for the whole page, not one per card.
       const schedules = await resolveWateringSchedules(loaded);
+      const pestPlantIds = new Set((await listActivePests()).flatMap((pest) => pest.plantIds));
       const plants =
         state.watering === 'due' ? loaded.filter((plant) => isDue(schedules.get(plant.id))) : loaded;
 
@@ -142,6 +154,7 @@ export function renderPlantsPage() {
             selectable: state.selectMode,
             selected: state.selected.has(plant.id),
             schedule: schedules.get(plant.id) ?? null,
+            hasPest: pestPlantIds.has(plant.id),
             onLogWatering: logWatering,
             onToggle: (id) => {
               if (state.selected.has(id)) {

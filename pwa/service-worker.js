@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.6.0-dev.4';
+const CACHE_VERSION = 'gardenos-shell-v1.6.0-dev.5';
 
 const PRECACHE_URLS = [
   './',

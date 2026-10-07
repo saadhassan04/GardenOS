@@ -15,6 +15,12 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Compact plant rows** (app 1.6.0-dev.5) — the Plants list is now one row per
+  plant on phone: small thumbnail, name with a red dot when it has an active
+  pest, "Water in 2d · fed 12d ago", and a right-side water button. The five
+  filter dropdowns sit behind one Filters button. Plant "health" is derived
+  from active pest records (no new field). Fixed the empty bulk action bar
+  showing as a stray pill when nothing is selected.
 - **Harvest from any plant** (app 1.6.0-dev.4) — a Harvest button on plant detail
   for vegetables, herbs, trees and any plant already harvested; crop defaults to
   the plant name and yield totals include it. The harvest sheet is shared with

@@ -273,31 +273,33 @@
 }
 
 .plant-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: var(--space-3);
-}
-
-.plant-card {
   display: flex;
   flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Compact row: thumbnail + body (link) + water button. */
+.plant-card {
+  display: flex;
+  align-items: center;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-m);
-  overflow: hidden;
   color: var(--color-text);
   box-shadow: var(--shadow-1);
   transition: background var(--motion-micro) var(--motion-ease);
 }
 
-/* The card is an <article> wrapping a link + a log action, so hover and the
-   link reset live on the link rather than the whole card. */
 .plant-card__link {
   display: flex;
-  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  min-height: var(--touch-target);
   color: var(--color-text);
   text-decoration: none;
-  transition: background var(--motion-micro) var(--motion-ease);
 }
 
 .plant-card__link:hover,
@@ -307,54 +309,32 @@
   color: var(--color-text);
 }
 
-.plant-card__photo {
-  position: relative;
-  aspect-ratio: 4 / 3;
+.plant-card--selectable .plant-card__link,
+.plant-card--selectable {
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+.plant-card__thumb {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: var(--radius-s);
+  overflow: hidden;
   background: var(--color-surface-2);
   color: var(--color-primary);
 }
 
-.plant-card__photo-slot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
-/* Due badge over the photo — mirrors the due text, never the sole signal. */
-.plant-card__badge {
-  position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  font-size: var(--text-caption-size);
-  line-height: var(--text-caption-line);
-  color: var(--color-bg);
-  background: var(--color-text-muted);
-}
-
-.plant-card__badge--ok {
-  background: var(--color-primary);
-}
-
-.plant-card__badge--due {
-  background: var(--color-warning);
-}
-
-.plant-card__badge--overdue {
-  background: var(--color-danger);
-}
-
-.plant-card__schedule {
+.plant-card__body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
+  min-width: 0;
 }
 
-.plant-card__due {
+.plant-card__name {
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
 }
@@ -367,50 +347,20 @@
   color: var(--color-danger);
 }
 
-.plant-card__action {
-  border-top: 1px solid var(--color-border);
-  padding: var(--space-2);
-}
-
 .plant-card__log {
-  width: 100%;
-  justify-content: center;
+  flex: none;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  margin-right: var(--space-2);
 }
 
-/* Watering-cycle progress: fills as the interval is spent (full = due).
-   Width comes from --progress, set per card from the resolved schedule. */
-.progress {
-  height: var(--space-1);
+.pest-dot {
+  display: inline-block;
+  width: var(--space-2);
+  height: var(--space-2);
+  margin-left: var(--space-2);
   border-radius: var(--radius-full);
-  background: var(--color-surface-2);
-  overflow: hidden;
-}
-
-.progress__fill {
-  width: var(--progress, 0%);
-  height: 100%;
-  border-radius: var(--radius-full);
-  background: var(--color-primary);
-}
-
-.progress--due .progress__fill {
-  background: var(--color-warning);
-}
-
-.progress--overdue .progress__fill {
   background: var(--color-danger);
-}
-
-.plant-card__body {
-  padding: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.plant-card__name {
-  font-size: var(--text-body-size);
-  line-height: var(--text-body-line);
 }
 
 .plant-card__meta {
@@ -419,6 +369,19 @@
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-1);
+}
+
+/* Filters live behind one button on the Plants page. */
+.filter-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.filter-details__body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .chip {
@@ -859,4 +822,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.action-bar[hidden] {
+  display: none;
 }
