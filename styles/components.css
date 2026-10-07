@@ -252,8 +252,7 @@
    crowding it (TeacherOS page-header pattern). */
 @media (max-width: 520px) {
   .page-header--split {
-    flex-direction: column;
-    align-items: stretch;
+    align-items: center; /* short titles keep their actions on the same row; long ones wrap */
   }
 }
 
@@ -874,11 +873,11 @@
 }
 
 .plant-card--overdue {
-  border-left: var(--space-1) solid var(--color-danger);
+  box-shadow: inset var(--space-1) 0 0 var(--color-danger), var(--shadow-1);
 }
 
 .plant-card--due {
-  border-left: var(--space-1) solid var(--color-warning);
+  box-shadow: inset var(--space-1) 0 0 var(--color-warning), var(--shadow-1);
 }
 
 .filter-bar {
@@ -923,4 +922,174 @@
   flex: 1;
   height: var(--space-2);
   accent-color: var(--color-primary);
+}
+
+/* ---- Premium pass: surfaces, glass nav, buttons, inputs, sheets ---- */
+.card,
+.plant-card,
+.today-group {
+  background: var(--gradient-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-1);
+}
+
+.btn {
+  border-radius: var(--radius-m);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-1);
+}
+
+.btn--primary {
+  background: var(--gradient-primary);
+  border-color: transparent;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--gradient-primary);
+  filter: brightness(1.08);
+}
+
+.btn--ghost {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn--danger {
+  border-color: transparent;
+}
+
+.field__control {
+  border-radius: var(--radius-m);
+  transition: border-color var(--motion-micro) var(--motion-ease),
+              box-shadow var(--motion-micro) var(--motion-ease);
+}
+
+.field__control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.app-nav {
+  background: var(--color-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+
+@media (max-width: 767px) {
+  .nav-item {
+    isolation: isolate;
+  }
+
+  .nav-item[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    top: var(--space-1);
+    left: 50%;
+    z-index: -1;
+    width: calc(var(--space-7) + var(--space-2));
+    height: var(--space-6);
+    transform: translateX(-50%);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-soft);
+  }
+}
+
+@media (min-width: 768px) {
+  .nav-item[aria-current='page'] {
+    background: var(--color-primary-soft);
+    color: var(--color-primary-strong);
+  }
+}
+
+.dialog {
+  border-radius: var(--radius-l);
+  background: var(--gradient-surface);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.toast {
+  border-radius: var(--radius-full);
+  background: var(--color-glass);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-2);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.chip-btn {
+  border-radius: var(--radius-full);
+}
+
+.chip-btn[aria-pressed='true'] {
+  background: var(--gradient-primary);
+  border-color: transparent;
+}
+
+.plant-card__thumb {
+  border-radius: var(--radius-m);
+}
+
+.today-act {
+  border-radius: var(--radius-full);
+  border-color: transparent;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  box-shadow: none;
+}
+
+.today-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Section headings get a small colour cue; text always carries the meaning. */
+.text-caption[data-kind]::before {
+  content: '';
+  display: inline-block;
+  width: var(--space-2);
+  height: var(--space-2);
+  margin-right: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--kind, var(--color-primary));
+}
+
+.text-caption[data-kind='water'] { --kind: var(--color-info); }
+.text-caption[data-kind='feed'] { --kind: var(--color-accent); }
+.text-caption[data-kind='problems'] { --kind: var(--color-danger); }
+.text-caption[data-kind='tasks'] { --kind: var(--color-primary); }
+
+.today-progress progress {
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  overflow: hidden;
+}
+
+.today-progress progress::-webkit-progress-bar {
+  background: var(--color-surface-2);
+}
+
+.today-progress progress::-webkit-progress-value {
+  background: var(--gradient-primary);
+  border-radius: var(--radius-full);
+}
+
+.today-progress progress::-moz-progress-bar {
+  background: var(--color-primary);
+}
+
+.today-banner {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line);
+  text-align: center;
 }

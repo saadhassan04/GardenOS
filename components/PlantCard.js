@@ -100,7 +100,7 @@ function renderBody(plant, schedule, hasPest) {
       schedule
         ? el('span', { className: state === 'ok' ? '' : `plant-card__due--${state}` }, dueText(schedule))
         : (plant.derived?.lastWateredAt ? `No schedule · watered ${relativeDate(plant.derived.lastWateredAt)}` : 'No schedule set'),
-      fed ? ` · fed ${relativeDate(fed)}` : null,
+      fed ? ` · fed ${Math.max(0, Math.floor((Date.now() - Date.parse(fed)) / 86_400_000))}d ago` : null,
     ),
   );
 }

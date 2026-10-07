@@ -55,14 +55,20 @@ export function renderTodayPage() {
       { className: 'page-header' },
       el(
         'div',
-        {},
-        el('h1', {}, 'Today'),
+        { className: 'today-hero' },
+        el('h1', {}, greeting(now)),
         el('p', { className: 'text-small text-muted' }, `${now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} · ${season[0].toUpperCase()}${season.slice(1)} season`),
       ),
     ),
     summary,
     banner,
-    ...Object.values(sections),
+    // Two columns on wide screens (water | everything else); one column on phones.
+    el(
+      'div',
+      { className: 'today-cols' },
+      sections.water,
+      el('div', {}, sections.feed, sections.problems, sections.tasks, sections.tomorrow),
+    ),
   );
 
   let paintId = 0;
@@ -108,6 +114,12 @@ async function paintBackupBanner(banner) {
   }
 }
 
+/** Time-of-day hello, in the gardener's voice. */
+function greeting(date) {
+  const hour = date.getHours();
+  return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+}
+
 function plural(n, word) {
   return `${n} ${word}`;
 }
@@ -149,10 +161,11 @@ function paintToday(today, { summary, sections }) {
 
 /** Heading + children into a section, or hide it when empty. */
 function fill(section, title, ...children) {
+  const kind = title.toLowerCase();
   clear(section);
   section.hidden = children.flat().filter(Boolean).length === 0;
   if (!section.hidden) {
-    section.append(el('span', { className: 'text-caption' }, title), ...children);
+    section.append(el('span', { className: 'text-caption', dataset: { kind } }, title), ...children);
   }
 }
 

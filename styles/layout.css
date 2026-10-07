@@ -12,6 +12,7 @@
   padding: var(--space-4);
   /* Keep content clear of the fixed bottom nav + device safe area. */
   padding-bottom: calc(var(--nav-height-mobile) + var(--space-5) + env(safe-area-inset-bottom, 0px));
+  width: 100%;
   max-width: var(--content-max-width);
   margin: 0 auto;
 }
@@ -80,5 +81,14 @@
   .app-main {
     padding: var(--space-5);
     padding-bottom: var(--space-5);
+  }
+}
+
+@media (min-width: 1000px) {
+  .today-cols {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--space-5);
+    align-items: start;
   }
 }

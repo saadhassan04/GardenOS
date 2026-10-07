@@ -15,6 +15,13 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Premium visual pass** (app 1.6.0-dev.9) — deeper green palette with a soft
+  glow, gradient cards with a subtle edge highlight, glass bottom nav with an
+  active pill, gradient primary buttons, softer inputs with focus glow, blurred
+  sheet/toast backdrops, tighter headings. Today greets you by time of day, has
+  colour-cued section headings and round water buttons. On wide screens (Mac)
+  pages now use the full width and Today is two columns. Plant rows show the
+  stripe without shifting content and "fed 34d ago".
 - **Easy phone → computer hand-off** (app 1.6.0-dev.7) — on a phone the backup
   button becomes "Send backup…" and opens the share sheet (Drive, email,
   WhatsApp); on a computer it stays "Download backup". Settings shows a
