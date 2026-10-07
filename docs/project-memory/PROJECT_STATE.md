@@ -3,9 +3,9 @@
 **This document always describes GardenOS exactly as it currently exists.**
 Update it after every completed sprint.
 
-- **Snapshot date:** 2026-07-15
-- **Current version:** `1.5.0-dev.10` (last released tag: `v1.0.0`)
-- **Last commit:** `3ed5673` — style: define cards with a hairline border + responsive page header
+- **Snapshot date:** 2026-10-08 (end of Phase 2)
+- **Current version:** `1.6.0-dev.5` (last released tag: `v1.0.0`)
+- **Last commit:** see `git log` (Phase 2 steps 0–5 all pushed to `origin/main`)
 - **Branch:** `main`
 - **Uncommitted in-flight work:** none
 
@@ -13,7 +13,7 @@ Update it after every completed sprint.
 
 ## Current Version
 
-`1.5.0-dev.10`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
+`1.6.0-dev.5`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
 
 ## Completed Modules
 
@@ -27,6 +27,8 @@ Update it after every completed sprint.
 | Task Scheduler (recurrence engine, inbox, calendar, notifications) | v1.5 | ✅ Code-complete |
 
 **Post-v1.5 additions (owner-driven, on `main`):** care-profile management UI + per-plant watering override; six new plant categories (foliage, succulents, shrubs, climbers, bonsai, bulbs); automatic starter-garden seeding of the owner's collection; one-time guarded category recategorization; **Project Memory System** (`docs/project-memory/`); **Sprint S-13** — Plants location filter + per-plant progress notes & flowering/fruiting/new-growth milestone events; **Sprint S-14** — photo-audit corrections (second AD-009 guarded routine: 22 categories for owner-renamed plants + Rose Pink's botanical); **Sprint S-15** — derived-cache rebuild action on Diagnostics (ADR-0002's recovery path); **Sprint S-16** — per-plant watering schedule on the Plants list (next-watering countdown, cycle progress bar, one-tap log, due filter).
+
+**Phase 2 (2026-10-07/08, phone-first usability; plan and log in [`docs/PHASE2_HANDOFF.md`](../PHASE2_HANDOFF.md)):** deployed to GitHub Pages (https://saadhassan04.github.io/GardenOS/, public repo `saadhassan04/GardenOS`, redeploys on every push to `main`); **Today screen** is the first tab / `#/` route (`pages/TodayPage.js`, pure read-model `services/todayService.js`, shared `components/logWithUndo.js`), Dashboard moved to More (`#/dashboard`); **fertilizer logging** (event `data` = product/dose/method/npk, validated in `models/CareEvent.js`; `components/FertilizeDialog.js` + derived `services/fertilizerService.js`; fertilizing is now a live schedule via `fertilizeSchedule`, Tasks no longer suggests it); **harvest from any plant** (`components/HarvestDialog.js`, shared with Kitchen); **UTC date bug fixed** (`localDateString` / `dateToOccurredAt` in `utils/dates.js`); **compact plant rows** with a derived pest dot and a Filters button (`components/PlantCard.js`). No schema change, no new store, no dependency. Known gaps: never-fed plants are not shown in Today's Feed; the Kitchen batch-harvest path was only parse-checked after the refactor; owner data must be moved once (Mac backup → phone restore).
 
 ## Current Architecture
 
@@ -52,7 +54,7 @@ HTML5 · CSS3 (custom properties, Grid, Flexbox) · **vanilla JavaScript ES6 mod
 
 ## Current UI Theme
 
-"Calm greenhouse." Dark theme default (light + auto available), applied pre-paint (zero flash). All visual values from design tokens in `styles/tokens.css`. Mobile-first: 5-slot bottom nav (Dashboard · Plants · Tasks · Kitchen · More), sidebar on desktop ≥768px. WCAG 2.1 AA target. Canvas charts, no chart libraries. Every card carries a 1px hairline border in both themes (dev.10 structure pass — surfaces read as crisp containers, matching TeacherOS's structural clarity); the split page header stacks its actions below the title at ≤520px.
+"Calm greenhouse." Dark theme default (light + auto available), applied pre-paint (zero flash). All visual values from design tokens in `styles/tokens.css`. Mobile-first: 5-slot bottom nav (Today · Plants · Tasks · Kitchen · More), sidebar on desktop ≥768px. WCAG 2.1 AA target. Canvas charts, no chart libraries. Every card carries a 1px hairline border in both themes (dev.10 structure pass — surfaces read as crisp containers, matching TeacherOS's structural clarity); the split page header stacks its actions below the title at ≤520px.
 
 ## Current Garden Knowledge
 
@@ -64,7 +66,7 @@ HTML5 · CSS3 (custom properties, Grid, Flexbox) · **vanilla JavaScript ES6 mod
 
 ## Current Project Health
 
-**Healthy.** 64 integration tests, all green in Safari against real IndexedDB (release-blocking backup round-trip included). Every increment verified live before commit. Zero dependencies to rot. Clean git history with descriptive commits. Documentation (root `.md` set + this memory system) current. Low technical debt (see [KNOWN_TECH_DEBT.md](KNOWN_TECH_DEBT.md)).
+**Healthy.** 66 integration tests, all green in Safari against real IndexedDB (release-blocking backup round-trip included). Every increment verified live before commit. Zero dependencies to rot. Clean git history with descriptive commits. Documentation (root `.md` set + this memory system) current. Low technical debt (see [KNOWN_TECH_DEBT.md](KNOWN_TECH_DEBT.md)).
 
 ## Current Offline Features
 
@@ -72,4 +74,4 @@ HTML5 · CSS3 (custom properties, Grid, Flexbox) · **vanilla JavaScript ES6 mod
 
 ## Current PWA Status
 
-Installable on Android, desktop, and iOS. Manifest + full icon set (192/512/maskable). Consent-based update flow ("Update available" toast → user accepts → `skipWaiting` → reload; never silent). Root `sw.js` shim loads `pwa/service-worker.js`. Installed on the owner's Mac via a LaunchAgent serving `~/GardenOS` at `http://127.0.0.1:8080` (see `deploy-local.sh`, README §Personal install on macOS).
+Installable on Android, desktop, and iOS. Manifest + full icon set (192/512/maskable). Consent-based update flow ("Update available" toast → user accepts → `skipWaiting` → reload; never silent). Root `sw.js` shim loads `pwa/service-worker.js`. Hosted for the phone on GitHub Pages (see Phase 2 above). Also installed on the owner's Mac via a LaunchAgent serving `~/GardenOS` at `http://127.0.0.1:8080` (see `deploy-local.sh`, README §Personal install on macOS).
