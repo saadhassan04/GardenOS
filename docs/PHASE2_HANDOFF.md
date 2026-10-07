@@ -270,3 +270,4 @@ fertilizing data validator (old `{}` accepted, bad NPK rejected).
 | 2026-10-07 | Phase 1 review + Phase 2 proposal | — | This file. |
 | 2026-10-07 | Owner approval | — | All §4 defaults approved; D0 = GitHub Pages. Next: §6 step 0. |
 | 2026-10-07 | 0 Deploy | 0402c3e | Public repo + Pages live at https://saadhassan04.github.io/GardenOS/ ; SW registers. Owner still needs to move data (Back up on Mac -> Restore on phone). |
+| 2026-10-07 | 1 Today screen | 6848a70 | Today = '/', Dashboard = '/dashboard' (More). buildToday test added (64/64 green). Removed Tasks fertilizing suggestions + suggestFromCareProfiles. Never-fed plants are not shown in Feed (like D2). Feed row logs a bare event until step 2. Phone-width check OK in browser pane. |
