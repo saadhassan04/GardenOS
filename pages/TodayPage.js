@@ -117,6 +117,9 @@ async function paintBackupBanner(banner) {
 /** Time-of-day hello, in the gardener's voice. */
 function greeting(date) {
   const hour = date.getHours();
+  if (hour < 5 || hour >= 22) {
+    return 'Late night';
+  }
   return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 }
 

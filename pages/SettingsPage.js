@@ -83,6 +83,12 @@ export function renderSettingsPage() {
       ),
       el(
         'div',
+        { className: 'dialog__actions' },
+        el('button', { className: 'btn', onClick: checkForUpdates }, 'Check for updates'),
+        el('button', { className: 'btn', onClick: refreshAppFiles }, 'Refresh app files'),
+      ),
+      el(
+        'div',
         { className: 'status-row' },
         el('span', {}, 'Diagnostics'),
         el('a', { href: '#/diagnostics' }, 'View'),
@@ -135,6 +141,49 @@ function selectField(label, key, options) {
   select.value = getSetting(key);
 
   return el('div', { className: 'field' }, el('label', { className: 'field__label', for: id }, label), select);
+}
+
+/** Ask for a newer version; switch to it if one is waiting. */
+async function checkForUpdates() {
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) {
+      showToast('Updates are not available in this browser');
+      return;
+    }
+    showToast('Checking…');
+    await registration.update();
+    // A new worker needs a moment to download; wait for it to be ready.
+    for (let i = 0; i < 20 && !registration.waiting && registration.installing; i += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 500));
+    }
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' }); // the page reloads itself
+    } else {
+      showToast(`You are on the latest version (${APP_VERSION})`);
+    }
+  } catch (error) {
+    showToast(`Could not check: ${error.message}`);
+  }
+}
+
+/** Drop the downloaded app files and reload fresh. Garden data is not touched. */
+async function refreshAppFiles() {
+  const ok = await confirmDialog({
+    title: 'Refresh app files?',
+    body: 'Re-downloads the latest app. Your plants and photos are not touched.',
+    confirmLabel: 'Refresh',
+  });
+  if (!ok) {
+    return;
+  }
+  for (const registration of await navigator.serviceWorker.getRegistrations()) {
+    await registration.unregister();
+  }
+  for (const name of await caches.keys()) {
+    await caches.delete(name);
+  }
+  window.location.reload();
 }
 
 function backupSection() {

@@ -97,6 +97,13 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   - 6 new integration tests (54 total) — all green live in Safari.
 
 ### Fixed
+- Phones could stay on an old version: the new version only installs ~2 s after
+  the app opens and its "Update" bar was easy to miss. A freshly installed update
+  is now applied automatically if the app was just opened; Settings gained "Check
+  for updates" and "Refresh app files"; `reset.html` drops cached app files
+  without touching garden data; the precache bypasses the HTTP cache so a new
+  version can't be filled with stale files (app 1.6.0-dev.12).
+- Today greeted "Good morning" at 1am; it now says "Late night" from 22:00–04:59.
 - Today showed the word "null" under Water when every plant had watering history
   (an empty "No watering history" group was appended as `null`). Empty sections
   are now filtered out (app 1.6.0-dev.11).

@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GardenOS — refresh</title>
+<body style="font:16px system-ui;background:#0C120E;color:#E8EFE9;padding:24px">
+<p id="m">Refreshing GardenOS…</p>
+<script>
+// Recovery page: drops the downloaded app files so the next open fetches the
+// newest version. Garden data (IndexedDB) is NOT touched.
+(async () => {
+  try {
+    for (const r of await navigator.serviceWorker.getRegistrations()) await r.unregister();
+    for (const k of await caches.keys()) await caches.delete(k);
+    document.getElementById('m').textContent = 'Done. Opening GardenOS…';
+  } catch (e) {
+    document.getElementById('m').textContent = 'Could not refresh: ' + e.message;
+    return;
+  }
+  setTimeout(() => { location.replace('./'); }, 800);
+})();
+</script>

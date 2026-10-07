@@ -82,6 +82,12 @@ async function registerServiceWorker() {
       incoming.addEventListener('statechange', () => {
         // "installed" with an existing controller = a new version is waiting.
         if (incoming.state === 'installed' && navigator.serviceWorker.controller) {
+          // Just opened (nothing to lose): switch to the new version now rather
+          // than hoping the "Update" bar gets noticed within seconds.
+          if (performance.now() < 30_000) {
+            incoming.postMessage({ type: 'SKIP_WAITING' });
+            return;
+          }
           showToast('A new version of GardenOS is ready', {
             sticky: true,
             actionLabel: 'Update',

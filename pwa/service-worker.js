@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.6.0-dev.11';
+const CACHE_VERSION = 'gardenos-shell-v1.6.0-dev.12';
 
 const PRECACHE_URLS = [
   './',
@@ -137,7 +137,10 @@ const PRECACHE_URLS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(PRECACHE_URLS)),
+    // cache: 'reload' skips the browser's HTTP cache — static hosts keep files for
+    // minutes, which would fill the new cache with the OLD files.
+    caches.open(CACHE_VERSION).then((cache) =>
+      cache.addAll(PRECACHE_URLS.map((url) => new Request(url, { cache: 'reload' })))),
   );
 });
 
