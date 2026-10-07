@@ -120,31 +120,67 @@ function greeting(date) {
   return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 }
 
+/** Progress ring; the value goes through the CSSOM because the CSP blocks inline style attributes. */
+function ring(pct, done, total) {
+  const node = el(
+    'div',
+    { className: 'today-ring', role: 'img', 'aria-label': `${done} of ${total} watered` },
+    el('strong', {}, total ? `${done}/${total}` : '✓'),
+  );
+  node.style.setProperty('--pct', String(pct));
+  return node;
+}
+
 function plural(n, word) {
   return `${n} ${word}`;
 }
 
 function paintToday(today, { summary, sections }) {
   const { counts, tomorrow } = today;
-  const parts = [
-    counts.water ? plural(counts.water, 'to water') : null,
-    counts.feed ? plural(counts.feed, 'to feed') : null,
-    counts.problems ? plural(counts.problems, counts.problems === 1 ? 'problem' : 'problems') : null,
-  ].filter(Boolean);
-  const allClear = !parts.length && !today.tasks.length;
+  const allClear = !counts.water && !counts.feed && !counts.problems && !today.tasks.length;
   const done = counts.waterTotal - counts.water;
+  const pct = counts.waterTotal ? Math.round((done / counts.waterTotal) * 100) : 100;
+  const dueIds = today.water.groups.flatMap((group) => waterIds(group.items));
+
+  const tile = (icon, label, count, kind, target) =>
+    el(
+      'button',
+      {
+        type: 'button',
+        className: `today-stat today-stat--${kind}`,
+        disabled: count === 0 ? '' : null,
+        'aria-label': `${count} ${label}`,
+        onClick: () => target.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      },
+      svgIcon(icon, { size: 20 }),
+      el('strong', {}, String(count)),
+      el('span', { className: 'text-small' }, label),
+    );
+
   summary.replaceChildren(
     allClear
-      ? el('div', { className: 'card today-clear' }, svgIcon('leaf', { size: 32 }), el('strong', {}, 'All clear'), el('span', { className: 'text-small text-muted' }, 'Nothing needs you today.'))
-      : el('p', { className: 'today-summary' }, parts.join(' · ') || 'Nothing to water, feed or treat.'),
-    counts.waterTotal
-      ? el(
+      ? el('div', { className: 'card today-clear' }, svgIcon('leaf', { size: 32 }), el('strong', {}, 'All clear'), el('span', { className: 'text-small text-muted' }, 'Nothing needs you today. Enjoy the garden.'))
+      : el(
         'div',
-        { className: 'today-progress' },
-        el('progress', { max: String(counts.waterTotal), value: String(done), 'aria-label': 'Watered today' }),
-        el('span', { className: 'text-small text-muted' }, `${done} of ${counts.waterTotal} watered`),
-      )
-      : null,
+        { className: 'card today-hero-card' },
+        ring(pct, done, counts.waterTotal),
+        el(
+          'div',
+          { className: 'today-hero-card__text' },
+          el('strong', {}, counts.water ? `${counts.water} ${counts.water === 1 ? 'plant needs' : 'plants need'} water` : 'Watering is done'),
+          el('span', { className: 'text-small text-muted' }, counts.waterTotal ? `${done} of ${counts.waterTotal} watered today` : 'Nothing due right now'),
+        ),
+        dueIds.length
+          ? el('button', { className: 'btn btn--primary today-hero-card__cta', onClick: () => waterAll(dueIds, `Watered ${dueIds.length} plants`) }, svgIcon('drop', { size: 20 }), `Water all ${dueIds.length}`)
+          : null,
+      ),
+    el(
+      'div',
+      { className: 'today-stats' },
+      tile('drop', 'to water', counts.water, 'water', sections.water),
+      tile('leaf', 'to feed', counts.feed, 'feed', sections.feed),
+      tile('bug', counts.problems === 1 ? 'problem' : 'problems', counts.problems, 'problem', sections.problems),
+    ),
   );
 
   paintWater(sections.water, today.water);
@@ -162,10 +198,11 @@ function paintToday(today, { summary, sections }) {
 /** Heading + children into a section, or hide it when empty. */
 function fill(section, title, ...children) {
   const kind = title.toLowerCase();
+  const content = children.flat().filter(Boolean); // append(null) would print the word "null"
   clear(section);
-  section.hidden = children.flat().filter(Boolean).length === 0;
+  section.hidden = content.length === 0;
   if (!section.hidden) {
-    section.append(el('span', { className: 'text-caption', dataset: { kind } }, title), ...children);
+    section.append(el('span', { className: 'text-caption', dataset: { kind } }, title), ...content);
   }
 }
 

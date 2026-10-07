@@ -15,6 +15,10 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Today hero** (app 1.6.0-dev.11) — a progress ring with "17 plants need water"
+  and one big "Water all 17" button (one Undo), plus three tap-to-jump tiles
+  (to water / to feed / problems). The installed app now checks for a new
+  version every time it returns to the foreground.
 - **Polish: Tasks, Kitchen, plant detail** (app 1.6.0-dev.10) — Tasks: a type icon
   per row, round check button, red "2 days overdue", "Today" instead of a date.
   Kitchen: sowing batch cards with a stage progress bar and full-width Stage /
@@ -93,6 +97,9 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   - 6 new integration tests (54 total) — all green live in Safari.
 
 ### Fixed
+- Today showed the word "null" under Water when every plant had watering history
+  (an empty "No watering history" group was appended as `null`). Empty sections
+  are now filtered out (app 1.6.0-dev.11).
 - Phone "Send backup…" fell back to a download when Android refused the share (JSON
   type not shareable, or the share started too long after the tap). It now tries
   text/plain too and, if the browser wants a fresh tap, shows "Backup ready — tap

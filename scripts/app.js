@@ -67,6 +67,13 @@ async function registerServiceWorker() {
   try {
     const registration = await navigator.serviceWorker.register('./sw.js');
 
+    // An installed app is rarely "navigated", so ask for a new version whenever it comes back to the foreground.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        registration.update().catch(() => {});
+      }
+    });
+
     registration.addEventListener('updatefound', () => {
       const incoming = registration.installing;
       if (!incoming) {
