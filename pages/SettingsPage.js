@@ -9,7 +9,7 @@ import { el, svgIcon } from '../utils/dom.js';
 import { getSetting, setSetting } from '../storage/settings.js';
 import { showToast } from '../components/Toast.js';
 import { confirmDialog } from '../components/ConfirmDialog.js';
-import { triggerDownload, pickFile } from '../components/fileTransfer.js';
+import { triggerDownload, pickFile, shareOrDownload, canShareFiles } from '../components/fileTransfer.js';
 import { APP_VERSION } from '../config/constants.js';
 import { formatBytes, formatPercent } from '../utils/format.js';
 import { logger } from '../utils/logger.js';
@@ -164,6 +164,7 @@ function backupSection() {
   };
   refreshStatus();
 
+  const sendLabel = canShareFiles() ? 'Send backup…' : 'Download backup';
   const downloadButton = el(
     'button',
     {
@@ -172,8 +173,10 @@ function backupSection() {
         downloadButton.disabled = true;
         try {
           const { blob, filename } = await createBackup();
-          triggerDownload(blob, filename);
-          showToast('Backup downloaded — keep a copy off this device');
+          const result = await shareOrDownload(blob, filename);
+          if (result !== 'cancelled') {
+            showToast(result === 'shared' ? 'Backup sent' : 'Backup downloaded — keep a copy off this device');
+          }
           refreshStatus();
         } catch (error) {
           logger.error('Backup failed', { error: error.message });
@@ -183,7 +186,7 @@ function backupSection() {
         }
       },
     },
-    'Download backup',
+    sendLabel,
   );
 
   const restoreButton = el(
@@ -198,6 +201,19 @@ function backupSection() {
       'p',
       { className: 'text-small text-muted' },
       'A backup is one file holding your entire garden: every plant, event, note, and photo.',
+    ),
+    el(
+      'div',
+      { className: 'card today-group' },
+      el('strong', {}, 'See your phone garden on the computer'),
+      el(
+        'ol',
+        { className: 'text-small' },
+        el('li', {}, 'On the phone: tap "Send backup…" and pick Drive, email or WhatsApp.'),
+        el('li', {}, 'On the computer: open the same GardenOS page, download that file.'),
+        el('li', {}, 'In GardenOS on the computer: tap "Restore from backup…" and pick the file.'),
+      ),
+      el('p', { className: 'text-small text-muted' }, 'Log on the phone; the computer is for viewing. Restoring replaces what is on the device you restore to.'),
     ),
     el('div', { className: 'dialog__actions' }, restoreButton, downloadButton),
     selectField('Remind me to back up', 'backupReminderDays', [

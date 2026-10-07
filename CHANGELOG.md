@@ -15,6 +15,11 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Easy phone → computer hand-off** (app 1.6.0-dev.7) — on a phone the backup
+  button becomes "Send backup…" and opens the share sheet (Drive, email,
+  WhatsApp); on a computer it stays "Download backup". Settings shows a
+  three-step "See your phone garden on the computer" guide. Phone is the master
+  copy; the computer is refreshed by restoring the latest backup.
 - **UI polish** (app 1.6.0-dev.6) — Today: progress bar ("14 of 30 watered"), an
   "All clear" state and a loading skeleton. Plants: larger thumbnails, a
   red/amber status edge on due plants, one-tap "Due today" / "Has pest" chips,

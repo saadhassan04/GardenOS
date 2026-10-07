@@ -12,7 +12,7 @@ const ENTRIES = [
   { label: 'Notes', hint: 'Garden journal, tags, plant links', path: '/notes', icon: 'note' },
   { label: 'Locations', hint: 'Balconies, rooftop, beds', path: '/locations', icon: 'home' },
   { label: 'Care profiles', hint: 'Watering & feeding templates', path: '/care-profiles', icon: 'drop' },
-  { label: 'Settings', hint: 'Theme, backup & restore, storage', path: '/settings', icon: 'gear' },
+  { label: 'Settings', hint: 'Send garden to computer, restore, theme', path: '/settings', icon: 'gear' },
   { label: 'Diagnostics', hint: 'Database, migrations, session log', path: '/diagnostics', icon: 'spray' },
 ];
 
