@@ -15,6 +15,10 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Bulk task actions** (app 1.6.0-dev.13) — Tasks → Select: tick rows (or "Select
+  all" per section), narrow by type with chips (e.g. Fertilizing), then Skip, Done
+  or Delete in one go with a single Undo. Skipping a repeating task pushes it a
+  full cycle; one-off tasks are simply dismissed.
 - **Today hero** (app 1.6.0-dev.11) — a progress ring with "17 plants need water"
   and one big "Water all 17" button (one Undo), plus three tap-to-jump tiles
   (to water / to feed / problems). The installed app now checks for a new
@@ -97,6 +101,10 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   - 6 new integration tests (54 total) — all green live in Safari.
 
 ### Fixed
+- Tasks for plants that are deceased, archived or deleted kept showing up (and
+  counting toward the badge and Today). They are now hidden everywhere, and Tasks
+  offers "Remove them" to delete those tasks and their repeats for good
+  (app 1.6.0-dev.13).
 - Phones could stay on an old version: the new version only installs ~2 s after
   the app opens and its "Update" bar was easy to miss. A freshly installed update
   is now applied automatically if the app was just opened; Settings gained "Check

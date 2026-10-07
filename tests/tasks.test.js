@@ -17,8 +17,11 @@ import {
   skipOccurrence,
   getInbox,
   getCalendar,
+  listOrphanedTasks,
+  deleteOrphanedTasks,
+  undoSkip,
 } from '../services/taskSchedulerService.js';
-import { createPlant, getPlant, updatePlant } from '../services/plantService.js';
+import { createPlant, getPlant, updatePlant, setPlantStatus } from '../services/plantService.js';
 import { logEvent, getTimeline } from '../services/careEventService.js';
 import { ValidationError } from '../utils/errors.js';
 
@@ -149,4 +152,27 @@ test('should bucket the inbox and key the calendar by local day', async () => {
   const calendar = await getCalendar(now.getFullYear(), now.getMonth() + 1);
   const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   assert(calendar[todayKey]?.some((t) => t.title === 'Today task'), 'calendar must key today correctly');
+});
+
+test('should hide tasks of archived plants, offer to remove them, and undo a skip', async () => {
+  await clearTasks();
+  const alive = await createPlant({ name: 'Alive Fern' });
+  const gone = await createPlant({ name: 'Gone Fern' });
+  const dueAt = new Date(Date.now() - DAY_MS).toISOString();
+  const keep = await createTask({ title: 'Feed alive', taskType: 'fertilizing', plantIds: [alive.id], dueAt, recurrence: { pattern: 'everyNDays', interval: 30 } });
+  await createTask({ title: 'Feed gone', taskType: 'fertilizing', plantIds: [gone.id], dueAt });
+  await createTask({ title: 'Custom chore', taskType: 'custom', plantIds: [], dueAt });
+  await setPlantStatus(gone.id, 'deceased');
+
+  const titles = (inbox) => [...inbox.overdue, ...inbox.dueToday].map((t) => t.title).sort().join();
+  assertEqual(titles(await getInbox()), 'Custom chore,Feed alive');
+  assertEqual((await listOrphanedTasks()).length, 1);
+  assertEqual(await deleteOrphanedTasks(), 1);
+  assertEqual((await listOrphanedTasks()).length, 0);
+
+  const { nextTask } = await skipOccurrence(keep.id);
+  assert(nextTask, 'skipping a recurring task spawns the next one');
+  await undoSkip(keep.id);
+  assertEqual((await getTask(keep.id)).status, 'pending');
+  assertEqual(await getTask(nextTask.id), null);
 });

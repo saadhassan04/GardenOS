@@ -18,7 +18,10 @@ import {
   completeTask,
   undoComplete,
   skipOccurrence,
+  undoSkip,
   deleteTask,
+  listOrphanedTasks,
+  deleteOrphanedTasks,
   getInbox,
   getCalendar,
   TASK_TYPE_OPTIONS,
@@ -29,7 +32,15 @@ import { EVENT_TYPES } from '../config/registries.js';
 /** @returns {HTMLElement} */
 export function renderTasksPage() {
   const page = el('div', {});
-  const state = { view: 'inbox', calYear: new Date().getFullYear(), calMonth: new Date().getMonth() + 1 };
+  const state = {
+    view: 'inbox',
+    calYear: new Date().getFullYear(),
+    calMonth: new Date().getMonth() + 1,
+    selectMode: false,
+    selected: new Set(),
+    type: '',
+  };
+  const ctx = { state, rows: new Map(), updateBar: () => {} };
 
   const viewToggle = el(
     'button',
@@ -44,6 +55,22 @@ export function renderTasksPage() {
     'Calendar',
   );
 
+  const selectToggle = el(
+    'button',
+    {
+      className: 'btn',
+      'aria-pressed': 'false',
+      onClick: () => {
+        state.selectMode = !state.selectMode;
+        state.selected.clear();
+        selectToggle.setAttribute('aria-pressed', String(state.selectMode));
+        selectToggle.textContent = state.selectMode ? 'Done' : 'Select';
+        refresh();
+      },
+    },
+    'Select',
+  );
+
   page.append(
     el(
       'header',
@@ -53,19 +80,93 @@ export function renderTasksPage() {
         'div',
         { className: 'dialog__actions' },
         viewToggle,
+        selectToggle,
         el('button', { className: 'btn btn--primary', onClick: () => newTaskFlow(refresh) }, svgIcon('plus', { size: 20 }), 'New task'),
       ),
     ),
   );
 
   const bodyRegion = el('div', {});
-  page.append(bodyRegion);
+  const actionBar = el('div', { className: 'action-bar', hidden: '' });
+  page.append(bodyRegion, actionBar);
+
+  const exitSelect = () => {
+    state.selectMode = false;
+    state.selected.clear();
+    selectToggle.setAttribute('aria-pressed', 'false');
+    selectToggle.textContent = 'Select';
+    refresh();
+  };
+
+  /** Run one action over every selected task; one toast, one Undo for the lot. */
+  async function bulk(kind) {
+    const ids = [...state.selected];
+    if (kind === 'delete') {
+      const ok = await confirmDialog({
+        title: `Delete ${ids.length} tasks?`,
+        body: 'Recurring tasks stop repeating too.',
+        confirmLabel: 'Delete',
+        danger: true,
+      });
+      if (!ok) {
+        return;
+      }
+    }
+    const done = [];
+    let failed = 0;
+    for (const id of ids) {
+      try {
+        if (kind === 'skip') {
+          await skipOccurrence(id);
+          done.push(id);
+        } else if (kind === 'done') {
+          done.push((await completeTask(id)).task.id);
+        } else {
+          await deleteTask(id);
+        }
+      } catch (error) {
+        failed += 1;
+        logger.warn('Bulk task action failed', { kind, error: error.message });
+      }
+    }
+    const verb = { skip: 'Skipped', done: 'Completed', delete: 'Deleted' }[kind];
+    const undo = kind === 'skip' ? undoSkip : kind === 'done' ? undoComplete : null;
+    showToast(`${verb} ${ids.length - failed} tasks${failed ? ` (${failed} failed)` : ''}`, undo
+      ? {
+        actionLabel: 'Undo',
+        onAction: async () => {
+          for (const id of done) {
+            await undo(id).catch(() => {});
+          }
+          showToast('Undone');
+          refresh();
+        },
+      }
+      : {});
+    exitSelect();
+  }
+
+  ctx.updateBar = () => {
+    clear(actionBar);
+    if (!state.selectMode || state.selected.size === 0) {
+      actionBar.setAttribute('hidden', '');
+      return;
+    }
+    actionBar.removeAttribute('hidden');
+    actionBar.append(
+      el('span', { className: 'text-small' }, `${state.selected.size} selected`),
+      el('button', { className: 'btn', onClick: () => bulk('skip') }, 'Skip'),
+      el('button', { className: 'btn', onClick: () => bulk('done') }, svgIcon('check', { size: 18 }), 'Done'),
+      el('button', { className: 'btn btn--danger', onClick: () => bulk('delete') }, 'Delete'),
+    );
+  };
 
   async function refresh() {
     try {
       clear(bodyRegion);
       if (state.view === 'inbox') {
-        await fillInbox(bodyRegion, refresh);
+        await fillInbox(bodyRegion, refresh, ctx);
+        ctx.updateBar();
       } else {
         await fillCalendar(bodyRegion, state, refresh);
       }
@@ -81,13 +182,70 @@ export function renderTasksPage() {
 
 /* ---- Inbox ---- */
 
-async function fillInbox(region, refresh) {
-  const inbox = await getInbox();
+async function fillInbox(region, refresh, ctx) {
+  const { state } = ctx;
+  const [inbox, orphaned] = await Promise.all([getInbox(), listOrphanedTasks()]);
+  const everything = [...inbox.overdue, ...inbox.dueToday, ...inbox.upcoming, ...inbox.later];
+  const types = [...new Set(everything.map((task) => task.taskType))];
+  if (state.type && !types.includes(state.type)) {
+    state.type = '';
+  }
+  const shown = (tasks) => tasks.filter((task) => !state.type || task.taskType === state.type);
+  const visible = new Set(shown(everything).map((task) => task.id));
+  for (const id of [...state.selected]) {
+    if (!visible.has(id)) {
+      state.selected.delete(id);
+    }
+  }
+  ctx.rows = new Map();
+
+  // Tasks for plants that are archived/deceased/deleted are hidden above; offer to remove them for good.
+  if (orphaned.length > 0) {
+    region.append(
+      el(
+        'div',
+        { className: 'card today-group stack' },
+        el('p', { className: 'text-small' }, `${orphaned.length} tasks belong to plants that are no longer active, so they are hidden.`),
+        el('button', {
+          className: 'btn',
+          onClick: async () => {
+            const ok = await confirmDialog({
+              title: `Remove ${orphaned.length} tasks?`,
+              body: 'Deletes the hidden tasks (and their repeats) for archived, deceased or deleted plants. Plant history is kept.',
+              confirmLabel: 'Remove',
+              danger: true,
+            });
+            if (ok) {
+              showToast(`Removed ${await deleteOrphanedTasks()} tasks`);
+              refresh();
+            }
+          },
+        }, 'Remove them'),
+      ),
+    );
+  }
+
+  if (types.length > 1) {
+    region.append(
+      el(
+        'div',
+        { className: 'chip-row page-section' },
+        ...[['', 'All'], ...types.map((type) => [type, EVENT_TYPES[type]?.label ?? 'Custom'])].map(([type, label]) =>
+          el('button', {
+            type: 'button',
+            className: 'btn chip-btn',
+            'aria-pressed': String(state.type === type),
+            onClick: () => { state.type = type; refresh(); },
+          }, label)),
+      ),
+    );
+  }
+
   const sections = [
-    ['Overdue', inbox.overdue, 'status-row__value--warn'],
-    ['Today', inbox.dueToday, ''],
-    ['Next 7 days', inbox.upcoming, ''],
-    ['Later', inbox.later, ''],
+    ['Overdue', shown(inbox.overdue)],
+    ['Today', shown(inbox.dueToday)],
+    ['Next 7 days', shown(inbox.upcoming)],
+    ['Later', shown(inbox.later)],
   ];
 
   let any = false;
@@ -96,12 +254,32 @@ async function fillInbox(region, refresh) {
       continue;
     }
     any = true;
+    const card = el('div', { className: 'card' }, ...tasks.map((task) => taskRow(task, refresh, ctx)));
+    const allSelected = () => tasks.every((task) => state.selected.has(task.id));
+    const selectAll = el('button', {
+      type: 'button',
+      className: 'btn btn--ghost',
+      onClick: () => {
+        const on = !allSelected();
+        for (const task of tasks) {
+          on ? state.selected.add(task.id) : state.selected.delete(task.id);
+          ctx.rows.get(task.id)?.(on);
+        }
+        selectAll.textContent = on ? 'Clear' : 'Select all';
+        ctx.updateBar();
+      },
+    }, allSelected() ? 'Clear' : 'Select all');
     region.append(
       el(
         'section',
         { className: 'page-section' },
-        el('span', { className: 'text-caption' }, `${title} (${tasks.length})`),
-        el('div', { className: 'card' }, ...tasks.map((task) => taskRow(task, refresh))),
+        el(
+          'div',
+          { className: 'task-section-head' },
+          el('span', { className: 'text-caption' }, `${title} (${tasks.length})`),
+          state.selectMode ? selectAll : null,
+        ),
+        card,
       ),
     );
   }
@@ -116,7 +294,34 @@ async function fillInbox(region, refresh) {
   }
 }
 
-function taskRow(task, refresh) {
+/** Select-mode row: tap anywhere to tick; no per-row buttons. */
+function pickRow(task, ctx, body) {
+  const icon = el('div', { className: 'plant-card__thumb task-row__icon' });
+  const row = el('div', { className: 'status-row task-row task-row--pick', role: 'checkbox', tabindex: '0' }, icon, body);
+  const paint = (on) => {
+    row.classList.toggle('task-row--selected', on);
+    row.setAttribute('aria-checked', String(on));
+    icon.replaceChildren(svgIcon(on ? 'check' : (EVENT_TYPES[task.taskType]?.icon ?? 'note'), { size: 22 }));
+  };
+  const toggle = () => {
+    const on = !ctx.state.selected.has(task.id);
+    on ? ctx.state.selected.add(task.id) : ctx.state.selected.delete(task.id);
+    paint(on);
+    ctx.updateBar();
+  };
+  row.addEventListener('click', toggle);
+  row.addEventListener('keydown', (event) => {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      toggle();
+    }
+  });
+  ctx.rows.set(task.id, paint);
+  paint(ctx.state.selected.has(task.id));
+  return row;
+}
+
+function taskRow(task, refresh, ctx) {
   const overdueDays = Math.ceil((new Date().setHours(0, 0, 0, 0) - Date.parse(task.dueAt)) / DAY_MS);
   const dueToday = formatDate(task.dueAt) === formatDate(new Date().toISOString());
   const dueText = overdueDays > 0
@@ -124,20 +329,25 @@ function taskRow(task, refresh) {
     : dueToday ? 'Today' : formatDate(task.dueAt);
   const recurrenceText = describeRecurrence(task.recurrence);
 
+  const body = el(
+    'div',
+    { className: 'today-row__body' },
+    el('span', {}, task.title),
+    el(
+      'span',
+      { className: `text-small ${overdueDays > 0 ? 'task-row__late' : 'text-muted'}` },
+      `${dueText}${recurrenceText ? ` · ${recurrenceText}` : ''}`,
+    ),
+  );
+  if (ctx.state.selectMode) {
+    return pickRow(task, ctx, body);
+  }
+
   return el(
     'div',
     { className: 'status-row task-row' },
     el('div', { className: 'plant-card__thumb task-row__icon' }, svgIcon(EVENT_TYPES[task.taskType]?.icon ?? 'note', { size: 22 })),
-    el(
-      'div',
-      { className: 'today-row__body' },
-      el('span', {}, task.title),
-      el(
-        'span',
-        { className: `text-small ${overdueDays > 0 ? 'task-row__late' : 'text-muted'}` },
-        `${dueText}${recurrenceText ? ` · ${recurrenceText}` : ''}`,
-      ),
-    ),
+    body,
     el(
       'span',
       { className: 'task-row__actions' },

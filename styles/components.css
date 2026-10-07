@@ -1282,3 +1282,20 @@
 .today-stat--water svg { color: var(--color-info); }
 .today-stat--feed svg { color: var(--color-accent); }
 .today-stat--problem svg { color: var(--color-danger); }
+
+/* ---- Tasks: select mode ---- */
+.task-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--touch-target);
+}
+
+.task-row--pick {
+  cursor: pointer;
+}
+
+.task-row--selected {
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-m);
+}

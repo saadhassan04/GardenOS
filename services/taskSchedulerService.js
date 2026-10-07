@@ -7,6 +7,7 @@
 
 import { validateTask } from '../models/Task.js';
 import { Repository } from '../database/Repository.js';
+import { plantRepository } from '../database/PlantRepository.js';
 import { STORES } from '../database/stores.js';
 import { EVENT_TYPES } from '../config/registries.js';
 import { computeNextDueAt, DAY_MS } from './recurrence.js';
@@ -41,6 +42,67 @@ export function getTask(taskId) {
 export async function deleteTask(taskId) {
   await taskRepository.softDelete(taskId);
   bus.emit('task:deleted', { taskId });
+}
+
+/**
+ * Tasks aimed only at plants that are archived, deceased or deleted are dead
+ * weight: nobody can water a plant that is gone. Tasks with no plant (custom)
+ * and tasks with at least one living plant are kept.
+ * @param {object[]} tasks
+ * @returns {Promise<{live: object[], orphaned: object[]}>}
+ */
+async function splitOrphaned(tasks) {
+  const ids = [...new Set(tasks.flatMap((task) => task.plantIds))];
+  const plants = ids.length ? await plantRepository.getMany(ids) : [];
+  const living = new Set(plants.filter((p) => p.status === 'active' || p.status === 'dormant').map((p) => p.id));
+  const live = [];
+  const orphaned = [];
+  for (const task of tasks) {
+    (task.plantIds.length === 0 || task.plantIds.some((id) => living.has(id)) ? live : orphaned).push(task);
+  }
+  return { live, orphaned };
+}
+
+/** @returns {Promise<object[]>} pending tasks whose plants are all gone */
+export async function listOrphanedTasks() {
+  const { items } = await taskRepository.query({
+    index: 'status_dueAt',
+    range: IDBKeyRange.bound(['pending', ''], ['pending', '￿']),
+    limit: 1000,
+  });
+  return (await splitOrphaned(items)).orphaned;
+}
+
+/**
+ * Delete every orphaned pending task (and so their recurring series).
+ * @returns {Promise<number>} how many were removed
+ */
+export async function deleteOrphanedTasks() {
+  const orphaned = await listOrphanedTasks();
+  for (const task of orphaned) {
+    await deleteTask(task.id);
+  }
+  return orphaned.length;
+}
+
+/**
+ * Undo a skip: drop the spawned next occurrence and make this one pending again.
+ * @param {string} taskId
+ */
+export async function undoSkip(taskId) {
+  const task = await taskRepository.get(taskId);
+  if (!task || task.status !== 'skipped') {
+    throw new NotFoundError('That skip no longer exists');
+  }
+  if (task.spawnedTaskId) {
+    const spawned = await taskRepository.get(task.spawnedTaskId);
+    if (spawned?.status === 'pending') {
+      await taskRepository.hardDelete(spawned.id);
+    }
+  }
+  const restored = await taskRepository.update(taskId, { status: 'pending', spawnedTaskId: null });
+  bus.emit('task:created', { taskId });
+  return restored;
 }
 
 /**
@@ -160,13 +222,15 @@ export async function getInbox(now = new Date()) {
     limit: 500,
   });
 
+  const { live: tasks } = await splitOrphaned(items);
+
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
   const startOfTomorrow = new Date(startOfToday.getTime() + DAY_MS);
   const weekAhead = new Date(startOfToday.getTime() + 8 * DAY_MS);
 
   const inbox = { overdue: [], dueToday: [], upcoming: [], later: [] };
-  for (const task of items) {
+  for (const task of tasks) {
     const due = Date.parse(task.dueAt);
     if (due < startOfToday.getTime()) {
       inbox.overdue.push(task);
@@ -197,8 +261,10 @@ export async function getCalendar(year, month) {
     limit: 1000,
   });
 
+  const { live } = await splitOrphaned(items.filter((task) => task.status === 'pending'));
+  const shown = new Set(live.map((task) => task.id));
   const byDate = {};
-  for (const task of items) {
+  for (const task of items.filter((t) => t.status !== 'pending' || shown.has(t.id))) {
     const d = new Date(task.dueAt);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     (byDate[key] ??= []).push(task);
