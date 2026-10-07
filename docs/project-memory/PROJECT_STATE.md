@@ -4,7 +4,7 @@
 Update it after every completed sprint.
 
 - **Snapshot date:** 2026-10-08 (end of Phase 2)
-- **Current version:** `1.6.0-dev.5` (last released tag: `v1.0.0`)
+- **Current version:** `1.6.0-dev.12` (last released tag: `v1.0.0`)
 - **Last commit:** see `git log` (Phase 2 steps 0–5 all pushed to `origin/main`)
 - **Branch:** `main`
 - **Uncommitted in-flight work:** none
@@ -13,7 +13,7 @@ Update it after every completed sprint.
 
 ## Current Version
 
-`1.6.0-dev.5`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
+`1.6.0-dev.12`. The v1.x offline core is **feature-complete and code-complete**; v1.0.0 is the only formally tagged release. v1.1–v1.5 are built and green but await owner real-world exit gates before tagging (see [HANDOFF.md](HANDOFF.md) → Known Technical Debt / exit gates).
 
 ## Completed Modules
 
@@ -28,7 +28,7 @@ Update it after every completed sprint.
 
 **Post-v1.5 additions (owner-driven, on `main`):** care-profile management UI + per-plant watering override; six new plant categories (foliage, succulents, shrubs, climbers, bonsai, bulbs); automatic starter-garden seeding of the owner's collection; one-time guarded category recategorization; **Project Memory System** (`docs/project-memory/`); **Sprint S-13** — Plants location filter + per-plant progress notes & flowering/fruiting/new-growth milestone events; **Sprint S-14** — photo-audit corrections (second AD-009 guarded routine: 22 categories for owner-renamed plants + Rose Pink's botanical); **Sprint S-15** — derived-cache rebuild action on Diagnostics (ADR-0002's recovery path); **Sprint S-16** — per-plant watering schedule on the Plants list (next-watering countdown, cycle progress bar, one-tap log, due filter).
 
-**Phase 2 (2026-10-07/08, phone-first usability; plan and log in [`docs/PHASE2_HANDOFF.md`](../PHASE2_HANDOFF.md)):** deployed to GitHub Pages (https://saadhassan04.github.io/GardenOS/, public repo `saadhassan04/GardenOS`, redeploys on every push to `main`); **Today screen** is the first tab / `#/` route (`pages/TodayPage.js`, pure read-model `services/todayService.js`, shared `components/logWithUndo.js`), Dashboard moved to More (`#/dashboard`); **fertilizer logging** (event `data` = product/dose/method/npk, validated in `models/CareEvent.js`; `components/FertilizeDialog.js` + derived `services/fertilizerService.js`; fertilizing is now a live schedule via `fertilizeSchedule`, Tasks no longer suggests it); **harvest from any plant** (`components/HarvestDialog.js`, shared with Kitchen); **UTC date bug fixed** (`localDateString` / `dateToOccurredAt` in `utils/dates.js`); **compact plant rows** with a derived pest dot and a Filters button (`components/PlantCard.js`). No schema change, no new store, no dependency. Known gaps: never-fed plants are not shown in Today's Feed; the Kitchen batch-harvest path was only parse-checked after the refactor; owner data must be moved once (Mac backup → phone restore).
+**Phase 2 (2026-10-07/08, phone-first usability; plan and log in [`docs/PHASE2_HANDOFF.md`](../PHASE2_HANDOFF.md)):** deployed to GitHub Pages (https://saadhassan04.github.io/GardenOS/, public repo `saadhassan04/GardenOS`, redeploys on every push to `main`); **Today screen** is the first tab / `#/` route (`pages/TodayPage.js`, pure read-model `services/todayService.js`, shared `components/logWithUndo.js`), Dashboard moved to More (`#/dashboard`); **fertilizer logging** (event `data` = product/dose/method/npk, validated in `models/CareEvent.js`; `components/FertilizeDialog.js` + derived `services/fertilizerService.js`; fertilizing is now a live schedule via `fertilizeSchedule`, Tasks no longer suggests it); **harvest from any plant** (`components/HarvestDialog.js`, shared with Kitchen); **UTC date bug fixed** (`localDateString` / `dateToOccurredAt` in `utils/dates.js`); **compact plant rows** with a derived pest dot and a Filters button (`components/PlantCard.js`); later: premium visual pass, Today hero, polished Tasks/Kitchen/plant detail, share-sheet backup, and reliable updates (auto-apply, Settings check/refresh, `reset.html`). Full status: [`docs/PHASE2_REPORT.md`](../PHASE2_REPORT.md). No schema change, no new store, no dependency. Known gaps: never-fed plants are not shown in Today's Feed; the Kitchen batch-harvest path was only parse-checked after the refactor; owner data must be moved once (Mac backup → phone restore).
 
 ## Current Architecture
 
