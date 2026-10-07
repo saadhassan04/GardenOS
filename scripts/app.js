@@ -56,8 +56,11 @@ function applyTheme(theme) {
 }
 
 /**
- * Register the service worker and wire the in-app update prompt
- * (ARCHITECTURE.md §13: never silently reload).
+ * Register the service worker and keep the app on the newest version without
+ * the owner having to notice a prompt: a waiting update is applied as soon as
+ * nothing is being typed or shown in a dialog (the page reloads itself; garden
+ * data lives in IndexedDB and is untouched). If the owner is mid-edit, the
+ * "Update" bar stays as a fallback and the switch happens on the next check.
  */
 async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) {
@@ -65,34 +68,47 @@ async function registerServiceWorker() {
     return;
   }
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js');
+    // updateViaCache 'none': static hosts cache files for minutes; never let that hide a new version.
+    const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
 
-    // An installed app is rarely "navigated", so ask for a new version whenever it comes back to the foreground.
+    const idle = () => !document.querySelector('dialog[open]')
+      && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName ?? '');
+    const applyIfReady = () => {
+      const waiting = registration.waiting;
+      if (!waiting || !navigator.serviceWorker.controller) {
+        return;
+      }
+      if (idle()) {
+        waiting.postMessage({ type: 'SKIP_WAITING' });
+      } else if (!document.querySelector('.toast--update')) {
+        showToast('A new version of GardenOS is ready', {
+          sticky: true,
+          actionLabel: 'Update',
+          onAction: () => waiting.postMessage({ type: 'SKIP_WAITING' }),
+          className: 'toast--update',
+        });
+      }
+    };
+
+    // An update that finished installing while the app was closed is already
+    // "waiting" at launch and fires no event — pick it up here.
+    applyIfReady();
+
+    const check = () => registration.update().then(applyIfReady, () => {});
+    // An installed app is rarely "navigated": look again whenever it returns to the foreground, and hourly while open.
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        registration.update().catch(() => {});
+        check();
       }
     });
+    window.setInterval(check, 60 * 60 * 1000);
+    bus.on('route:changed', applyIfReady); // a pending update lands as soon as the owner navigates
 
     registration.addEventListener('updatefound', () => {
       const incoming = registration.installing;
-      if (!incoming) {
-        return;
-      }
-      incoming.addEventListener('statechange', () => {
-        // "installed" with an existing controller = a new version is waiting.
-        if (incoming.state === 'installed' && navigator.serviceWorker.controller) {
-          // Just opened (nothing to lose): switch to the new version now rather
-          // than hoping the "Update" bar gets noticed within seconds.
-          if (performance.now() < 30_000) {
-            incoming.postMessage({ type: 'SKIP_WAITING' });
-            return;
-          }
-          showToast('A new version of GardenOS is ready', {
-            sticky: true,
-            actionLabel: 'Update',
-            onAction: () => incoming.postMessage({ type: 'SKIP_WAITING' }),
-          });
+      incoming?.addEventListener('statechange', () => {
+        if (incoming.state === 'installed') {
+          applyIfReady();
         }
       });
     });

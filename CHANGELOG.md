@@ -101,6 +101,13 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   - 6 new integration tests (54 total) — all green live in Safari.
 
 ### Fixed
+- Updates still did not reach the phone by themselves: the auto-switch only ran
+  within 30 s of opening (slow mobile installs missed it), an update that had
+  finished installing while the app was closed was never applied at the next
+  launch, and one script could be served stale for 10 minutes. Now a waiting
+  update is applied at launch, after any check, and on the next navigation
+  whenever nothing is being typed; the service worker is registered with
+  `updateViaCache: 'none'`; the app also checks hourly while open (app 1.6.0-dev.14).
 - Tasks for plants that are deceased, archived or deleted kept showing up (and
   counting toward the badge and Today). They are now hidden everywhere, and Tasks
   offers "Remove them" to delete those tasks and their repeats for good

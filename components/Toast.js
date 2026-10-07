@@ -10,7 +10,7 @@ import { TOAST_DURATION_MS } from '../config/constants.js';
 /**
  * Show a toast.
  * @param {string} message short, concrete, gardener's vocabulary
- * @param {{actionLabel?: string, onAction?: () => void, sticky?: boolean}} [options]
+ * @param {{actionLabel?: string, onAction?: () => void, sticky?: boolean, className?: string}} [options]
  *   sticky toasts (e.g. "Update available") stay until acted on or dismissed.
  */
 export function showToast(message, options = {}) {
@@ -19,7 +19,7 @@ export function showToast(message, options = {}) {
     return;
   }
 
-  const toast = el('div', { className: 'toast' }, el('span', {}, message));
+  const toast = el('div', { className: `toast${options.className ? ` ${options.className}` : ''}` }, el('span', {}, message));
 
   const dismiss = () => toast.remove();
 
