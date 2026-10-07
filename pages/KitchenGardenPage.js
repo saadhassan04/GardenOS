@@ -7,10 +7,10 @@
 import { el, svgIcon, clear } from '../utils/dom.js';
 import { showToast } from '../components/Toast.js';
 import { formDialog } from '../components/FormDialog.js';
-import { formatDate, localDateString } from '../utils/dates.js';
+import { formatDate, localDateString, dateToOccurredAt } from '../utils/dates.js';
 import { logger } from '../utils/logger.js';
 import { SOWING_STAGES, STAGE_LABELS } from '../models/SowingBatch.js';
-import { HARVEST_UNITS, HARVEST_QUALITIES } from '../models/Harvest.js';
+import { harvestFlow } from '../components/HarvestDialog.js';
 import {
   createBatch,
   advanceStage,
@@ -196,7 +196,7 @@ function batchCard(batch, refresh) {
           'div',
           { className: 'dialog__actions' },
           el('button', { className: 'btn', onClick: () => advanceFlow(batch, refresh) }, 'Stage…'),
-          el('button', { className: 'btn', onClick: () => harvestFlow(batch, refresh) }, svgIcon('basket', { size: 18 }), 'Harvest…'),
+          el('button', { className: 'btn', onClick: () => harvestFlow({ crop: batch.crop, sowingBatchId: batch.id }).then((done) => done && refresh()) }, svgIcon('basket', { size: 18 }), 'Harvest…'),
         ),
   );
 }
@@ -250,7 +250,7 @@ async function newSowingFlow(refresh) {
       crop: values.crop,
       variety: values.variety,
       quantity: values.quantity ? Number(values.quantity) : null,
-      sownAt: values.sownAt ? new Date(`${values.sownAt}T12:00:00`).toISOString() : undefined,
+      sownAt: values.sownAt ? dateToOccurredAt(values.sownAt) : undefined,
       medium: values.medium,
     });
     showToast(`${values.crop} sown — day 0 of the story`);
@@ -282,40 +282,9 @@ async function advanceFlow(batch, refresh) {
   }
   try {
     await advanceStage(batch.id, values.stage, {
-      at: values.at ? new Date(`${values.at}T12:00:00`).toISOString() : undefined,
+      at: values.at ? dateToOccurredAt(values.at) : undefined,
     });
     showToast(`${batch.crop} → ${STAGE_LABELS[values.stage]}`);
-    refresh();
-  } catch (error) {
-    showToast(error.message);
-  }
-}
-
-async function harvestFlow(batch, refresh) {
-  const values = await formDialog({
-    title: `Harvest ${batch.crop}`,
-    submitLabel: 'Log harvest',
-    fields: [
-      { name: 'quantity', label: 'Quantity', kind: 'number', required: true },
-      { name: 'unit', label: 'Unit', kind: 'select', value: 'kg', options: HARVEST_UNITS.map((u) => [u, u]) },
-      { name: 'quality', label: 'Quality', kind: 'select', value: 'good', options: HARVEST_QUALITIES.map((q) => [q, q]) },
-      { name: 'harvestedAt', label: 'Harvested on', kind: 'date', value: localDateString() },
-      { name: 'notes', label: 'Notes', kind: 'textarea' },
-    ],
-  });
-  if (!values) {
-    return;
-  }
-  try {
-    await logHarvest({
-      sowingBatchId: batch.id,
-      quantity: Number(values.quantity),
-      unit: values.unit,
-      quality: values.quality,
-      harvestedAt: values.harvestedAt ? new Date(`${values.harvestedAt}T12:00:00`).toISOString() : undefined,
-      notes: values.notes,
-    });
-    showToast(`${values.quantity} ${values.unit} of ${batch.crop} — well grown`);
     refresh();
   } catch (error) {
     showToast(error.message);

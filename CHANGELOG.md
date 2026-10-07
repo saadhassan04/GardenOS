@@ -15,6 +15,11 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Harvest from any plant** (app 1.6.0-dev.4) — a Harvest button on plant detail
+  for vegetables, herbs, trees and any plant already harvested; crop defaults to
+  the plant name and yield totals include it. The harvest sheet is shared with
+  the kitchen garden (`components/HarvestDialog.js`), which also fixes logging a
+  harvest/sowing "today" before noon being rejected as a future date.
 - **Fertilizer logging** (app 1.6.0-dev.2) — fertilizing events now carry
   product, dose, method and optional NPK in their `data` payload (no schema
   change; old bare events stay valid). New feed sheet with "Same as last

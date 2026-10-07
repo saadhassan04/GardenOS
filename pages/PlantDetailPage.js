@@ -19,6 +19,7 @@ import {
 import { logEvent, getTimeline, undoBatch } from '../services/careEventService.js';
 import { eventFormDialog } from '../components/EventFormDialog.js';
 import { feedFlow } from '../components/FertilizeDialog.js';
+import { harvestFlow } from '../components/HarvestDialog.js';
 import { lastFeeding, describeFeeding } from '../services/fertilizerService.js';
 import { renderPestSection } from '../components/PlantPestSection.js';
 import { getLocation } from '../services/locationsService.js';
@@ -69,7 +70,10 @@ async function build(page, plantId) {
     ),
   );
 
-  page.append(quickLogSection(plant, refresh));
+  // Harvest suits edible categories, plus any plant that has been harvested before.
+  const canHarvest = ['vegetable', 'herb', 'tree'].includes(plant.category)
+    || (await getTimeline(plant.id, { types: ['harvest'], limit: 1 })).items.length > 0;
+  page.append(quickLogSection(plant, refresh, canHarvest));
   page.append(await photosSection(plant, refresh));
   page.append(await profileSection(plant));
   page.append(await renderPestSection(plant, refresh));
@@ -78,7 +82,7 @@ async function build(page, plantId) {
   page.append(managementSection(plant, refresh));
 }
 
-function quickLogSection(plant, refresh) {
+function quickLogSection(plant, refresh, canHarvest) {
   const buttons = Object.entries(EVENT_TYPES)
     .filter(([, spec]) => spec.quickLog)
     .map(([type, spec]) =>
@@ -158,7 +162,15 @@ function quickLogSection(plant, refresh) {
     'section',
     { className: 'page-section' },
     el('span', { className: 'text-caption' }, 'Quick log & progress'),
-    el('div', { className: 'card quick-log' }, ...buttons, moreButton),
+    el(
+      'div',
+      { className: 'card quick-log' },
+      ...buttons,
+      canHarvest
+        ? el('button', { className: 'btn quick-log__btn', onClick: async () => { if (await harvestFlow({ crop: plant.name, plantId: plant.id })) { refresh(); } } }, svgIcon('basket', { size: 20 }), 'Harvest')
+        : null,
+      moreButton,
+    ),
   );
 }
 
