@@ -276,3 +276,4 @@ fertilizing data validator (old `{}` accepted, bad NPK rejected).
 | 2026-10-08 | 3 Harvest from any plant | ae10cce | Owner approved Harvest button on vegetable/herb/tree + previously-harvested plants. Shared HarvestDialog; kitchen page uses it; today-before-noon future-date bug fixed via dateToOccurredAt. 66/66 green. Kitchen batch harvest path only parse-checked (fresh garden has no batches). |
 | 2026-10-08 | 5 Plant cards | bbcff2d | Owner chose compact rows + health derived from pests (red dot) . PlantCard rewritten, filters behind a details button, stray empty action-bar fixed. Phone-width check OK; no new tests (presentational). |
 | 2026-10-08 | Phase close | 9b65b13 | PROJECT_STATE.md updated (once, per §7). |
+| 2026-10-08 | UI polish | 15bb823 | Owner picked Today feel, plant rows/photos, motion; keep dark green. 66/66 green; phone-width check OK. Owner also wants phone+Mac synced: needs a decision (see chat). |
