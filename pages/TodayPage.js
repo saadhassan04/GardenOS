@@ -36,7 +36,7 @@ function teardown() {
 export function renderTodayPage() {
   teardown();
 
-  const summary = el('p', { className: 'text-small text-muted' });
+  const summary = el('div', {}, el('div', { className: 'skeleton' }));
   const banner = el('div', {});
   const sections = {
     water: el('section', { className: 'page-section' }),
@@ -119,7 +119,21 @@ function paintToday(today, { summary, sections }) {
     counts.feed ? plural(counts.feed, 'to feed') : null,
     counts.problems ? plural(counts.problems, counts.problems === 1 ? 'problem' : 'problems') : null,
   ].filter(Boolean);
-  summary.textContent = parts.length ? parts.join(' · ') : 'Nothing needs you today.';
+  const allClear = !parts.length && !today.tasks.length;
+  const done = counts.waterTotal - counts.water;
+  summary.replaceChildren(
+    allClear
+      ? el('div', { className: 'card today-clear' }, svgIcon('leaf', { size: 32 }), el('strong', {}, 'All clear'), el('span', { className: 'text-small text-muted' }, 'Nothing needs you today.'))
+      : el('p', { className: 'today-summary' }, parts.join(' · ') || 'Nothing to water, feed or treat.'),
+    counts.waterTotal
+      ? el(
+        'div',
+        { className: 'today-progress' },
+        el('progress', { max: String(counts.waterTotal), value: String(done), 'aria-label': 'Watered today' }),
+        el('span', { className: 'text-small text-muted' }, `${done} of ${counts.waterTotal} watered`),
+      )
+      : null,
+  );
 
   paintWater(sections.water, today.water);
   paintFeed(sections.feed, today.feed);

@@ -51,6 +51,7 @@ test('should bucket plants into overdue, due, done-today, no-history and tomorro
   assertEqual(group.items[1].overdueDays, 0);
   assert(group.items[2].done, 'watered since midnight counts as done');
   assertEqual(today.counts.water, 2);
+  assertEqual(today.counts.waterTotal, 6); // 2 due + 4 done today
   assertEqual(today.water.noHistory.map((p) => p.name).join(), 'Unknown');
   assertEqual(today.tomorrow.water, 1);
   assertEqual(today.feed.map((f) => f.plant.name).join(), 'Fed');

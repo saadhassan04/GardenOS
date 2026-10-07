@@ -15,6 +15,12 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **UI polish** (app 1.6.0-dev.6) — Today: progress bar ("14 of 30 watered"), an
+  "All clear" state and a loading skeleton. Plants: larger thumbnails, a
+  red/amber status edge on due plants, one-tap "Due today" / "Has pest" chips,
+  sticky search, "Due today" no longer lists never-watered plants (matches
+  Today). Motion: screen fade-in, button press feedback, sheet/toast slide-up
+  (all disabled by the reduced-motion setting).
 - **Compact plant rows** (app 1.6.0-dev.5) — the Plants list is now one row per
   plant on phone: small thumbnail, name with a red dot when it has an active
   pest, "Water in 2d · fed 12d ago", and a right-side water button. The five

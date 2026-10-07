@@ -25,12 +25,13 @@ export function renderPlantCard(plant, options = {}) {
   const { selectable = false, selected = false, onToggle, schedule = null, hasPest = false, onLogWatering = null } = options;
 
   const contents = [renderThumb(plant), renderBody(plant, schedule, hasPest)];
+  const edge = schedule && wateringState(schedule) !== 'ok' ? ` plant-card--${wateringState(schedule)}` : '';
 
   if (selectable) {
     return el(
       'div',
       {
-        className: `plant-card plant-card--selectable${selected ? ' plant-card--selected' : ''}`,
+        className: `plant-card plant-card--selectable${selected ? ' plant-card--selected' : ''}${edge}`,
         role: 'checkbox',
         tabindex: '0',
         'aria-checked': selected ? 'true' : 'false',
@@ -51,7 +52,7 @@ export function renderPlantCard(plant, options = {}) {
   // and its tap would navigate instead of logging.
   return el(
     'article',
-    { className: 'plant-card' },
+    { className: `plant-card${edge}` },
     el('a', { className: 'plant-card__link', href: `#/plants/${plant.id}` }, ...contents),
     onLogWatering && schedule
       ? el(
@@ -108,7 +109,10 @@ function renderBody(plant, schedule, hasPest) {
  * Urgency band, always paired with text (WCAG 2.1 AA).
  * @returns {'overdue'|'due'|'ok'}
  */
-function wateringState({ daysUntil }) {
+function wateringState({ daysUntil, neverWatered }) {
+  if (neverWatered) {
+    return 'ok'; // unknown history is not an alarm (matches Today, D2)
+  }
   if (daysUntil < 0) {
     return 'overdue';
   }

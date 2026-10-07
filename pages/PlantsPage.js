@@ -19,6 +19,7 @@ import { PLANT_CATEGORIES, PLANT_STATUSES, EVENT_TYPES } from '../config/registr
 /** @returns {HTMLElement} */
 export function renderPlantsPage() {
   const page = el('div', {});
+  const chips = [];
   const state = {
     status: 'active',
     category: '',
@@ -26,6 +27,7 @@ export function renderPlantsPage() {
     search: '',
     sort: 'name',
     watering: '',
+    pest: false,
     selectMode: false,
     selected: new Set(),
   };
@@ -115,13 +117,40 @@ export function renderPlantsPage() {
       { className: 'filter-bar' },
       searchInput,
       el(
-        'details',
-        { className: 'filter-details' },
-        el('summary', { className: 'btn' }, 'Filters'),
-        el('div', { className: 'filter-details__body' }, categorySelect, locationSelect, statusSelect, wateringSelect, sortSelect),
+        'div',
+        { className: 'chip-row filter-bar__chips' },
+        quickChip('Due today', 'due'),
+        quickChip('Has pest', 'pest'),
+        el(
+          'details',
+          { className: 'filter-details' },
+          el('summary', { className: 'btn' }, 'Filters'),
+          el('div', { className: 'filter-details__body' }, categorySelect, locationSelect, statusSelect, wateringSelect, sortSelect),
+        ),
       ),
     ),
   );
+
+  /** Toggle chip for a common filter; `due` shares state with the Watering select. */
+  function quickChip(label, key) {
+    const isOn = () => (key === 'due' ? state.watering === 'due' : state.pest);
+    const chip = el('button', {
+      type: 'button',
+      className: 'btn chip-btn',
+      'aria-pressed': String(isOn()),
+      onClick: () => {
+        if (key === 'due') {
+          state.watering = isOn() ? '' : 'due';
+          wateringSelect.value = state.watering;
+        } else {
+          state.pest = !state.pest;
+        }
+        refresh();
+      },
+    }, label);
+    chips.push({ chip, isOn });
+    return chip;
+  }
 
   const listRegion = el('div', { className: 'plant-grid' });
   const actionBar = el('div', { className: 'action-bar', hidden: '' });
@@ -139,8 +168,12 @@ export function renderPlantsPage() {
       // One profile read for the whole page, not one per card.
       const schedules = await resolveWateringSchedules(loaded);
       const pestPlantIds = new Set((await listActivePests()).flatMap((pest) => pest.plantIds));
-      const plants =
-        state.watering === 'due' ? loaded.filter((plant) => isDue(schedules.get(plant.id))) : loaded;
+      for (const { chip, isOn } of chips) {
+        chip.setAttribute('aria-pressed', String(isOn()));
+      }
+      const plants = loaded
+        .filter((plant) => state.watering !== 'due' || isDue(schedules.get(plant.id)))
+        .filter((plant) => !state.pest || pestPlantIds.has(plant.id));
 
       clear(listRegion);
       if (plants.length === 0) {
@@ -180,11 +213,11 @@ export function renderPlantsPage() {
    * @returns {HTMLElement}
    */
   function renderEmptyState(loadedCount) {
-    if (state.watering === 'due' && loadedCount > 0) {
+    if ((state.watering === 'due' || state.pest) && loadedCount > 0) {
       return el(
         'div',
         { className: 'card empty-state' },
-        el('p', {}, 'Nothing needs watering. The garden approves.'),
+        el('p', {}, state.pest && state.watering !== 'due' ? 'No plants with active pests. Lucky you.' : 'Nothing needs watering. The garden approves.'),
       );
     }
     const filtered = state.search || state.category || state.locationId;
@@ -285,7 +318,7 @@ export function renderPlantsPage() {
  * @returns {boolean}
  */
 function isDue(schedule) {
-  return Boolean(schedule) && schedule.daysUntil <= 0;
+  return Boolean(schedule) && !schedule.neverWatered && schedule.daysUntil <= 0;
 }
 
 function filterSelect(label, options, onChange) {

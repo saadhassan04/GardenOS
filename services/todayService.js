@@ -85,13 +85,14 @@ export function buildToday({ plants, profiles, locations, tasks, pests }, now) {
   const dueTasks = tasks.filter((task) => task.taskType !== 'watering'); // watering is the live schedule
 
   const waterDue = groups.reduce((n, g) => n + g.dueCount, 0);
+  const waterTotal = groups.reduce((n, g) => n + g.items.length, 0);
   return {
     water: { groups, noHistory },
     feed,
     problems,
     tasks: dueTasks,
     tomorrow,
-    counts: { water: waterDue, feed: feed.length, problems: problems.length },
+    counts: { water: waterDue, waterTotal, feed: feed.length, problems: problems.length },
   };
 }
 
