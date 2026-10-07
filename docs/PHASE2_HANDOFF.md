@@ -269,3 +269,4 @@ fertilizing data validator (old `{}` accepted, bad NPK rejected).
 |---|---|---|---|
 | 2026-10-07 | Phase 1 review + Phase 2 proposal | — | This file. |
 | 2026-10-07 | Owner approval | — | All §4 defaults approved; D0 = GitHub Pages. Next: §6 step 0. |
+| 2026-10-07 | 0 Deploy | 0402c3e | Public repo + Pages live at https://saadhassan04.github.io/GardenOS/ ; SW registers. Owner still needs to move data (Back up on Mac -> Restore on phone). |

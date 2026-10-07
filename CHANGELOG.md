@@ -15,6 +15,7 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- Deployed to GitHub Pages (https://saadhassan04.github.io/GardenOS/) so the phone can install the PWA.
 - **v1.5 Task Scheduler** (app 1.5.0-dev.1) — the offline core is now
   feature-complete (ROADMAP.md v1.x):
   - Pure recurrence engine (FR-4.1): daily/every-N-days count from the
