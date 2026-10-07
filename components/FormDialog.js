@@ -5,6 +5,7 @@
  * build a page instead (forms deserve room — UI_GUIDELINES.md §7).
  */
 
+import { localDateString } from '../utils/dates.js';
 import { el } from '../utils/dom.js';
 
 /**
@@ -52,7 +53,7 @@ export function formDialog({ title, fields, submitLabel = 'Save', intro = null }
           placeholder: spec.placeholder ?? null,
         });
         if (spec.kind === 'date' && !spec.allowFuture) {
-          control.setAttribute('max', new Date().toISOString().slice(0, 10));
+          control.setAttribute('max', localDateString());
         }
         if (spec.kind === 'number') {
           control.setAttribute('min', '0');

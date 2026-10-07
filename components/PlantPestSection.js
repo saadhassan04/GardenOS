@@ -7,7 +7,7 @@
 import { el } from '../utils/dom.js';
 import { showToast } from './Toast.js';
 import { formDialog } from './FormDialog.js';
-import { relativeDate } from '../utils/dates.js';
+import { relativeDate, localDateString } from '../utils/dates.js';
 import { logger } from '../utils/logger.js';
 import { COMMON_PESTS, PEST_SEVERITIES } from '../models/PestRecord.js';
 import { TREATMENT_TYPES, TREATMENT_OUTCOMES } from '../models/Treatment.js';
@@ -137,7 +137,7 @@ async function reportFlow(plant, refresh) {
     fields: [
       { name: 'pestType', label: 'Pest / disease', required: true, suggestions: [...COMMON_PESTS], placeholder: 'mealybug' },
       { name: 'severity', label: 'Severity', kind: 'select', value: 'medium', options: PEST_SEVERITIES.map((s) => [s, s]) },
-      { name: 'observedAt', label: 'Observed on', kind: 'date', value: new Date().toISOString().slice(0, 10) },
+      { name: 'observedAt', label: 'Observed on', kind: 'date', value: localDateString() },
       { name: 'notes', label: 'Notes', kind: 'textarea' },
     ],
   });

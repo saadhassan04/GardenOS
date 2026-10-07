@@ -59,6 +59,8 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   - 6 new integration tests (54 total) — all green live in Safari.
 
 ### Fixed
+- Date fields defaulted to (and capped at) the UTC date, so in Karachi between
+  00:00 and 05:00 "today" was blocked; all six spots now use local `localDateString()`.
 - Test-suite time-of-day flake: day-count assertions anchored at noon
   passed only when the suite ran after noon. Fixtures now use exact
   elapsed offsets. Caught live at 53/54.

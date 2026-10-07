@@ -9,7 +9,7 @@ import { el, svgIcon, clear } from '../utils/dom.js';
 import { showToast } from '../components/Toast.js';
 import { formDialog } from '../components/FormDialog.js';
 import { confirmDialog } from '../components/ConfirmDialog.js';
-import { formatDate } from '../utils/dates.js';
+import { formatDate, localDateString } from '../utils/dates.js';
 import { logger } from '../utils/logger.js';
 import { getSetting } from '../storage/settings.js';
 import { describeRecurrence, DAY_MS } from '../services/recurrence.js';
@@ -313,7 +313,7 @@ async function newTaskFlow(refresh) {
         options: [['', 'No specific plant'], ...plants.map((p) => [p.id, p.name])],
         hint: 'Care-type tasks auto-log an event for this plant on completion',
       },
-      { name: 'dueDate', label: 'Due on', kind: 'date', allowFuture: true, value: new Date().toISOString().slice(0, 10) },
+      { name: 'dueDate', label: 'Due on', kind: 'date', allowFuture: true, value: localDateString() },
       {
         name: 'repeat', label: 'Repeat', kind: 'select', value: 'none',
         options: [

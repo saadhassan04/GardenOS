@@ -7,7 +7,7 @@
 import { el, svgIcon, clear } from '../utils/dom.js';
 import { showToast } from '../components/Toast.js';
 import { formDialog } from '../components/FormDialog.js';
-import { formatDate } from '../utils/dates.js';
+import { formatDate, localDateString } from '../utils/dates.js';
 import { logger } from '../utils/logger.js';
 import { SOWING_STAGES, STAGE_LABELS } from '../models/SowingBatch.js';
 import { HARVEST_UNITS, HARVEST_QUALITIES } from '../models/Harvest.js';
@@ -238,7 +238,7 @@ async function newSowingFlow(refresh) {
       { name: 'crop', label: 'Crop', required: true, suggestions: cropNames },
       { name: 'variety', label: 'Variety', placeholder: 'Roma, desi…' },
       { name: 'quantity', label: 'How many (seeds/seedlings)', kind: 'number' },
-      { name: 'sownAt', label: 'Sown on', kind: 'date', value: new Date().toISOString().slice(0, 10) },
+      { name: 'sownAt', label: 'Sown on', kind: 'date', value: localDateString() },
       { name: 'medium', label: 'Where', placeholder: 'seed tray, direct bed, pot…' },
     ],
   });
@@ -274,7 +274,7 @@ async function advanceFlow(batch, refresh) {
         value: laterStages[0],
         options: laterStages.map((stage) => [stage, STAGE_LABELS[stage]]),
       },
-      { name: 'at', label: 'When', kind: 'date', value: new Date().toISOString().slice(0, 10) },
+      { name: 'at', label: 'When', kind: 'date', value: localDateString() },
     ],
   });
   if (!values) {
@@ -299,7 +299,7 @@ async function harvestFlow(batch, refresh) {
       { name: 'quantity', label: 'Quantity', kind: 'number', required: true },
       { name: 'unit', label: 'Unit', kind: 'select', value: 'kg', options: HARVEST_UNITS.map((u) => [u, u]) },
       { name: 'quality', label: 'Quality', kind: 'select', value: 'good', options: HARVEST_QUALITIES.map((q) => [q, q]) },
-      { name: 'harvestedAt', label: 'Harvested on', kind: 'date', value: new Date().toISOString().slice(0, 10) },
+      { name: 'harvestedAt', label: 'Harvested on', kind: 'date', value: localDateString() },
       { name: 'notes', label: 'Notes', kind: 'textarea' },
     ],
   });
