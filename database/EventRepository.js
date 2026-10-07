@@ -89,6 +89,34 @@ export class EventRepository extends Repository {
   }
 
   /**
+   * Events of one type across all plants, newest first (type_occurredAt).
+   * @param {string} type
+   * @param {{limit?: number}} [options]
+   * @returns {Promise<object[]>}
+   */
+  async listByType(type, { limit = 500 } = {}) {
+    const db = await openDatabase();
+    const index = db.transaction(this.storeName, 'readonly').objectStore(this.storeName).index('type_occurredAt');
+    const items = [];
+    await new Promise((resolve, reject) => {
+      const request = index.openCursor(IDBKeyRange.bound([type, ''], [type, MAX_CHAR]), 'prev');
+      request.onsuccess = () => {
+        const cur = request.result;
+        if (!cur || items.length >= limit) {
+          resolve();
+          return;
+        }
+        if (!cur.value.deletedAt) {
+          items.push(cur.value);
+        }
+        cur.continue();
+      };
+      request.onerror = () => reject(new StorageError(request.error?.message ?? 'Event query failed', { cause: request.error ?? undefined }));
+    });
+    return items;
+  }
+
+  /**
    * Live (non-tombstoned) event count for a plant.
    * @param {string} plantId
    * @returns {Promise<number>}

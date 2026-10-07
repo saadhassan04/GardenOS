@@ -9,6 +9,8 @@ import { bus } from '../hooks/bus.js';
 import { logger } from '../utils/logger.js';
 import { currentSeason } from '../config/climate.karachi.js';
 import { logWithUndo } from '../components/logWithUndo.js';
+import { feedFlow } from '../components/FertilizeDialog.js';
+import { describeFeeding } from '../services/fertilizerService.js';
 import { getToday } from '../services/todayService.js';
 import { getBackupStatus } from '../services/backupService.js';
 import { logEvent, logBulk } from '../services/careEventService.js';
@@ -140,10 +142,10 @@ function fill(section, title, ...children) {
   }
 }
 
-function row(main, sub, action, { href, done } = {}) {
+function row(main, sub, action, { href, done, onClick } = {}) {
   const body = el(
-    href ? 'a' : 'div',
-    { className: `today-row__body${done ? ' today-row__body--done' : ''}`, href },
+    href ? 'a' : onClick ? 'button' : 'div',
+    { className: `today-row__body${done ? ' today-row__body--done' : ''}`, href, type: onClick ? 'button' : null, onClick },
     el('span', {}, main),
     sub ? el('span', { className: 'text-small text-muted' }, sub) : null,
   );
@@ -208,13 +210,15 @@ function paintFeed(section, feed) {
       ? el(
         'div',
         { className: 'card today-group' },
-        ...feed.map(({ plant, everyDays, lastAt }) =>
-          row(
+        ...feed.map(({ plant, everyDays, lastAt, last }) => {
+          const open = () => feedFlow([plant.id], plant.name);
+          return row(
             plant.name,
-            `every ${everyDays}d · last ${Math.floor((Date.now() - Date.parse(lastAt)) / 86_400_000)}d ago`,
-            iconButton('leaf', `Log feeding for ${plant.name}`, () => logWithUndo(() => logEvent(plant.id, 'fertilizing'), `Fed ${plant.name}`)),
-          ),
-        ),
+            `every ${everyDays}d · last ${Math.floor((Date.now() - Date.parse(lastAt)) / 86_400_000)}d ago${last ? ` — ${describeFeeding(last)}` : ''}`,
+            iconButton('leaf', `Log feeding for ${plant.name}`, open),
+            { onClick: open },
+          );
+        }),
       )
       : null,
   );

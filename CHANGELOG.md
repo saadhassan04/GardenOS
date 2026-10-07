@@ -15,6 +15,15 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Fertilizer logging** (app 1.6.0-dev.2) — fertilizing events now carry
+  product, dose, method and optional NPK in their `data` payload (no schema
+  change; old bare events stay valid). New feed sheet with "Same as last
+  time" (2-tap log), recent-product chips and a short form, opened from
+  Today's Feed rows, the plant-detail Fertilizing button and Plants bulk
+  "Fertilize" (one batch, one Undo). The products list is derived from the
+  event log (`services/fertilizerService.js`). Timeline shows
+  "Fertilizing — product · dose · method"; plant detail shows "Last fed".
+  `localDateString` moved to `utils/dates.js`.
 - **Today screen** (app 1.6.0-dev.1) — new first tab and `#/` route: water due
   (grouped by location, "Water all N" with one Undo, done-today rows stay
   struck through), live feeding schedule, active problems, due tasks,

@@ -5,7 +5,26 @@
  */
 
 import { ValidationError } from '../utils/errors.js';
-import { EVENT_TYPES } from '../config/registries.js';
+import { EVENT_TYPES, FERTILIZER_METHODS } from '../config/registries.js';
+
+const NPK = /^\d+(\.\d+)?-\d+(\.\d+)?-\d+(\.\d+)?$/;
+
+/** Per-type payload validators; unknown types pass through unchanged. */
+const DATA_VALIDATORS = {
+  // All fields optional so old bare `{}` fertilizing events stay valid.
+  fertilizing(data) {
+    const text = (value) => (typeof value === 'string' && value.trim() ? value.trim() : null);
+    const npk = text(data.npk);
+    if (npk && !NPK.test(npk)) {
+      throw new ValidationError('NPK looks like 20-20-20');
+    }
+    const method = data.method ?? null;
+    if (method !== null && !(method in FERTILIZER_METHODS)) {
+      throw new ValidationError(`Unknown fertilizer method "${method}"`);
+    }
+    return { ...data, product: text(data.product), npk, dose: text(data.dose), method };
+  },
+};
 
 /**
  * Validate and normalize a care event body.
@@ -46,6 +65,6 @@ export function validateCareEvent(input) {
     occurredAt: new Date(occurredAt).toISOString(),
     batchId: input.batchId ?? null,
     imageIds: Array.isArray(input.imageIds) ? input.imageIds : [],
-    data,
+    data: DATA_VALIDATORS[type]?.(data) ?? data,
   };
 }

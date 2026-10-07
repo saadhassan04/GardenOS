@@ -18,6 +18,8 @@ import {
 } from '../services/plantService.js';
 import { logEvent, getTimeline, undoBatch } from '../services/careEventService.js';
 import { eventFormDialog } from '../components/EventFormDialog.js';
+import { feedFlow } from '../components/FertilizeDialog.js';
+import { lastFeeding, describeFeeding } from '../services/fertilizerService.js';
 import { renderPestSection } from '../components/PlantPestSection.js';
 import { getLocation } from '../services/locationsService.js';
 import { getCareProfile } from '../services/careProfileService.js';
@@ -85,6 +87,12 @@ function quickLogSection(plant, refresh) {
         {
           className: 'btn quick-log__btn',
           onClick: async () => {
+            if (type === 'fertilizing') {
+              if (await feedFlow([plant.id], plant.name)) {
+                refresh();
+              }
+              return;
+            }
             try {
               const { batchId } = await logEvent(plant.id, type);
               showToast(`${spec.label} logged for ${plant.name}`, {
@@ -243,6 +251,7 @@ async function lineageSection(plant) {
 async function profileSection(plant) {
   const location = plant.locationId ? await getLocation(plant.locationId) : null;
   const careProfile = plant.careProfileId ? await getCareProfile(plant.careProfileId) : null;
+  const lastFed = await lastFeeding(plant.id);
 
   const rows = [
     ['Category', plant.category ? PLANT_CATEGORIES[plant.category]?.label : '—'],
@@ -259,7 +268,7 @@ async function profileSection(plant) {
     ],
     ['Soil mix', plant.soilMix || '—'],
     ['Last watered', relativeDate(plant.derived.lastWateredAt)],
-    ['Last fertilized', relativeDate(plant.derived.lastFertilizedAt)],
+    ['Last fed', lastFed ? `${lastFed.product}, ${relativeDate(plant.derived.lastFertilizedAt)}` : relativeDate(plant.derived.lastFertilizedAt)],
     ['Last repotted', relativeDate(plant.derived.lastRepottedAt)],
     ['Events recorded', String(plant.derived.eventCount)],
   ];
@@ -346,7 +355,7 @@ function timelineItem(event) {
     el(
       'div',
       {},
-      el('span', {}, spec.label),
+      el('span', {}, event.type === 'fertilizing' && event.data?.product ? `${spec.label} — ${describeFeeding(event.data)}` : spec.label),
       el('p', { className: 'text-small text-muted' }, `${relativeDate(event.occurredAt)} · ${formatDate(event.occurredAt)}`),
       event.data?.note ? el('p', { className: 'text-small' }, event.data.note) : null,
     ),

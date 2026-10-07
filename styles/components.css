@@ -821,3 +821,42 @@
   color: var(--color-success);
   margin-right: var(--space-3);
 }
+
+/* ---- Fertilizer sheet (PHASE2_HANDOFF §5.2) ---- */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip-btn {
+  min-height: var(--touch-target);
+}
+
+.chip-btn[aria-pressed='true'] {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.today-row__body {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .dialog--sheet {
+    margin: auto 0 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+  }
+}
+
+.dialog--sheet[open] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

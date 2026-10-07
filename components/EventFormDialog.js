@@ -7,6 +7,7 @@
 
 import { el } from '../utils/dom.js';
 import { EVENT_TYPES } from '../config/registries.js';
+import { localDateString, dateToOccurredAt } from '../utils/dates.js';
 
 /**
  * @param {{title: string, defaultType?: string}} options
@@ -51,7 +52,7 @@ export function eventFormDialog({ title, defaultType = 'watering' }) {
             event.preventDefault();
             close({
               type: typeSelect.value,
-              occurredAt: toOccurredAt(dateInput.value, today),
+              occurredAt: dateToOccurredAt(dateInput.value, today),
               data: noteInput.value.trim() ? { note: noteInput.value.trim() } : {},
             });
           },
@@ -85,22 +86,4 @@ export function eventFormDialog({ title, defaultType = 'watering' }) {
 
 function field(label, id, control) {
   return el('div', { className: 'field' }, el('label', { className: 'field__label', for: id }, label), control);
-}
-
-function localDateString(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-/**
- * Today → the actual current moment; a past date → noon local time of that
- * day (a sane midpoint that can never be "in the future" for a past date).
- */
-function toOccurredAt(dateValue, today) {
-  if (!dateValue || dateValue === today) {
-    return new Date().toISOString();
-  }
-  return new Date(`${dateValue}T12:00:00`).toISOString();
 }

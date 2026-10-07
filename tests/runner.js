@@ -16,6 +16,7 @@ import './kitchen.test.js';
 import './dashboard.test.js';
 import './tasks.test.js';
 import './today.test.js';
+import './fertilizer.test.js';
 
 const resultsEl = document.getElementById('results');
 const summaryEl = document.getElementById('summary');

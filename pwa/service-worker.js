@@ -13,7 +13,7 @@
 
 /* eslint-env serviceworker */
 
-const CACHE_VERSION = 'gardenos-shell-v1.6.0-dev.1';
+const CACHE_VERSION = 'gardenos-shell-v1.6.0-dev.2';
 
 const PRECACHE_URLS = [
   './',
@@ -79,6 +79,7 @@ const PRECACHE_URLS = [
   './services/recurrence.js',
   './services/taskSchedulerService.js',
   './services/todayService.js',
+  './services/fertilizerService.js',
   './services/notificationService.js',
   './services/gardenSeedService.js',
   './services/archiveCodec.js',
@@ -94,6 +95,7 @@ const PRECACHE_URLS = [
   './components/FormDialog.js',
   './components/PlantPestSection.js',
   './components/logWithUndo.js',
+  './components/FertilizeDialog.js',
   './components/PhotoViewer.js',
   './components/charts.js',
   './widgets/registry.js',

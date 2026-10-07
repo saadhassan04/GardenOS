@@ -47,6 +47,15 @@ export const CONTAINER_TYPES = Object.freeze({
   'ground': { label: 'In ground' },
 });
 
+/** How a fertilizer was applied (events.data.method for 'fertilizing'). */
+export const FERTILIZER_METHODS = Object.freeze({
+  'soil-drench': { label: 'Soil drench' },
+  'foliar': { label: 'Foliar' },
+  'top-dress': { label: 'Top-dress' },
+  'slow-release': { label: 'Slow-release' },
+  'other': { label: 'Other' },
+});
+
 /**
  * Care event types (DATABASE.md §3.2).
  * derivedField: which plants.derived cache this event type refreshes.

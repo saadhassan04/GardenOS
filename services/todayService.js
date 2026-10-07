@@ -10,6 +10,7 @@ import { listLocations } from './locationsService.js';
 import { listActivePests } from './pestService.js';
 import { listTreatmentsForPest } from './treatmentService.js';
 import { getInbox } from './taskSchedulerService.js';
+import { lastFeeding } from './fertilizerService.js';
 
 /**
  * @param {{plants: object[], profiles: object[], locations: object[],
@@ -106,5 +107,9 @@ export async function getToday(now = new Date()) {
   for (const pest of pests) {
     pest.lastTreatment = (await listTreatmentsForPest(pest.id))[0] ?? null;
   }
-  return buildToday({ plants, profiles, locations, tasks: [...inbox.overdue, ...inbox.dueToday], pests }, now);
+  const today = buildToday({ plants, profiles, locations, tasks: [...inbox.overdue, ...inbox.dueToday], pests }, now);
+  for (const item of today.feed) {
+    item.last = await lastFeeding(item.plant.id);
+  }
+  return today;
 }

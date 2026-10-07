@@ -11,6 +11,7 @@ import { logEvent, logBulk, undoBatch } from '../services/careEventService.js';
 import { renderPlantCard } from '../components/PlantCard.js';
 import { showToast } from '../components/Toast.js';
 import { eventFormDialog } from '../components/EventFormDialog.js';
+import { feedFlow } from '../components/FertilizeDialog.js';
 import { logger } from '../utils/logger.js';
 import { PLANT_CATEGORIES, PLANT_STATUSES, EVENT_TYPES } from '../config/registries.js';
 
@@ -212,6 +213,14 @@ export function renderPlantsPage() {
     }
     actionBar.removeAttribute('hidden');
 
+    const exitSelectMode = () => {
+      state.selectMode = false;
+      state.selected.clear();
+      selectToggle.setAttribute('aria-pressed', 'false');
+      selectToggle.textContent = 'Select';
+      refresh();
+    };
+
     const runBulk = async (type, options = {}) => {
       const plantIds = [...state.selected];
       try {
@@ -224,11 +233,7 @@ export function renderPlantsPage() {
             refresh();
           },
         });
-        state.selectMode = false;
-        state.selected.clear();
-        selectToggle.setAttribute('aria-pressed', 'false');
-        selectToggle.textContent = 'Select';
-        refresh();
+        exitSelectMode();
       } catch (error) {
         logger.error('Bulk log failed', { error: error.message });
         showToast(`Could not log: ${error.message}`);
@@ -238,7 +243,7 @@ export function renderPlantsPage() {
     actionBar.append(
       el('span', { className: 'text-small' }, `${state.selected.size} selected`),
       el('button', { className: 'btn', onClick: () => runBulk('watering') }, svgIcon('drop', { size: 20 }), 'Water'),
-      el('button', { className: 'btn', onClick: () => runBulk('fertilizing') }, svgIcon('leaf', { size: 20 }), 'Fertilize'),
+      el('button', { className: 'btn', onClick: async () => { if (await feedFlow([...state.selected])) { exitSelectMode(); } } }, svgIcon('leaf', { size: 20 }), 'Fertilize'),
       el(
         'button',
         {
