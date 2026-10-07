@@ -20,7 +20,9 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
   struck through), live feeding schedule, active problems, due tasks,
   tomorrow preview, one-line backup banner. Plants with no watering history
   sit in a collapsed group (no false alarms). `services/todayService.js`
-  (pure `buildToday` + test), `components/logWithUndo.js`.
+  (pure `buildToday` + test), `components/logWithUndo.js`. Dashboard moved to More (`#/dashboard`); the
+  sticky backup toast became a Today banner; Tasks no longer suggests
+  recurring fertilizing tasks (feeding is a live schedule on Today).
 - Deployed to GitHub Pages (https://saadhassan04.github.io/GardenOS/) so the phone can install the PWA.
 - **v1.5 Task Scheduler** (app 1.5.0-dev.1) — the offline core is now
   feature-complete (ROADMAP.md v1.x):
