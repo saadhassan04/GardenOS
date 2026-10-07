@@ -281,3 +281,4 @@ fertilizing data validator (old `{}` accepted, bad NPK rejected).
 | 2026-10-08 | Share fix | 5bae17b | Share fell back to Downloads on Xiaomi/Chrome: try text/plain type, canShareFiles checks both, two-tap 'Backup ready' flow for blocked (stale gesture) shares. Simulated in pane; owner to confirm on phone. |
 | 2026-10-08 | Premium UI pass | 0699fe7 | Tokens (palette, gradients, shadows, glass), nav pill, buttons/inputs/sheets, Today greeting + two columns on desktop, app-main width fix. 66/66 green; checked phone + 1280px. |
 | 2026-10-08 | Polish Tasks/Kitchen/Detail | dcc3575 | Task rows with type icon + round check, batch cards with stage progress, detail hero + quick-log grid. 66/66 green; phone-width checked. |
+| 2026-10-08 | Today hero + null fix | 9c1616e | Fixed 'null' text (append(null)), hero ring (CSSOM, CSP blocks inline style attr), stat tiles, Water-all CTA, SW update check on foreground. 66/66 green. |
