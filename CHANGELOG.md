@@ -15,6 +15,11 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Polish: Tasks, Kitchen, plant detail** (app 1.6.0-dev.10) — Tasks: a type icon
+  per row, round check button, red "2 days overdue", "Today" instead of a date.
+  Kitchen: sowing batch cards with a stage progress bar and full-width Stage /
+  Harvest buttons. Plant detail: cover photo and category chip beside the name,
+  and a tidy two-column quick-log grid.
 - **Premium visual pass** (app 1.6.0-dev.9) — deeper green palette with a soft
   glow, gradient cards with a subtle edge highlight, glass bottom nav with an
   active pill, gradient primary buttons, softer inputs with focus glow, blurred

@@ -26,7 +26,7 @@ import { getLocation } from '../services/locationsService.js';
 import { getCareProfile } from '../services/careProfileService.js';
 import { pickFile } from '../components/fileTransfer.js';
 import { photoTile } from './GalleryPage.js';
-import { ingestImage, getGrowthSeries } from '../services/imageService.js';
+import { ingestImage, getGrowthSeries, thumbnailUrl } from '../services/imageService.js';
 import {
   PLANT_CATEGORIES,
   PLANT_STATUSES,
@@ -62,9 +62,20 @@ async function build(page, plantId) {
       { className: 'page-header page-header--split' },
       el(
         'div',
-        {},
-        el('h1', {}, plant.name),
-        plant.botanicalName ? el('p', { className: 'text-small text-muted' }, plant.botanicalName) : null,
+        { className: 'detail-hero' },
+        coverThumb(plant),
+        el(
+          'div',
+          {},
+          el('h1', {}, plant.name),
+          plant.botanicalName ? el('p', { className: 'text-small text-muted' }, plant.botanicalName) : null,
+          el(
+            'div',
+            { className: 'plant-card__meta' },
+            plant.category ? el('span', { className: 'chip' }, PLANT_CATEGORIES[plant.category]?.label ?? plant.category) : null,
+            plant.status !== 'active' ? el('span', { className: 'chip chip--medium' }, PLANT_STATUSES[plant.status]?.label ?? plant.status) : null,
+          ),
+        ),
       ),
       el('a', { className: 'btn', href: `#/plants/${plant.id}/edit` }, 'Edit'),
     ),
@@ -80,6 +91,19 @@ async function build(page, plantId) {
   page.append(await lineageSection(plant));
   page.append(await timelineSection(plant));
   page.append(managementSection(plant, refresh));
+}
+
+/** Cover photo (or leaf placeholder) beside the plant name. */
+function coverThumb(plant) {
+  const thumb = el('div', { className: 'plant-card__thumb detail-hero__thumb' }, svgIcon('leaf', { size: 28 }));
+  if (plant.coverImageId) {
+    thumbnailUrl(plant.coverImageId).then((url) => {
+      if (url) {
+        thumb.replaceChildren(el('img', { className: 'plant-card__cover', src: url, alt: '' }));
+      }
+    });
+  }
+  return thumb;
 }
 
 function quickLogSection(plant, refresh, canHarvest) {

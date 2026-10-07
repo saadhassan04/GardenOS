@@ -24,6 +24,7 @@ import {
   TASK_TYPE_OPTIONS,
 } from '../services/taskSchedulerService.js';
 import { listPlants } from '../services/plantService.js';
+import { EVENT_TYPES } from '../config/registries.js';
 
 /** @returns {HTMLElement} */
 export function renderTasksPage() {
@@ -116,32 +117,34 @@ async function fillInbox(region, refresh) {
 }
 
 function taskRow(task, refresh) {
-  const overdueDays = Math.floor((Date.now() - Date.parse(task.dueAt)) / DAY_MS);
+  const overdueDays = Math.ceil((new Date().setHours(0, 0, 0, 0) - Date.parse(task.dueAt)) / DAY_MS);
+  const dueToday = formatDate(task.dueAt) === formatDate(new Date().toISOString());
   const dueText = overdueDays > 0
-    ? `${overdueDays} day(s) overdue`
-    : formatDate(task.dueAt);
+    ? `${overdueDays} ${overdueDays === 1 ? 'day' : 'days'} overdue`
+    : dueToday ? 'Today' : formatDate(task.dueAt);
   const recurrenceText = describeRecurrence(task.recurrence);
 
   return el(
     'div',
-    { className: 'status-row' },
+    { className: 'status-row task-row' },
+    el('div', { className: 'plant-card__thumb task-row__icon' }, svgIcon(EVENT_TYPES[task.taskType]?.icon ?? 'note', { size: 22 })),
     el(
-      'span',
-      {},
-      task.title,
+      'div',
+      { className: 'today-row__body' },
+      el('span', {}, task.title),
       el(
         'span',
-        { className: 'text-small text-muted' },
-        ` — ${dueText}${recurrenceText ? ` · ${recurrenceText}` : ''}`,
+        { className: `text-small ${overdueDays > 0 ? 'task-row__late' : 'text-muted'}` },
+        `${dueText}${recurrenceText ? ` · ${recurrenceText}` : ''}`,
       ),
     ),
     el(
       'span',
-      { className: 'dialog__actions' },
+      { className: 'task-row__actions' },
       el(
         'button',
         {
-          className: 'btn',
+          className: 'btn today-act',
           'aria-label': `Complete ${task.title}`,
           onClick: async () => {
             try {
@@ -168,7 +171,7 @@ function taskRow(task, refresh) {
       el(
         'button',
         {
-          className: 'btn btn--ghost note-card__pin',
+          className: 'btn btn--ghost task-row__more',
           'aria-label': `More actions for ${task.title}`,
           onClick: async () => {
             const choice = await formDialog({

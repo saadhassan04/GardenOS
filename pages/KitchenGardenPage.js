@@ -173,31 +173,31 @@ async function fillBatches(region, state, refresh) {
 function batchCard(batch, refresh) {
   const days = Math.max(0, Math.floor((Date.now() - Date.parse(batch.sownAt)) / DAY_MS));
   const finished = batch.stage === 'finished';
+  const progress = SOWING_STAGES.indexOf(batch.stage) + 1;
 
   return el(
     'div',
-    { className: 'card note-card__head' },
+    { className: 'card batch-card' },
     el(
       'div',
-      {},
+      { className: 'batch-card__top' },
       el('h3', { className: 'plant-card__name' }, batch.variety ? `${batch.crop} · ${batch.variety}` : batch.crop),
-      el(
-        'div',
-        { className: 'plant-card__meta' },
-        el('span', { className: `chip${finished ? '' : ' chip--medium'}` }, STAGE_LABELS[batch.stage]),
-        el('span', { className: 'text-small text-muted' }, `day ${days}`),
-        batch.quantity ? el('span', { className: 'text-small text-muted' }, `${batch.quantity} sown`) : null,
-        el('span', { className: 'text-small text-muted' }, `since ${formatDate(batch.sownAt)}`),
-      ),
+      el('span', { className: `chip${finished ? '' : ' chip--medium'}` }, STAGE_LABELS[batch.stage]),
     ),
+    el(
+      'p',
+      { className: 'text-small text-muted' },
+      `Day ${days} · sown ${formatDate(batch.sownAt)}${batch.quantity ? ` · ${batch.quantity} seeds` : ''}`,
+    ),
+    el('progress', { className: 'batch-card__stage', max: String(SOWING_STAGES.length), value: String(progress), 'aria-label': `Stage ${progress} of ${SOWING_STAGES.length}` }),
     finished
-      ? el('span', {})
+      ? null
       : el(
-          'div',
-          { className: 'dialog__actions' },
-          el('button', { className: 'btn', onClick: () => advanceFlow(batch, refresh) }, 'Stage…'),
-          el('button', { className: 'btn', onClick: () => harvestFlow({ crop: batch.crop, sowingBatchId: batch.id }).then((done) => done && refresh()) }, svgIcon('basket', { size: 18 }), 'Harvest…'),
-        ),
+        'div',
+        { className: 'batch-card__actions' },
+        el('button', { className: 'btn', onClick: () => advanceFlow(batch, refresh) }, 'Stage…'),
+        el('button', { className: 'btn btn--primary', onClick: () => harvestFlow({ crop: batch.crop, sowingBatchId: batch.id }).then((done) => done && refresh()) }, svgIcon('basket', { size: 18 }), 'Harvest'),
+      ),
   );
 }
 
