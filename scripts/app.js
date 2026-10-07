@@ -11,7 +11,6 @@ import { bus } from '../hooks/bus.js';
 import { registerRoute, setNotFound, startRouter } from '../hooks/router.js';
 import { getSetting } from '../storage/settings.js';
 import { openDatabase } from '../database/db.js';
-import { getBackupStatus } from '../services/backupService.js';
 import {
   ensureSeededGarden,
   ensureGardenRecategorized,
@@ -21,6 +20,7 @@ import { getStorageStatus, requestPersistentStorage } from '../services/storageS
 import { mountNavigation } from '../components/Navigation.js';
 import { showToast } from '../components/Toast.js';
 import '../widgets/index.js'; // widgets self-register before the dashboard renders
+import { renderTodayPage } from '../pages/TodayPage.js';
 import { renderDashboardPage } from '../pages/DashboardPage.js';
 import { renderPlantsPage } from '../pages/PlantsPage.js';
 import { renderPlantFormPage } from '../pages/PlantFormPage.js';
@@ -97,7 +97,8 @@ async function registerServiceWorker() {
 }
 
 function registerRoutes() {
-  registerRoute('/', 'Dashboard', renderDashboardPage);
+  registerRoute('/', 'Today', renderTodayPage);
+  registerRoute('/dashboard', 'Dashboard', renderDashboardPage);
   registerRoute('/plants', 'Plants', renderPlantsPage);
   registerRoute('/plants/new', 'Add plant', renderPlantFormPage);
   registerRoute('/plants/:id', 'Plant', renderPlantDetailPage);
@@ -159,7 +160,7 @@ async function bootstrap() {
 
   // Five slots (UI_GUIDELINES.md §5); everything else lives under More.
   mountNavigation(document.getElementById('app-nav'), [
-    { label: 'Dashboard', path: '/', icon: 'home' },
+    { label: 'Today', path: '/', icon: 'home' },
     { label: 'Plants', path: '/plants', icon: 'leaf' },
     { label: 'Tasks', path: '/tasks', icon: 'calendar' },
     { label: 'Kitchen', path: '/kitchen', icon: 'basket' },
@@ -171,7 +172,6 @@ async function bootstrap() {
   }
   startRouter(document.getElementById('app-main'));
 
-  checkBackupReminder();
   announceDueTasks(); // badge + (permitted) notification for due tasks
   logger.info('GardenOS ready');
 }
@@ -190,25 +190,6 @@ async function protectStorage() {
     }
   } catch (error) {
     logger.warn('Storage protection request failed', { error: error.message });
-  }
-}
-
-/** Boot-time backup reminder (FR-9.4). Fire-and-forget; never blocks startup. */
-async function checkBackupReminder() {
-  try {
-    const status = await getBackupStatus();
-    if (status.reminderDue) {
-      const ago = status.daysSince === null ? 'never been backed up' : `not been backed up for ${status.daysSince} days`;
-      showToast(`Your garden data has ${ago}`, {
-        sticky: true,
-        actionLabel: 'Back up',
-        onAction: () => {
-          window.location.hash = '#/settings';
-        },
-      });
-    }
-  } catch (error) {
-    logger.warn('Backup reminder check failed', { error: error.message });
   }
 }
 

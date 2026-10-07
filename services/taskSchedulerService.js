@@ -2,17 +2,15 @@
  * Task scheduler service (Business layer, L3) — API_DESIGN.md §2, FR-4,
  * T-080–T-082/T-084. Task lifecycle, the inbox/calendar queries, the
  * complete-task → auto-log care event flow (fully undoable), recurring
- * instance spawning, and care-profile-driven suggestions.
+ * instance spawning.
  */
 
 import { validateTask } from '../models/Task.js';
 import { Repository } from '../database/Repository.js';
-import { plantRepository } from '../database/PlantRepository.js';
 import { STORES } from '../database/stores.js';
 import { EVENT_TYPES } from '../config/registries.js';
 import { computeNextDueAt, DAY_MS } from './recurrence.js';
 import { logBulk, undoBatch } from './careEventService.js';
-import { listCareProfiles } from './careProfileService.js';
 import { uuid } from '../utils/uuid.js';
 import { bus } from '../hooks/bus.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
@@ -206,56 +204,6 @@ export async function getCalendar(year, month) {
     (byDate[key] ??= []).push(task);
   }
   return byDate;
-}
-
-/**
- * Care-profile-driven suggestions (FR-4, T-084): plants whose profile
- * declares a fertilizing cadence but that have no pending fertilizing task.
- * Watering stays with the live needs-attention widget — a static task
- * can't follow seasonal intervals the way the profile logic does.
- * @returns {Promise<{plant: object, everyDays: number, lastAt: string|null}[]>}
- */
-export async function suggestFromCareProfiles() {
-  const [plants, profiles, inbox] = await Promise.all([
-    plantRepository.listByStatus('active'),
-    listCareProfiles(),
-    getInbox(),
-  ]);
-  const profileById = new Map(profiles.map((p) => [p.id, p]));
-  const pendingFertilizing = new Set(
-    [...inbox.overdue, ...inbox.dueToday, ...inbox.upcoming, ...inbox.later]
-      .filter((task) => task.taskType === 'fertilizing')
-      .flatMap((task) => task.plantIds),
-  );
-
-  const suggestions = [];
-  for (const plant of plants) {
-    const profile = plant.careProfileId ? profileById.get(plant.careProfileId) : null;
-    const everyDays = plant.careOverrides?.fertilizeEveryDays ?? profile?.fertilizeEveryDays ?? null;
-    if (!everyDays || pendingFertilizing.has(plant.id)) {
-      continue;
-    }
-    suggestions.push({ plant, everyDays, lastAt: plant.derived.lastFertilizedAt });
-  }
-  return suggestions;
-}
-
-/**
- * Accept a suggestion: create the recurring fertilizing task, first due
- * one cadence after the last fertilizing (or today when never fertilized).
- * @param {{plant: object, everyDays: number, lastAt: string|null}} suggestion
- */
-export function createSuggestedTask({ plant, everyDays, lastAt }) {
-  const base = lastAt ? new Date(Date.parse(lastAt) + everyDays * DAY_MS) : new Date();
-  const dueAt = (base.getTime() < Date.now() ? new Date() : base);
-  dueAt.setHours(9, 0, 0, 0);
-  return createTask({
-    title: `Fertilize ${plant.name}`,
-    taskType: 'fertilizing',
-    plantIds: [plant.id],
-    dueAt: dueAt.toISOString(),
-    recurrence: { pattern: 'everyNDays', interval: Math.round(everyDays) },
-  });
 }
 
 /** Task types offered in the creation dialog: care types + custom. */

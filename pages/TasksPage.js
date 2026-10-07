@@ -1,7 +1,7 @@
 /**
  * Tasks page (UI layer, L5) — FR-4, T-081/T-082/T-084.
  * Inbox (overdue / today / next 7 days / later) and a month calendar,
- * care-profile suggestions, one-tap completion with auto-logged care
+ * one-tap completion with auto-logged care
  * events and full Undo.
  */
 
@@ -21,8 +21,6 @@ import {
   deleteTask,
   getInbox,
   getCalendar,
-  suggestFromCareProfiles,
-  createSuggestedTask,
   TASK_TYPE_OPTIONS,
 } from '../services/taskSchedulerService.js';
 import { listPlants } from '../services/plantService.js';
@@ -59,12 +57,10 @@ export function renderTasksPage() {
     ),
   );
 
-  const suggestionsRegion = el('div', {});
   const bodyRegion = el('div', {});
-  page.append(suggestionsRegion, bodyRegion);
+  page.append(bodyRegion);
 
   async function refresh() {
-    fillSuggestions(suggestionsRegion, refresh);
     try {
       clear(bodyRegion);
       if (state.view === 'inbox') {
@@ -300,55 +296,6 @@ function shiftMonth(state, delta) {
   const d = new Date(state.calYear, state.calMonth - 1 + delta, 1);
   state.calYear = d.getFullYear();
   state.calMonth = d.getMonth() + 1;
-}
-
-/* ---- Suggestions (T-084) ---- */
-
-async function fillSuggestions(region, refresh) {
-  try {
-    const suggestions = await suggestFromCareProfiles();
-    clear(region);
-    if (suggestions.length === 0) {
-      return;
-    }
-    const card = el('div', { className: 'card' });
-    for (const suggestion of suggestions.slice(0, 5)) {
-      card.append(
-        el(
-          'div',
-          { className: 'status-row' },
-          el(
-            'span',
-            {},
-            `Fertilize ${suggestion.plant.name}`,
-            el('span', { className: 'text-small text-muted' }, ` — profile says every ${suggestion.everyDays} days`),
-          ),
-          el(
-            'button',
-            {
-              className: 'btn',
-              onClick: async () => {
-                await createSuggestedTask(suggestion);
-                showToast(`Recurring task created for ${suggestion.plant.name}`);
-                refresh();
-              },
-            },
-            'Create',
-          ),
-        ),
-      );
-    }
-    region.append(
-      el(
-        'section',
-        { className: 'page-section' },
-        el('span', { className: 'text-caption' }, 'Suggested from care profiles'),
-        card,
-      ),
-    );
-  } catch (error) {
-    logger.warn('Suggestions failed', { error: error.message });
-  }
 }
 
 /* ---- Creation ---- */

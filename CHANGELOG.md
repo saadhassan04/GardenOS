@@ -15,6 +15,12 @@ Database schema versions are tracked independently in [DATABASE.md](DATABASE.md)
 ## [Unreleased]
 
 ### Added
+- **Today screen** (app 1.6.0-dev.1) — new first tab and `#/` route: water due
+  (grouped by location, "Water all N" with one Undo, done-today rows stay
+  struck through), live feeding schedule, active problems, due tasks,
+  tomorrow preview, one-line backup banner. Plants with no watering history
+  sit in a collapsed group (no false alarms). `services/todayService.js`
+  (pure `buildToday` + test), `components/logWithUndo.js`.
 - Deployed to GitHub Pages (https://saadhassan04.github.io/GardenOS/) so the phone can install the PWA.
 - **v1.5 Task Scheduler** (app 1.5.0-dev.1) — the offline core is now
   feature-complete (ROADMAP.md v1.x):

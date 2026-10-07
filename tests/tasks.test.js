@@ -17,8 +17,6 @@ import {
   skipOccurrence,
   getInbox,
   getCalendar,
-  suggestFromCareProfiles,
-  createSuggestedTask,
 } from '../services/taskSchedulerService.js';
 import { createPlant, getPlant, updatePlant } from '../services/plantService.js';
 import { logEvent, getTimeline } from '../services/careEventService.js';
@@ -151,24 +149,4 @@ test('should bucket the inbox and key the calendar by local day', async () => {
   const calendar = await getCalendar(now.getFullYear(), now.getMonth() + 1);
   const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   assert(calendar[todayKey]?.some((t) => t.title === 'Today task'), 'calendar must key today correctly');
-});
-
-test('should suggest fertilizing tasks from care profiles and stop once created', async () => {
-  await clearTasks();
-  const plant = await createPlant({ name: 'Suggestion Palm' });
-  await updatePlant(plant.id, { careOverrides: { fertilizeEveryDays: 45 } });
-  await logEvent(plant.id, 'fertilizing', { occurredAt: new Date(Date.now() - 10 * DAY_MS).toISOString() });
-
-  const suggestions = await suggestFromCareProfiles();
-  const mine = suggestions.find((s) => s.plant.id === plant.id);
-  assert(mine, 'override cadence must produce a suggestion');
-  assertEqual(mine.everyDays, 45);
-
-  const created = await createSuggestedTask(mine);
-  assertEqual(created.taskType, 'fertilizing');
-  assertEqual(created.recurrence.interval, 45);
-  assert(Date.parse(created.dueAt) > Date.now(), 'first due lands one cadence after the last fertilizing');
-
-  const after = await suggestFromCareProfiles();
-  assert(!after.some((s) => s.plant.id === plant.id), 'a pending task must silence the suggestion');
 });

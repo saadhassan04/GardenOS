@@ -135,24 +135,45 @@ export function wateringSchedule(plant, profile, date = new Date()) {
   if (!everyDays) {
     return null;
   }
+  const { neverDone, ...rest } = cycle(everyDays, plant.derived?.lastWateredAt, date);
+  return { ...rest, neverWatered: neverDone };
+}
 
-  const last = plant.derived?.lastWateredAt;
+/**
+ * Feeding interval: plant override → profile value → null (no seasons, D5).
+ * @param {object} plant @param {object|null} profile
+ * @returns {number|null}
+ */
+export function effectiveFertilizeDays(plant, profile) {
+  return plant.careOverrides?.fertilizeEveryDays ?? profile?.fertilizeEveryDays ?? null;
+}
+
+/**
+ * One plant's feeding schedule (same arithmetic as watering), or null when
+ * no interval is known.
+ * @returns {{everyDays: number, dueAt: string|null, daysUntil: number,
+ *   elapsedRatio: number, neverDone: boolean}|null}
+ */
+export function fertilizeSchedule(plant, profile, date = new Date()) {
+  const everyDays = effectiveFertilizeDays(plant, profile);
+  return everyDays ? cycle(everyDays, plant.derived?.lastFertilizedAt, date) : null;
+}
+
+/** Shared interval arithmetic: `last` ISO (or null) + every N days vs `date`. */
+function cycle(everyDays, last, date) {
   if (!last) {
-    // Nothing to count from — a plant we've never watered is due now, which
-    // is what listNeedsWatering already concludes.
-    return { everyDays, dueAt: null, daysUntil: 0, elapsedRatio: 1, neverWatered: true };
+    // Nothing to count from — never done counts as due now.
+    return { everyDays, dueAt: null, daysUntil: 0, elapsedRatio: 1, neverDone: true };
   }
-
   const intervalMs = everyDays * DAY_MS;
   const dueAtMs = Date.parse(last) + intervalMs;
   const elapsedMs = date.getTime() - Date.parse(last);
-
   return {
     everyDays,
     dueAt: new Date(dueAtMs).toISOString(),
     daysUntil: Math.ceil((dueAtMs - date.getTime()) / DAY_MS),
     elapsedRatio: Math.min(1, Math.max(0, elapsedMs / intervalMs)),
-    neverWatered: false,
+    neverDone: false,
   };
 }
 

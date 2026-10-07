@@ -32,7 +32,7 @@ export function renderDashboardPage() {
   // Leaving the dashboard releases every widget subscription.
   activeUnsubs.push(
     bus.on('route:changed', ({ path }) => {
-      if (path !== '/') {
+      if (path !== '/dashboard') {
         teardown();
       }
     }),

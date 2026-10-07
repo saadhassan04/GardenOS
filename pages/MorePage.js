@@ -7,6 +7,7 @@
 import { el, svgIcon } from '../utils/dom.js';
 
 const ENTRIES = [
+  { label: 'Dashboard', hint: 'Widgets: stats, charts, needs attention', path: '/dashboard', icon: 'home' },
   { label: 'Gallery', hint: 'Every photo, newest first', path: '/gallery', icon: 'camera' },
   { label: 'Notes', hint: 'Garden journal, tags, plant links', path: '/notes', icon: 'note' },
   { label: 'Locations', hint: 'Balconies, rooftop, beds', path: '/locations', icon: 'home' },
