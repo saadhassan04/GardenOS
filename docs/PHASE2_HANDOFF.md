@@ -277,3 +277,4 @@ fertilizing data validator (old `{}` accepted, bad NPK rejected).
 | 2026-10-08 | 5 Plant cards | bbcff2d | Owner chose compact rows + health derived from pests (red dot) . PlantCard rewritten, filters behind a details button, stray empty action-bar fixed. Phone-width check OK; no new tests (presentational). |
 | 2026-10-08 | Phase close | 9b65b13 | PROJECT_STATE.md updated (once, per §7). |
 | 2026-10-08 | UI polish | 15bb823 | Owner picked Today feel, plant rows/photos, motion; keep dark green. 66/66 green; phone-width check OK. Owner also wants phone+Mac synced: needs a decision (see chat). |
+| 2026-10-08 | Manual hand-off | 8e877f2 | Owner chose option 1 (phone master, manual to Mac). Send backup via share sheet on phone; 3-step guide in Settings. Share sheet only fallback-tested in pane (no navigator.canShare). |
