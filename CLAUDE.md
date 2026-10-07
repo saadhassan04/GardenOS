@@ -1,5 +1,9 @@
 # GardenOS — Start Here (Claude)
 
+> **Phase 2 is active (2026-10-07): read [`docs/PHASE2_HANDOFF.md`](docs/PHASE2_HANDOFF.md) FIRST.**
+> It overrides the per-sprint memory-system ritual below (§7 there) and defines the work order,
+> the owner decisions, and the graphify + ponytail working method.
+
 GardenOS is a long-term, self-documenting project. **Before doing anything, read the Project Memory System in this order:**
 
 1. [`docs/project-memory/CLAUDE.md`](docs/project-memory/CLAUDE.md) — the operating manual & constitution (read first, every session).
