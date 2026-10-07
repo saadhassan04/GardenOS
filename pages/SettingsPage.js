@@ -9,7 +9,7 @@ import { el, svgIcon } from '../utils/dom.js';
 import { getSetting, setSetting } from '../storage/settings.js';
 import { showToast } from '../components/Toast.js';
 import { confirmDialog } from '../components/ConfirmDialog.js';
-import { triggerDownload, pickFile, shareOrDownload, canShareFiles } from '../components/fileTransfer.js';
+import { triggerDownload, pickFile, tryShare, canShareFiles } from '../components/fileTransfer.js';
 import { APP_VERSION } from '../config/constants.js';
 import { formatBytes, formatPercent } from '../utils/format.js';
 import { logger } from '../utils/logger.js';
@@ -165,6 +165,22 @@ function backupSection() {
   refreshStatus();
 
   const sendLabel = canShareFiles() ? 'Send backup…' : 'Download backup';
+  // A backup that was built but could not be shared yet: the browser needs a
+  // fresh tap to open the share sheet, so the second tap shares this one.
+  let ready = null;
+  const finish = (result, backup) => {
+    ready = null;
+    downloadButton.textContent = sendLabel;
+    if (result === 'cancelled') {
+      return;
+    }
+    if (result === 'shared') {
+      showToast('Backup sent');
+      return;
+    }
+    triggerDownload(backup.blob, backup.filename);
+    showToast('Could not open the share sheet — saved to Downloads instead');
+  };
   const downloadButton = el(
     'button',
     {
@@ -172,12 +188,25 @@ function backupSection() {
       onClick: async () => {
         downloadButton.disabled = true;
         try {
-          const { blob, filename } = await createBackup();
-          const result = await shareOrDownload(blob, filename);
-          if (result !== 'cancelled') {
-            showToast(result === 'shared' ? 'Backup sent' : 'Backup downloaded — keep a copy off this device');
+          if (ready) {
+            const backup = ready;
+            finish(await tryShare(backup.blob, backup.filename), backup);
+            return;
           }
+          const backup = await createBackup();
           refreshStatus();
+          if (!canShareFiles()) {
+            triggerDownload(backup.blob, backup.filename);
+            showToast('Backup downloaded — keep a copy off this device');
+            return;
+          }
+          const result = await tryShare(backup.blob, backup.filename);
+          if (result === 'blocked') {
+            ready = backup;
+            downloadButton.textContent = 'Backup ready — tap to share';
+            return;
+          }
+          finish(result, backup);
         } catch (error) {
           logger.error('Backup failed', { error: error.message });
           showToast(`Backup failed: ${error.message}`);

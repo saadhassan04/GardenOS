@@ -22,15 +22,21 @@ export function triggerDownload(blob, filename) {
 }
 
 /**
- * Hand a Blob to the user: the phone's share sheet (Drive, WhatsApp, email,
- * Nearby Share…) when the browser can share files, otherwise a download.
+ * Offer a Blob to the phone's share sheet (Drive, WhatsApp, email, Nearby
+ * Share…). Tries application/json, then text/plain: Android Chrome refuses
+ * to share some types, and the filename keeps its .json extension either way.
  * @param {Blob} blob
  * @param {string} filename
- * @returns {Promise<'shared'|'downloaded'|'cancelled'>}
+ * @returns {Promise<'shared'|'cancelled'|'blocked'|'unsupported'>} `blocked`
+ *   means the browser wants a fresh tap (the share must start within a few
+ *   seconds of one, and building a big backup can outlast that).
  */
-export async function shareOrDownload(blob, filename) {
-  const file = new File([blob], filename, { type: blob.type || 'application/json' });
-  if (navigator.canShare?.({ files: [file] })) {
+export async function tryShare(blob, filename) {
+  for (const type of ['application/json', 'text/plain']) {
+    const file = new File([blob], filename, { type });
+    if (!navigator.canShare?.({ files: [file] })) {
+      continue;
+    }
     try {
       await navigator.share({ files: [file], title: filename });
       return 'shared';
@@ -38,16 +44,18 @@ export async function shareOrDownload(blob, filename) {
       if (error.name === 'AbortError') {
         return 'cancelled';
       }
-      // Share failed (unsupported type, etc.) — fall through to a download.
+      if (error.name === 'NotAllowedError') {
+        return 'blocked';
+      }
     }
   }
-  triggerDownload(blob, filename);
-  return 'downloaded';
+  return 'unsupported';
 }
 
 /** @returns {boolean} true when this browser offers a file share sheet (phones) */
 export function canShareFiles() {
-  return Boolean(navigator.canShare?.({ files: [new File(['{}'], 'x.json', { type: 'application/json' })] }));
+  return ['application/json', 'text/plain'].some((type) =>
+    navigator.canShare?.({ files: [new File(['{}'], 'x.json', { type })] }));
 }
 
 /**
